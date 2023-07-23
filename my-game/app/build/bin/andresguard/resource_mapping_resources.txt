@@ -1,0 +1,13 @@
+res path mapping:
+    res/drawable -> r/a
+    res/layout -> r/b
+
+
+res id mapping:
+    hhs.mygame.text1.R.drawable.ic_launcher -> hhs.mygame.text1.R.drawable.a
+    hhs.mygame.text1.R.layout.activity_main -> hhs.mygame.text1.R.layout.a
+    hhs.mygame.text1.R.color.colorPrimary -> hhs.mygame.text1.R.color.a
+    hhs.mygame.text1.R.color.colorPrimaryDark -> hhs.mygame.text1.R.color.b
+    hhs.mygame.text1.R.color.colorAccent -> hhs.mygame.text1.R.color.c
+    hhs.mygame.text1.R.string.app_name -> hhs.mygame.text1.R.string.a
+    hhs.mygame.text1.R.style.AppTheme -> hhs.mygame.text1.R.style.a

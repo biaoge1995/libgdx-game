@@ -1,0 +1,61 @@
+//使用 proto3 语法 ,未指定则使用proto2
+syntax = "proto2";
+
+//生成 proto 文件所在包路径
+
+//引入外部proto文件，并让引入了该文件的proto文件也能访问被引入类型。需要在IDEA的settings-ProtocolBuffers中设置proto文件路径
+//import "msg.proto";
+import "element.proto";
+import "enums.proto";
+
+
+//生成 proto 文件所在包路径
+option java_package = "awt.proto.command";
+
+//生成 proto 文件名
+option java_outer_classname = "CommandProto";
+option java_multiple_files = true; // 会生成多个对象文件，一个Message一个
+
+message Command {
+
+    //元素id
+    required CommandType commandType = 1;
+
+    //元素id
+    optional int32 elementId = 2;
+
+    //事件戳
+    required int64 startTimestamp=3;
+    //事件戳
+    required int64 endTimestamp=4;
+
+    //指令计数器
+    required int32 count=5;
+    //需要执行的次数
+    required int32 needCount=6;
+
+    required Status status=7 ;
+
+    optional ElementAction elementAction = 8;
+
+    optional TankAction tankAction = 9;
+
+    optional Direct direct = 10;
+
+    optional int32 newData = 11;
+
+    optional MsgAction msgAction = 12;
+
+    optional int32 playerId = 13;
+
+
+
+}
+
+
+
+
+
+;
+
+

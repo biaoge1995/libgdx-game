@@ -1,0 +1,135 @@
+//使用 proto3 语法 ,未指定则使用proto2
+syntax = "proto2";
+
+
+//生成 proto 文件所在包路径
+option java_package = "awt.proto.enums";
+
+//生成 proto 文件名
+//option java_outer_classname = "MsgProto";
+
+option java_multiple_files = true;
+
+// 会生成多个对象文件，一个Message一个
+
+enum MsgAction {
+    //客户端登陆
+    LOGIN = 1;
+    //客户端退出
+    LOGOUT = 2;
+    //心跳消息
+    HEART = 3;
+    //同步游戏加载进度
+    SYNC_GAME_STATUS = 4;
+
+    //客户端加入
+    GAME_JOIN = 5;
+    //客户端游戏操作
+    GAME_ACTION = 6;
+    //同步游戏地图信息
+    BROADCAST_GAME_MAP = 7;
+    //同步游戏地图信息
+    BROADCAST_COMMAND = 8;
+
+    //同步游戏地图
+    SYNC_GAME_MAP = 9;
+}
+
+
+//用户动作
+enum UserAction {
+    //客户端
+    REGISTER = 0;//注册
+    START_PLAY = 1; //开始游戏
+    OFFLINE = 2; //掉线
+    USER_LOGIN = 3; //登录
+    GET_GAME_STAT = 4; //获取游戏状态
+    LOCK_PERSPECTIVE = 5; //锁定视角
+    UNLOCK_PERSPECTIVE = 6;//解锁视角
+    MAP = 7; //地图
+}
+
+//游戏状态
+enum  GameStatus {
+    NOT_START = 0; // 未开始
+    LOADING = 1; // 加载状态
+    READY = 2; // 准备
+    RUNNING = 3;  //已开始
+    GAME_OVER = 4; //结束
+    PAUSE = 5;  //暂停状态
+}
+
+//游戏角色
+enum GameRole {
+    PLAYER = 0; //玩家控制
+    NPC = 1;  //系统玩家
+    SCENE = 3; //系统场景
+    DERIVATIVE = 4; //衍生物
+}
+
+
+//command 枚举值
+enum Status {
+    ACCEPT = 1;//等待调度中
+    SUCCESS = 2;//执行完成
+    FAILED = 3;//执行失败
+    INTERRUPT = 4;//打断
+    WAIT = 5;//等待
+}
+
+
+
+//消息状态
+enum Code {
+    OK = 200; //成功
+    SERVER_FAILED = 500;//服务器异常
+}
+
+//元素类型
+enum ElementType {
+    //枚举
+    TANK = 0;
+    BULLET = 1; //子弹
+    WALL = 2; //墙
+    RIVER = 3; //河
+    GRASS_LAND = 4;// 草地
+}
+
+//方向
+enum Direct {
+    UP = 0;
+    DOWN = 1;
+    RIGHT = 2;
+    LEFT = 3;
+}
+
+//元素动作
+enum ElementAction {
+    DEAD = 1;//死亡
+    MOVE = 2;//移动
+    LIVE = 3;//复活
+    BLOOD = 4;//血条加减
+    STEP = 5;//步长修改命令
+}
+
+//坦克动作
+enum  TankAction {
+    FIRE = 1;//开火
+    STOP = 2;//停止
+    TURN_LEFT = 4;// 转左
+    TURN_RIGHT = 5;//转右边
+    TURN_UP = 6;//转上
+    TURN_DOWN = 7;//转下
+    STAND_BY = 8;//等待
+    AMMUNITION_LOADING = 9;//装弹
+    TANK_MOVE=10;//tank移动
+}
+
+enum CommandType {
+    ELEMENT_UPDATE_COMMAND=0;//元素通用命令
+    REDIRECT_COMMAND=1;//转向命令
+    TANK_COMMAND=2;//tank命令
+    USER_ACTION_COMMAND=3;//user用户命令
+    TANK_FIRE_COMMAND=4;//tank开火命令
+
+}

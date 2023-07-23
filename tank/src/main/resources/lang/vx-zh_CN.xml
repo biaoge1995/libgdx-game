@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<languages>
+    <lang name="java.longhelp">* 直到遇到障碍,我才会回头
+        * 当我的手空着的时候,如果我碰到金矿,我会挖一块搬回家
+        * 放到城堡平台上的金子才算是真正属于你的
+        * 碰到障碍的时候,我也会跳起来,仅仅是当我往上走的时候,你要把握火候
+        * 当我遇到燃气的时候,我会牺牲自己,当然,在爆炸时也会炸出圆形的路
+        * 敌人会杀死我的,即使我有一定的几率逃跑
+        * Boss也会杀死我的,他们非常强壮,当他们感到厌烦,会毁灭周围的一切东西
+        * 注意那些齿轮状的东西,那很危险
+        * 脚下是岩浆,掉进去也是会死的
+        * 如果所有的我们都死掉了,就输了
+        * 但是如果我们的朋友死掉任何一个,立马就输了...</lang>
+    <lang name="java.play">开始</lang>
+    <lang name="java.die">死亡:</lang>
+    <lang name="java.victory">胜利:</lang>
+    <lang name="java.gold">金子:</lang>
+    <lang name="java.meetka">拯救朋友:</lang>
+    <lang name="java.defeat">失败:</lang>
+    <lang name="java.kadie">任何一个朋友死亡...</lang>
+    <lang name="java.alldie">所有矿工死亡</lang>
+    <lang name="java.timeup">时间到</lang>
+    <lang name="java.intime">在规定时间之内:</lang>
+    <lang name="java.continues">点击屏幕继续</lang>
+    <lang name="java.level_prefix">关卡: </lang>
+    <lang name="java.rate">你可能登录不了Google Play,没法评论,但为什么不尝试一下呢?</lang>
+    <lang name="java.rate.url">https://play.google.com/store/apps/details?id=info.u250.digs</lang>
+    <lang name="java.quit">你确认要退出么?</lang>
+    <lang name="java.nomorelevel">真的没有更多的关卡了...喜欢的话,给我邮件:lycying@gmail.com</lang>
+    <lang name="java.ok">确定</lang>
+    <lang name="java.level7.hint">好熟悉的朋友,似曾相识,但为何有一丝悲伤...</lang>
+    <lang name="java.level2.hint">使用左上角的工具创建爬行的路径,注意不要太高哦...</lang>
+    <lang name="java.level2.hint1">这是金矿,钱永远是好的</lang>
+    <lang name="java.level2.hint2">使用这个工具创建爬行的路径</lang>
+    <lang name="java.level2.hint3">使用手指就可以划出路径</lang>
+    <lang name="java.level2.hint4">非常好,让我们来尝试一下</lang>
+    <lang name="java.level5.hint">如果你的猫试图要谋杀你,你该怎么做呢?它还是那个它么?</lang>
+    <lang name="java.level9.hint">很棒,你找到我了</lang>
+    <lang name="java.level8.hint">你永远杀不死Boss们,因为他们太牛B了</lang>
+    <lang name="java.level4.hint">跟着我来吧,我不知道怎么为你描述,但是它很酷</lang>
+    <lang name="java.level1.hint1">你要把金子一块块搬回家</lang>
+    <lang name="java.level1.hint2">欢迎来到我的世界,一个悲伤的世界</lang>
+    <lang name="java.level1.hint3">这就是金子,简单了些,但它就是金子</lang>
+    <lang name="java.level1.hint4">搬回家吧,这是原始的本能么?</lang>
+    <lang name="java.level1.hint5">是的,我就是在这个次元存在着,也合理着</lang>
+    <lang name="java.level1.hint6">地面很硬,你得用这个工具为我打造一条路径</lang>
+    <lang name="java.level1.hint7">你用你的手指滑动,我用我的生命搬运</lang>
+    <lang name="java.level1.hint8">好了,我们来试一下吧。注意你可以重新开始的</lang>
+    <lang name="java.level1.hint9">我不能控制自己的方向,直到我碰到障碍物,我才会回头。那是地狱边境么?</lang>
+    <lang name="java.level1.hint10">家!</lang>
+    <lang name="java.level3.hint">有时候,死亡并不可怕,但是等等,我还可以活...</lang>
+    <lang name="java.s2_09.hint1">我是谁,我为什么存在这里,曾经的记忆闪现,却依然使我黯然神伤
+        黎明来临,又开始重复一天的工作.然后我就开始忙碌,然后就忘记了思考这些东西
+        For I am with you, and no one is going to attack and harm you.
+        Come to me, all you who are weary and burdened, and I will give you rest.
+        长袍飞扬,我又一次迷失了自己...\n</lang>
+    <lang name="java.s2_09.hint2">敌人看起来是如此的凶猛</lang>
+    <lang name="java.s2_09.hint3">朋友也不一定在你的身边</lang>
+    <lang name="java.s2_09.hint4">更多的挑战正在等待中 .........Thank You!!!</lang>
+
+
+    <lang name="lvl.name.0.0">第一块金子</lang>
+    <lang name="lvl.name.0.1">云端漫步</lang>
+    <lang name="lvl.name.0.2">第一滴血</lang>
+    <lang name="lvl.name.0.3">时间流逝</lang>
+    <lang name="lvl.name.0.4">拥抱死亡</lang>
+    <lang name="lvl.name.0.5">无路可走</lang>
+    <lang name="lvl.name.0.6">相逢无纸笔</lang>
+    <lang name="lvl.name.0.7">敌人出现</lang>
+    <lang name="lvl.name.0.8">更深一些</lang>
+
+    <lang name="lvl.name.1.0">森林边境</lang>
+    <lang name="lvl.name.1.1">深入丛林</lang>
+    <lang name="lvl.name.1.2">海洋</lang>
+    <lang name="lvl.name.1.3">庙宇</lang>
+    <lang name="lvl.name.1.4">虚幻沼泽</lang>
+    <lang name="lvl.name.1.5">光之记忆</lang>
+    <lang name="lvl.name.1.6">时间诅咒</lang>
+    <lang name="lvl.name.1.7">哭泣的石城</lang>
+    <lang name="lvl.name.1.8">原始的记忆</lang>
+    <lang name="lvl.name.1.9">光照城堡</lang>
+    <lang name="lvl.name.1.10">丛林深处</lang>
+    <lang name="lvl.name.1.11">不要捉弄我</lang>
+    <lang name="lvl.name.1.12">黑暗之门</lang>
+    <lang name="lvl.name.1.13">深邃的迷宫</lang>
+    <lang name="lvl.name.1.14">救我</lang>
+    <lang name="lvl.name.1.15">深入危险</lang>
+    <lang name="lvl.name.1.16">漫天星辰</lang>
+    <lang name="lvl.name.1.17">无尽之泪</lang>
+    <lang name="lvl.name.1.18">回家的路</lang>
+
+    <lang name="lvl.name.2.0">神怜世人</lang>
+    <lang name="lvl.name.2.1">泰坦城堡</lang>
+    <lang name="lvl.name.2.2">我会飞</lang>
+    <lang name="lvl.name.2.3">丑陋的盆地</lang>
+    <lang name="lvl.name.2.4">天堂之泪</lang>
+    <lang name="lvl.name.2.5">金子的世界</lang>
+    <lang name="lvl.name.2.6">地狱裂缝</lang>
+    <lang name="lvl.name.2.7">赶快</lang>
+    <lang name="lvl.name.2.8">这里什么也没有</lang>
+</languages>

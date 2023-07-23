@@ -1,0 +1,3 @@
+# view AndroidManifest.xml #generated:18
+-keep class hhs.mygame.text1.MainActivity { <init>(...); }
+

@@ -1,0 +1,16 @@
+element:
+  wall:
+    height : 25
+    wide : 25
+  grass_land:
+    height : 25
+    wide : 25
+  river:
+    height: 25
+    wide: 25
+  tank:
+    height: 20
+    wide: 20
+  bullet:
+    height: 20
+    wide: 20

@@ -1,0 +1,34 @@
+//使用 proto3 语法 ,未指定则使用proto2
+syntax = "proto2";
+
+//生成 proto 文件所在包路径
+
+//引入外部proto文件，并让引入了该文件的proto文件也能访问被引入类型。需要在IDEA的settings-ProtocolBuffers中设置proto文件路径
+import "enums.proto";
+
+//生成 proto 文件所在包路径
+option java_package = "awt.proto";
+
+//生成 proto 文件名
+option java_outer_classname = "ElementProto";
+option java_multiple_files = true; // 会生成多个对象文件，一个Message一个
+
+message Element {
+
+    optional int32 playerId = 1; //游戏玩家id
+    optional ElementType elementType = 2;
+    optional int32 xCoordinate=3; // 物体中心位置在窗口的X坐标
+    optional int32 yCoordinate=4; // 物体中心位置在窗口的Y坐标
+    optional int32 mapXCoordinate=5; // 物体中心位置地图中的X坐标
+    optional int32 mapYCoordinate=6; // 物体中心位置地图中的的Y坐标
+    optional Direct direct = 7;
+
+    optional bool isMoved = 8; //是否处于移动状态
+    required bool isLive = 9;//是否存活
+    optional int32 blood = 10;//当前血条
+    required int32 increaseId = 11;//自增id
+    optional int32 distance = 12;//已走射程计数器
+
+    optional Direct canMoveDirect = 13;//多个方向
+}
+
