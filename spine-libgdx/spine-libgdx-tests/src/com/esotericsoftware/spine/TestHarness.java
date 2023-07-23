@@ -45,8 +45,8 @@ public class TestHarness extends ApplicationAdapter {
 // static String JSON = "coin/coin-pro.json";
 // static String ATLAS = "coin/coin-pma.atlas";
 
-	static String JSON = "raptor/raptor-pro.json";
-	static String ATLAS = "raptor/raptor-pma.atlas";
+	static String JSON = "assets/raptor/raptor-pro.json";
+	static String ATLAS = "assets/raptor/raptor-pma.atlas";
 
 	OrthographicCamera camera;
 	PolygonSpriteBatch batch;

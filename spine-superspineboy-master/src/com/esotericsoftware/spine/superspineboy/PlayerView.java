@@ -78,7 +78,7 @@ class PlayerView extends CharacterView {
 		// Play footstep sounds.
 		final EventData footstepEvent = view.assets.playerSkeletonData.findEvent("footstep");
 		animationState.addListener(new AnimationStateAdapter() {
-			public void event (int trackIndex, Event event) {
+			public void event(AnimationState.TrackEntry entry, Event event) {
 				if (event.getData() == footstepEvent) {
 					if (event.getInt() == 1)
 						SoundEffect.footstep1.play();
@@ -86,7 +86,8 @@ class PlayerView extends CharacterView {
 						SoundEffect.footstep2.play();
 				}
 			}
-		});
+		}
+		);
 	}
 
 	void update (float delta) {

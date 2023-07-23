@@ -62,10 +62,10 @@ public class IKTest extends ApplicationAdapter {
 		renderer.setPremultipliedAlpha(true);
 
 		// Load the texture atlas and skeleton data
-		atlas = new TextureAtlas(Gdx.files.internal("/Users/chenbiao/spine-libgdx/spine-libgdx-tests/assets/spineboy/spineboy-pma.atlas"));
+		atlas = new TextureAtlas(Gdx.files.internal("assets/spineboy/spineboy-pma.atlas"));
 		SkeletonBinary json = new SkeletonBinary(atlas);
 		json.setScale(0.6f);
-		SkeletonData skeletonData = json.readSkeletonData(Gdx.files.internal("/Users/chenbiao/spine-libgdx/spine-libgdx-tests/assets/spineboy/spineboy-pro.skel"));
+		SkeletonData skeletonData = json.readSkeletonData(Gdx.files.internal("assets/spineboy/spineboy-pro.skel"));
 
 		// Create a skeleton from the skeleton data
 		skeleton = new Skeleton(skeletonData);

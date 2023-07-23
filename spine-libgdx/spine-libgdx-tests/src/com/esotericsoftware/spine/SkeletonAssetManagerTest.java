@@ -66,8 +66,8 @@ public class SkeletonAssetManagerTest extends ApplicationAdapter {
 		assetManager.setLoader(SkeletonData.class, new SkeletonDataLoader(assetManager.getFileHandleResolver()));
 
 		float scale = 0.6f;
-		assetManager.load("spineboy/spineboy-pro.json", SkeletonData.class,
-			new SkeletonDataParameter("spineboy/spineboy-pma.atlas", scale));
+		assetManager.load("assets/spineboy/spineboy-pro.json", SkeletonData.class,
+			new SkeletonDataParameter("assets/spineboy/spineboy-pma.atlas", scale));
 	}
 
 	public void render () {
@@ -80,7 +80,7 @@ public class SkeletonAssetManagerTest extends ApplicationAdapter {
 			if (!assetManager.isFinished()) return;
 
 			// Assets are ready, set things up using them.
-			SkeletonData skeletonData = assetManager.get("spineboy/spineboy-pro.json");
+			SkeletonData skeletonData = assetManager.get("assets/spineboy/spineboy-pro.json");
 
 			skeleton = new Skeleton(skeletonData); // Skeleton holds skeleton state (bone positions, slot attachments, etc).
 			skeleton.setPosition(250, 20);

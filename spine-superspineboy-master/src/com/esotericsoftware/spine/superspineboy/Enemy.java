@@ -166,6 +166,7 @@ class Enemy extends Character {
 		else if (collisionTimer < 0) {
 			if (model.player.hp == 0) {
 				// Enemies win, jump for joy!
+				//如果怪物赢了
 				if (grounded && velocity.x == 0) {
 					jumpVelocity = jumpVelocityNormal / 2;
 					dir = -dir;
@@ -182,6 +183,7 @@ class Enemy extends Character {
 					}
 				}
 				// Move toward the player.
+				//朝着主角的方向移动
 				if (move) {
 					if (model.player.position.x > position.x) {
 						if (velocity.x >= 0) moveRight(delta);

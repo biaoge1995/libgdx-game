@@ -56,10 +56,10 @@ public class SimpleTest1 extends ApplicationAdapter {
 		debugRenderer.setBoundingBoxes(false);
 		debugRenderer.setRegionAttachments(false);
 
-		atlas = new TextureAtlas(Gdx.files.internal("/Users/chenbiao/spine-libgdx/spine-libgdx-tests/assets/spineboy/spineboy-pma.atlas"));
+		atlas = new TextureAtlas(Gdx.files.internal("assets/spineboy/spineboy-pma.atlas"));
 		SkeletonBinary json = new SkeletonBinary(atlas); // This loads skeleton JSON data, which is stateless.
 		json.setScale(0.6f); // Load the skeleton at 60% the size it was in Spine.
-		SkeletonData skeletonData = json.readSkeletonData(Gdx.files.internal("/Users/chenbiao/spine-libgdx/spine-libgdx-tests/assets/spineboy/spineboy-pro.skel"));
+		SkeletonData skeletonData = json.readSkeletonData(Gdx.files.internal("assets/spineboy/spineboy-pro.skel"));
 
 		skeleton = new Skeleton(skeletonData); // Skeleton holds skeleton state (bone positions, slot attachments, etc).
 		skeleton.setPosition(250, 20);

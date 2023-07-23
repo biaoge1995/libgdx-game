@@ -38,10 +38,10 @@ public class FboTest extends ApplicationAdapter {
 		font.setColor(Color.BLACK);
 
 		// Load the atlas and skeleton.
-		atlas = new TextureAtlas(Gdx.files.internal("spineboy/spineboy-pma.atlas"));
+		atlas = new TextureAtlas(Gdx.files.internal("assets/spineboy/spineboy-pma.atlas"));
 		SkeletonJson json = new SkeletonJson(atlas);
 		json.setScale(0.66f);
-		SkeletonData skeletonData = json.readSkeletonData(Gdx.files.internal("spineboy/spineboy-ess.json"));
+		SkeletonData skeletonData = json.readSkeletonData(Gdx.files.internal("assets/spineboy/spineboy-ess.json"));
 
 		// Create a skeleton instance, set the position of its root bone, and update its world transform.
 		skeleton = new Skeleton(skeletonData);

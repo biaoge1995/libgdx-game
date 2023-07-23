@@ -260,7 +260,7 @@ public class NormalMapTest extends ApplicationAdapter {
 	class UI {
 		Stage stage = new Stage();
 		com.badlogic.gdx.scenes.scene2d.ui.Skin skin = new com.badlogic.gdx.scenes.scene2d.ui.Skin(
-			Gdx.files.internal("skin/skin.json"));
+			Gdx.files.internal("assets/skin/skin.json"));
 		Preferences prefs = Gdx.app.getPreferences(".spine/NormalMapTest");
 
 		Window window;
@@ -375,7 +375,7 @@ public class NormalMapTest extends ApplicationAdapter {
 
 	public static void main (String[] args) throws Exception {
 		if (args.length == 0)
-			args = new String[] {"/Users/chenbiao/spine-libgdx/spine-libgdx-tests/assets/spineboy-old/spineboy-old", "walk"};
+			args = new String[] {"assets/spineboy-old/spineboy-old", "walk"};
 		else if (args.length == 1) //
 			args = new String[] {args[0], null};
 

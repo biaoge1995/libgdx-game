@@ -80,7 +80,7 @@ public class Box2DExample extends ApplicationAdapter {
 		skeletonRenderer = new SkeletonRenderer();
 		skeletonRenderer.setPremultipliedAlpha(true);
 
-		atlas = new TextureAtlas(Gdx.files.internal("/Users/chenbiao/spine-libgdx/spine-libgdx-tests/assets/spineboy/spineboy-pma.atlas"));
+		atlas = new TextureAtlas(Gdx.files.internal("assets/spineboy/spineboy-pma.atlas"));
 
 		// This loader creates Box2dAttachments instead of RegionAttachments for an easy way to keep
 		// track of the Box2D body for each attachment.
@@ -95,7 +95,7 @@ public class Box2DExample extends ApplicationAdapter {
 		};
 		SkeletonBinary json = new SkeletonBinary(atlasLoader);
 		json.setScale(0.6f * 0.05f);
-		SkeletonData skeletonData = json.readSkeletonData(Gdx.files.internal("/Users/chenbiao/spine-libgdx/spine-libgdx-tests/assets/spineboy/spineboy-ess.skel"));
+		SkeletonData skeletonData = json.readSkeletonData(Gdx.files.internal("assets/spineboy/spineboy-ess.skel"));
 		animation = skeletonData.findAnimation("walk");
 
 		skeleton = new Skeleton(skeletonData);

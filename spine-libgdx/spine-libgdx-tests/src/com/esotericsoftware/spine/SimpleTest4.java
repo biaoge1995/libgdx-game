@@ -57,12 +57,12 @@ public class SimpleTest4 extends ApplicationAdapter {
 		debugRenderer.setBoundingBoxes(false);
 		debugRenderer.setRegionAttachments(false);
 
-		atlas = new TextureAtlas(Gdx.files.internal("goblins/goblins-pma.atlas"));
+		atlas = new TextureAtlas(Gdx.files.internal("assets/goblins/goblins-pma.atlas"));
 
 		SkeletonJson loader = new SkeletonJson(atlas); // This loads skeleton JSON data, which is stateless.
 		// SkeletonLoader loader = new SkeletonBinary(atlas); // Or use SkeletonBinary to load binary data.
 		loader.setScale(1.3f); // Load the skeleton at 130% the size it was in Spine.
-		SkeletonData skeletonData = loader.readSkeletonData(Gdx.files.internal("goblins/goblins-pro.json"));
+		SkeletonData skeletonData = loader.readSkeletonData(Gdx.files.internal("assets/goblins/goblins-pro.json"));
 
 		skeleton = new Skeleton(skeletonData); // Skeleton holds skeleton state (bone positions, slot attachments, etc).
 		skeleton.setPosition(250, 20);

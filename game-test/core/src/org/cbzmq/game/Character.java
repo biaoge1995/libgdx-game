@@ -28,14 +28,13 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-package com.esotericsoftware.spine.superspineboy;
-
-import static com.esotericsoftware.spine.superspineboy.Model.*;
-
-import com.esotericsoftware.spine.superspineboy.Model.State;
+package org.cbzmq.game;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
+import org.cbzmq.game.Model.State;
+
 
 /** The model class for an enemy or player that moves around the map. */
 class Character {
@@ -73,7 +72,7 @@ class Character {
 	//跳的速度在Y上
 	float jumpVelocity;
 
-	Character (Model model) {
+	Character(Model model) {
 		this.model = model;
 	}
 
@@ -96,7 +95,7 @@ class Character {
 
 		// Apply gravity.
 		//设置重力加速度
-		velocity.y -= gravity * delta;
+		velocity.y -= Model.gravity * delta;
 		//如果速度超过了最大值则给他赋予默认的最大速度
 		if (velocity.y < 0 && -velocity.y > maxVelocityY) velocity.y = Math.signum(velocity.y) * maxVelocityY;
 
@@ -166,7 +165,8 @@ class Character {
 			y = (int)rect.y;
 		int startX = (int)rect.x;
 		int endX = (int)(rect.x + rect.width);
-		for (Rectangle tile : model.getCollisionTiles(startX, y, endX, y)) {
+		Array<Rectangle> collisionTiles = model.getCollisionTiles(startX, y, endX, y);
+		for (Rectangle tile : collisionTiles) {
 			if (!rect.overlaps(tile)) continue;
 			if (velocity.y > 0)
 				position.y = tile.y - rect.height;

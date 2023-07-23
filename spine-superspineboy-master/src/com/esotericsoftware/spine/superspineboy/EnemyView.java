@@ -67,7 +67,7 @@ class EnemyView extends CharacterView {
 		// Play squish sound when enemies die.
 		final EventData squishEvent = view.assets.enemySkeletonData.findEvent("squish");
 		animationState.addListener(new AnimationStateAdapter() {
-			public void event (int trackIndex, Event event) {
+			public void event(AnimationState.TrackEntry entry, Event event) {
 				if (event.getData() == squishEvent) SoundEffect.squish.play();
 			}
 		});

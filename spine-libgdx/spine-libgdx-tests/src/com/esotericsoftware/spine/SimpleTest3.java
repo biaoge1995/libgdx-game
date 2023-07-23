@@ -57,12 +57,12 @@ public class SimpleTest3 extends ApplicationAdapter {
 		debugRenderer.setRegionAttachments(false);
 		debugRenderer.setMeshHull(false);
 
-		atlas = new TextureAtlas(Gdx.files.internal("raptor/raptor-pma.atlas"));
+		atlas = new TextureAtlas(Gdx.files.internal("assets/raptor/raptor-pma.atlas"));
 
 		SkeletonJson loader = new SkeletonJson(atlas); // This loads skeleton JSON data, which is stateless.
 		// SkeletonLoader loader = new SkeletonBinary(atlas); // Or use SkeletonBinary to load binary data.
-		loader.setScale(0.1f); // Load the skeleton at 50% the size it was in Spine.
-		SkeletonData skeletonData = loader.readSkeletonData(Gdx.files.internal("raptor/raptor-pro.json"));
+		loader.setScale(0.5f); // Load the skeleton at 50% the size it was in Spine.
+		SkeletonData skeletonData = loader.readSkeletonData(Gdx.files.internal("assets/raptor/raptor-pro.json"));
 
 		skeleton = new Skeleton(skeletonData); // Skeleton holds skeleton state (bone positions, slot attachments, etc).
 		skeleton.setPosition(250, 20);
@@ -73,8 +73,10 @@ public class SimpleTest3 extends ApplicationAdapter {
 		state.setTimeScale(0.6f); // Slow all animations down to 60% speed.
 
 		// Queue animations on tracks 0 and 1.
-		state.setAnimation(0, "walk", true);
-		state.addAnimation(1, "gun-grab", false, 2); // Keys in higher tracks override the pose from lower tracks.
+//		state.setAnimation(0, "walk", false);
+//		state.setAnimation(0, "jump", false);
+
+		state.setAnimation(0, "roar", true); // Keys in higher tracks override the pose from lower tracks.
 	}
 
 	public void render () {

@@ -52,7 +52,7 @@ public class FrameByFrameTest extends ApplicationAdapter {
 		camera = new OrthographicCamera();
 		batch = new PolygonSpriteBatch();
 
-		atlas = new TextureAtlas("spineboy/frame-by-frame.atlas");
+		atlas = new TextureAtlas("assets/spineboy/frame-by-frame.atlas");
 
 		walkAnimation = new Animation(1 / 20f, atlas.createSprites("spineboy-pro-walk"));
 		walkAnimation.setPlayMode(PlayMode.LOOP);

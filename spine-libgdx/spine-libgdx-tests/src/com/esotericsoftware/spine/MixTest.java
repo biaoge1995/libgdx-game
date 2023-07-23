@@ -59,7 +59,7 @@ public class MixTest extends ApplicationAdapter {
 		renderer.setPremultipliedAlpha(true);
 		debugRenderer = new SkeletonRendererDebug();
 
-		final String name = "/Users/chenbiao/spine-libgdx/spine-libgdx-tests/assets/spineboy/spineboy";
+		final String name = "assets/spineboy/spineboy";
 
 		TextureAtlas atlas = new TextureAtlas(Gdx.files.internal(name + "-pma.atlas"));
 
@@ -140,6 +140,8 @@ public class MixTest extends ApplicationAdapter {
 	}
 
 	public static void main (String[] args) throws Exception {
-		new LwjglApplication(new MixTest());
+//		new LwjglApplication(new MixTest());
+		int i = 0 << 2;
+		System.out.println(i);
 	}
 }

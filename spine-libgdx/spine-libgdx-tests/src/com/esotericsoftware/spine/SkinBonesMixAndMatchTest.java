@@ -56,10 +56,10 @@ public class SkinBonesMixAndMatchTest extends ApplicationAdapter {
 		debugRenderer.setBoundingBoxes(false);
 		debugRenderer.setRegionAttachments(false);
 
-		atlas = new TextureAtlas(Gdx.files.internal("mix-and-match/mix-and-match-pma.atlas"));
+		atlas = new TextureAtlas(Gdx.files.internal("assets/mix-and-match/mix-and-match-pma.atlas"));
 		SkeletonJson json = new SkeletonJson(atlas); // This loads skeleton JSON data, which is stateless.
 		json.setScale(0.6f); // Load the skeleton at 60% the size it was in Spine.
-		SkeletonData skeletonData = json.readSkeletonData(Gdx.files.internal("mix-and-match/mix-and-match-pro.json"));
+		SkeletonData skeletonData = json.readSkeletonData(Gdx.files.internal("assets/mix-and-match/mix-and-match-pro.json"));
 
 		skeleton = new Skeleton(skeletonData); // Skeleton holds skeleton state (bone positions, slot attachments, etc).
 		skeleton.setPosition(320, 20);
@@ -68,7 +68,7 @@ public class SkinBonesMixAndMatchTest extends ApplicationAdapter {
 		state = new AnimationState(stateData); // Holds the animation state for a skeleton (current animation, time, etc).
 
 		// Queue animations on track 0.
-		state.setAnimation(0, "dance", true);
+		state.setAnimation(0, "dress-up", true);
 
 		// Create a new skin, by mixing and matching other skins
 		// that fit together. Items making up the girl are individual
