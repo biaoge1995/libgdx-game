@@ -756,11 +756,11 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun_change1"
+              "name": null
             },
             {
               "time": 0.2333,
-              "name": "gun_change1"
+              "name": null
             }
           ]
         },
@@ -779,11 +779,11 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun_change2"
+              "name": null
             },
             {
               "time": 0.2333,
-              "name": "gun_change2"
+              "name": null
             }
           ]
         },
@@ -2344,7 +2344,7 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun_change1"
+              "name": null
             },
             {
               "time": 0.0333,
@@ -2380,11 +2380,11 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun_change2"
+              "name": null
             },
             {
               "time": 0.5,
-              "name": "gun_change2"
+              "name": null
             },
             {
               "time": 0.5333,
@@ -3920,7 +3920,7 @@
           "attachment": [
             {
               "time": 0,
-              "name": "finger"
+              "name": null
             }
           ]
         },
@@ -3934,7 +3934,7 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun"
+              "name": null
             }
           ]
         },
@@ -4797,7 +4797,7 @@
           "attachment": [
             {
               "time": 0,
-              "name": "finger"
+              "name": null
             }
           ]
         },
@@ -4811,7 +4811,7 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun"
+              "name": null
             }
           ]
         },
@@ -4825,7 +4825,7 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun_change1"
+              "name": null
             }
           ]
         },
@@ -4839,7 +4839,7 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun_change2"
+              "name": null
             }
           ]
         },
@@ -5775,7 +5775,7 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun_change1"
+              "name": null
             }
           ]
         },
@@ -5789,7 +5789,7 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun_change2"
+              "name": null
             }
           ]
         },
@@ -7635,7 +7635,7 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun"
+              "name": null
             }
           ]
         },
@@ -7649,7 +7649,7 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun_change1"
+              "name": null
             }
           ]
         },
@@ -7663,7 +7663,7 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun_change2"
+              "name": null
             }
           ]
         },
@@ -8587,11 +8587,11 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun_change1"
+              "name": null
             },
             {
               "time": 0.5,
-              "name": "gun_change1"
+              "name": null
             }
           ]
         },
@@ -8610,11 +8610,11 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun_change2"
+              "name": null
             },
             {
               "time": 0.5,
-              "name": "gun_change2"
+              "name": null
             }
           ]
         },
@@ -10523,11 +10523,11 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun_change1"
+              "name": null
             },
             {
               "time": 0.5,
-              "name": "gun_change1"
+              "name": null
             }
           ]
         },
@@ -10546,11 +10546,11 @@
           "attachment": [
             {
               "time": 0,
-              "name": "gun_change2"
+              "name": null
             },
             {
               "time": 0.5,
-              "name": "gun_change2"
+              "name": null
             }
           ]
         },

@@ -122,27 +122,27 @@ public class SpinePerson extends SkeletonActor {
     }
 
     public void popJump(AnimationState.TrackEntry entry) {
-        Action action = Action.valueOf(entry.getAnimation().getName().toUpperCase());
-        Stack<AnimationState.TrackEntry> stack = getStack(action);
-        if (stack != null) {
-            int search = stack.search(entry);
-
-            if (search != -1) {
-                stack.remove(entry);
-                debugInfos.add("pop entry");
-            }
-        }
+//        Action action = Action.valueOf(entry.getAnimation().getName().toUpperCase());
+//        Stack<AnimationState.TrackEntry> stack = getStack(action);
+//        if (stack != null) {
+//            int search = stack.search(entry);
+//
+//            if (search != -1) {
+//                stack.remove(entry);
+//                debugInfos.add("pop entry");
+//            }
+//        }
 
     }
 
     public SpinePerson(AssetManager assetManager) {
         TextureAtlas atlas = assetManager.get(Res.Atlas.ATLAS_SPINE_CONTRA, TextureAtlas.class);
         SkeletonJson skeletonJson = new SkeletonJson(atlas);
-        skeletonJson.setScale(0.3f);
+        skeletonJson.setScale(1f);
         SkeletonData skeletonData = skeletonJson.readSkeletonData(Gdx.files.internal(Res.Atlas.ATLAS_SPINE_CONTRA_JSON));
         AnimationStateData animationStateData = new AnimationStateData(skeletonData);
-        float jump = skeletonData.findAnimation("jump").getDuration();
-        animationStateData.setDefaultMix(0.2f);
+//        float jump = skeletonData.findAnimation("run").getDuration();
+//        animationStateData.setDefaultMix(0.2f);
 //        animationStateData.setMix("jump", "run",0.2f );
 //        animationStateData.setMix("jump", "jump",0.2f );
 //        animationStateData.setMix("jump", "walk",0.2f );
@@ -156,7 +156,7 @@ public class SpinePerson extends SkeletonActor {
         this.setAnimationState(state);
         SkeletonRenderer skeletonRenderer = new SkeletonRenderer();
         this.setRenderer(skeletonRenderer);
-//        getAnimationState().setAnimation(0, "idle", false);
+        getAnimationState().setAnimation(0, "attack", true);
 //        getAnimationState().addAnimation(1, "shoot", true,0);
 //        getAnimationState().addAnimation(3, "run", true,0);
 

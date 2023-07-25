@@ -28,10 +28,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-package org.cbzmq.game;
+package org.cbzmq.game.stage;
 
-import com.badlogic.gdx.maps.tiled.AtlasTmxMapLoader;
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.math.Interpolation;
@@ -41,42 +39,44 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.Pools;
-import com.esotericsoftware.spine.superspineboy.Enemy.Type;
+import org.cbzmq.game.SuperSpineBoyGame;
+import org.cbzmq.game.character.Character;
+import org.cbzmq.game.character.*;
+import org.cbzmq.game.character.Enemy.Type;
+import org.cbzmq.game.constant.Constants;
 
 /** The core of the game logic. The model manages all game information but knows nothing about the view, ie it knows nothing about
  * how this information might be drawn to the screen. This model-view separation is a clean way to organize the code. */
-class Model {
-	static float scale = 1 / 64f;
-	static float gravity = 32;
-	static float fps = 1 / 30f;
-	static float gameOverSlowdown = 5.5f;
-	static int mapCollisionLayer = 0;
+public class Model {
+//	public static float scale = 1 / 64f;
+//	public static float gravity = 32;
+//	public static float fps = 1 / 30f;
+//	public static float gameOverSlowdown = 5.5f;
+//	public static int mapCollisionLayer = 0;
 
-	SuperSpineboy controller;
+	SuperSpineBoyGame controller;
 	Player player;
-	TiledMap map;
+	Map map;
 	TiledMapTileLayer collisionLayer;
 	Array<Rectangle> tiles = new Array();
 	float timeScale = 1;
 	Array<Trigger> triggers = new Array();
-	FloatArray bullets = new FloatArray();
+	FloatArray bullets;
 	Array<Enemy> enemies = new Array();
 	Vector2 temp = new Vector2();
 	float gameOverTimer;
 
-	Model(SuperSpineboy controller) {
+	public Model(SuperSpineBoyGame controller) {
 		this.controller = controller;
-
-		map = new AtlasTmxMapLoader().load("map/map.tmx");
-		collisionLayer = (TiledMapTileLayer)map.getLayers().get(mapCollisionLayer);
-
+		this.map = new Map();
+		this.collisionLayer = map.collisionLayer;
 		restart();
 	}
 
-	void restart () {
-		player = new Player(this);
+	public void restart () {
+		player = new Player(this.map);
 		player.position.set(4, 8);
-
+		bullets = player.getBullets();
 		bullets.clear();
 		enemies.clear();
 		gameOverTimer = 0;
@@ -121,22 +121,24 @@ class Model {
 		addTrigger(246, 225, 23, Type.normal, 2);
 		addTrigger(246, 220, 23, Type.becomesBig, 3);
 		addTrigger(246, 220, 23, Type.becomesBig, 3);
+		triggers.clear();
+		addTrigger(17, 17 + 22, 8, Type.becomesBig, 2);
 	}
 
-	void addTrigger (float triggerX, float spawnX, float spawnY, Type type, int count) {
+	public void addTrigger (float triggerX, float spawnX, float spawnY, Type type, int count) {
 		Trigger trigger = new Trigger();
 		trigger.x = triggerX;
 		triggers.add(trigger);
 		int offset = spawnX > triggerX ? 2 : -2;
 		for (int i = 0; i < count; i++) {
-			Enemy enemy = new Enemy(this, type);
+			Enemy enemy = new Enemy(this.map, type);
 			enemy.position.set(spawnX, spawnY);
 			trigger.enemies.add(enemy);
 			spawnX += offset;
 		}
 	}
 
-	void update (float delta) {
+	public void update (float delta) {
 		if (player.hp == 0) {
 			gameOverTimer += delta / getTimeScale() * timeScale; // Isn't affected by player death time scaling.
 			controller.eventGameOver(false);
@@ -144,10 +146,11 @@ class Model {
 		updateEnemies(delta);
 		updateBullets(delta);
 		player.update(delta);
+
 		updateTriggers();
 	}
 
-	void updateTriggers () {
+	public void updateTriggers () {
 		for (int i = 0, n = triggers.size; i < n; i++) {
 			Trigger trigger = triggers.get(i);
 			if (player.position.x > trigger.x) {
@@ -158,17 +161,32 @@ class Model {
 		}
 	}
 
-	void updateEnemies (float delta) {
+	public void updateEnemies (float delta) {
 		int alive = 0;
 		for (int i = enemies.size - 1; i >= 0; i--) {
 			Enemy enemy = enemies.get(i);
+
 			enemy.update(delta);
 			if (enemy.deathTimer < 0) {
 				enemies.removeIndex(i);
 				continue;
 			}
-			if (enemy.hp > 0) alive++;
+			if(player.hp==0 && enemy.hp>0){
+				enemy.win();
+			}
+			if(enemy.childs!=null){
+				for (Character child : enemy.childs) {
+					enemies.add((Enemy)child);
+				}
+				enemy.childs.clear();
+			}
+			if (enemy.hp > 0) {
+				alive++;
+
+
+			}
 			if (enemy.hp > 0 && player.hp > 0) {
+				enemy.setTargetPosition(player.position);
 				if (enemy.collisionTimer < 0 && enemy.rect.overlaps(player.rect)) {
 					if (enemy.rect.y + enemy.rect.height * 0.6f < player.rect.y) {
 						// Enemy head bounce.
@@ -181,14 +199,14 @@ class Model {
 						enemy.setGrounded(false);
 						enemy.hp -= 2;
 						if (enemy.hp <= 0)
-							enemy.state = State.death;
+							enemy.state = CharacterState.death;
 						else
-							enemy.state = State.fall;
+							enemy.state = CharacterState.fall;
 
 						player.velocity.x = bounceX;
 						player.velocity.y = Player.headBounceY;
 						player.setGrounded(false);
-						player.setState(State.fall);
+						player.setState(CharacterState.fall);
 
 						controller.eventHitEnemy(enemy);
 
@@ -201,15 +219,15 @@ class Model {
 						player.setGrounded(false);
 						player.hp--;
 						if (player.hp > 0) {
-							player.setState(State.fall);
+							player.setState(CharacterState.fall);
 							player.collisionTimer = Player.collisionDelay;
 
 							enemy.velocity.x = amount * 1.6f;
 							enemy.velocity.y += 5f;
-							enemy.setState(State.fall);
+							enemy.setState(CharacterState.fall);
 							enemy.jumpDelayTimer = MathUtils.random(0, enemy.jumpDelay);
 						} else {
-							player.setState(State.death);
+							player.setState(CharacterState.death);
 							player.velocity.y *= 0.5f;
 						}
 						enemy.setGrounded(false);
@@ -219,43 +237,52 @@ class Model {
 					}
 				}
 			}
+
 		}
 		// End the game when all enemies are dead and all triggers have occurred.
 		if (alive == 0 && triggers.size == 0) controller.eventGameOver(true);
 	}
 
-	void updateBullets (float delta) {
+	public void updateBullets (float delta) {
 		outer:
 		for (int i = bullets.size - 5; i >= 0; i -= 5) {
+			//x方向的速度
 			float vx = bullets.get(i);
+			//y方向的速度
 			float vy = bullets.get(i + 1);
+			//x位置
 			float x = bullets.get(i + 2);
+			//y位置
 			float y = bullets.get(i + 3);
+			//如果子弹撞击到了地图
 			if (collisionLayer.getCell((int)x, (int)y) != null) {
 				// Bullet hit map.
 				controller.eventHitBullet(x, y, vx, vy);
 				bullets.removeRange(i, i + 4);
 				continue;
 			}
+			//如果子弹距离玩家超过25米则移除
 			if (Math.abs(x - player.position.x) > 25) {
 				// Bullet traveled too far.
 				bullets.removeRange(i, i + 4);
 				continue;
 			}
 			for (Enemy enemy : enemies) {
-				if (enemy.state == State.death) continue;
+				if (enemy.state == CharacterState.death) continue;
 				if (enemy.bigTimer <= 0 && enemy.rect.contains(x, y)) {
 					// Bullet hit enemy.
+					//子弹击中怪物
 					bullets.removeRange(i, i + 4);
 					controller.eventHitBullet(x, y, vx, vy);
 					controller.eventHitEnemy(enemy);
 					enemy.collisionTimer = Enemy.collisionDelay;
 					enemy.hp--;
 					if (enemy.hp <= 0) {
-						enemy.state = State.death;
+						enemy.state = CharacterState.death;
 						enemy.velocity.y *= 0.5f;
 					} else
-						enemy.state = State.fall;
+						enemy.state = CharacterState.fall;
+					//击退
 					enemy.velocity.x = MathUtils.random(enemy.knockbackX / 2, enemy.knockbackX)
 						* (player.position.x < enemy.position.x + enemy.rect.width / 2 ? 1 : -1);
 					enemy.velocity.y += MathUtils.random(enemy.knockbackY / 2, enemy.knockbackY);
@@ -269,16 +296,16 @@ class Model {
 		}
 	}
 
-	void addBullet (float startX, float startY, float vx, float vy, float angle) {
-		bullets.add(vx);
-		bullets.add(vy);
-		bullets.add(startX);
-		bullets.add(startY);
-		bullets.add(angle);
-	}
+//	public void addBullet (float startX, float startY, float vx, float vy, float angle) {
+//		bullets.add(vx);
+//		bullets.add(vy);
+//		bullets.add(startX);
+//		bullets.add(startY);
+//		bullets.add(angle);
+//	}
 
 	/** Returns rectangles for the tiles within the specified area. */
-	Array<Rectangle> getCollisionTiles (int startX, int startY, int endX, int endY) {
+	public Array<Rectangle> getCollisionTiles (int startX, int startY, int endX, int endY) {
 		Pools.freeAll(tiles, true);
 		tiles.clear();
 		for (int y = startY; y <= endY; y++) {
@@ -294,17 +321,15 @@ class Model {
 		return tiles;
 	}
 
-	float getTimeScale () {
+	public float getTimeScale () {
 		if (player.hp == 0)
-			return timeScale * Interpolation.pow2In.apply(0, 1, MathUtils.clamp(gameOverTimer / gameOverSlowdown, 0.01f, 1));
+			return timeScale * Interpolation.pow2In.apply(0, 1, MathUtils.clamp(gameOverTimer / Constants.gameOverSlowdown, 0.01f, 1));
 		return timeScale;
 	}
 
-	enum State {
-		idle, run, jump, death, fall
-	}
 
-	static class Trigger {
+
+	public static class Trigger {
 		float x;
 		Array<Enemy> enemies = new Array();
 	}

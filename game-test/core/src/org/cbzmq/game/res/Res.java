@@ -45,8 +45,8 @@ public interface Res {
 
         /** 纹理图集 文件路径 */
         String ATLAS_PATH = "atlas/images.atlas";
-        String ATLAS_SPINE_CONTRA = "spineboy/spineboy-pma.atlas";
-        String ATLAS_SPINE_CONTRA_JSON = "spineboy/spineboy-ess.json";
+        String ATLAS_SPINE_CONTRA = "spine/contra.atlas";
+        String ATLAS_SPINE_CONTRA_JSON = "spine/contra.json";
 
         /* 纹理图集中的小图名称 */
         String IMAGE_GAME_BG = "game_bg";
