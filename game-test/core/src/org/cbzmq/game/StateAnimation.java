@@ -1,4 +1,4 @@
-package org.cbzmq.game.character;
+package org.cbzmq.game;
 import com.badlogic.gdx.utils.ObjectFloatMap;
 import com.esotericsoftware.spine.Animation;
 /**

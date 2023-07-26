@@ -31,9 +31,9 @@
 package org.cbzmq.game.domain;
 
 import com.badlogic.gdx.utils.FloatArray;
-import org.cbzmq.game.character.Map;
-import org.cbzmq.game.actor.PlayerView;
-import org.cbzmq.game.constant.Constants;
+import org.cbzmq.game.Map;
+import org.cbzmq.game.actor.PlayerActor;
+import org.cbzmq.game.Constants;
 
 
 /** The model class for the player. */
@@ -48,14 +48,18 @@ public class Player extends Character {
 	public static float kickbackShots = 33, kickbackAngle = 30, kickbackVarianceShots = 11, kickbackVariance = 6, kickback = 1.6f;
 	public static float knockbackX = 14, knockbackY = 5, collisionDelay = 2.5f, flashTime = 0.07f;
 	public static float headBounceX = 12, headBounceY = 20;
+	//计时器
+	//通过timer控制射击的时间间隔
 	public float shootTimer;
+	//控制碰撞时的无敌时间和闪烁
 	public float collisionTimer;
+	//控制回血时间
 	public float hpTimer;
 
 	FloatArray bullets = new FloatArray();
 
 	// This is here for convenience, the model should never touch the view.
-	public PlayerView view;
+	public PlayerActor view;
 
 	public Player (Map map) {
 		super(map);
@@ -66,8 +70,10 @@ public class Player extends Character {
 	}
 
 	public void update (float delta) {
+
 		stateChanged = false;
 		shootTimer -= delta;
+		//如果没有状态改变则一定时间后持续回血
 		if (hp > 0) {
 			hpTimer -= delta;
 			if (hpTimer < 0) {

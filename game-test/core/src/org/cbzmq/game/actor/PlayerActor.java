@@ -38,19 +38,18 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.esotericsoftware.spine.*;
 import com.esotericsoftware.spine.AnimationState.AnimationStateAdapter;
-import org.cbzmq.game.actor.CharacterView;
-import org.cbzmq.game.character.Assets;
-import org.cbzmq.game.character.Assets.SoundEffect;
-import org.cbzmq.game.character.CharacterState;
-import org.cbzmq.game.character.GameCamera;
-import org.cbzmq.game.constant.Constants;
+import org.cbzmq.game.Assets;
+import org.cbzmq.game.Assets.SoundEffect;
+import org.cbzmq.game.CharacterState;
+import org.cbzmq.game.GameCamera;
+import org.cbzmq.game.Constants;
 import org.cbzmq.game.domain.Player;
 import org.cbzmq.game.stage.Model;
 
 
 
 /** The view class for the player. */
-public class PlayerView extends CharacterView {
+public class PlayerActor extends BaseSkeletonActor {
 	public Player player;
 	public Bone rearUpperArmBone, rearBracerBone, gunBone, headBone, torsoBone, frontUpperArmBone;
 	public Animation shootAnimation, hitAnimation;
@@ -62,8 +61,8 @@ public class PlayerView extends CharacterView {
 
 	public GameCamera camera;
 
-	public PlayerView (final Assets assets, final Player player, final Viewport viewport, final GameCamera camera, final Model model) {
-		super(assets);
+	public PlayerActor(final Assets assets, final Player player, final Viewport viewport, final GameCamera camera) {
+		super(assets,player);
 		this.player = player;
 		this.viewport = viewport;
 		this.camera = camera;
@@ -98,7 +97,7 @@ public class PlayerView extends CharacterView {
 
 	@Override
 	public void act(float delta) {
-//		super.act(delta);
+
 		// When not shooting, reset the number of burst shots.
 		if (!touched && burstTimer > 0) {
 			burstTimer -= delta;
@@ -106,7 +105,7 @@ public class PlayerView extends CharacterView {
 		}
 
 		// If jump was pressed in the air, jump as soon as grounded.
-		if (jumpPressed && player.isGrounded()) jump();
+		if (jumpPressed ) jump();
 
 		getSkeleton().setX(player.position.x + Player.width / 2);
 		getSkeleton().setY(player.position.y);
@@ -184,19 +183,25 @@ public class PlayerView extends CharacterView {
 
 		getSkeleton().setScaleX(player.dir);
 		getSkeleton().updateWorldTransform();
+//		super.act(delta);
 	}
 
 	@Override
 	public void draw(Batch batch, float parentAlpha) {
-//		super.draw(batch, parentAlpha);
+
+		//在遭受碰撞时持续闪烁
 		if (player.collisionTimer < 0 || (int)(player.collisionTimer / Player.flashTime * 1.5f) % 2 != 0)
 			getRenderer().draw(batch, getSkeleton());
+//			super.draw(batch, parentAlpha);
 	}
 
 
 	public void jump () {
-		player.jump();
-		setAnimation(assets.playerStates.get(CharacterState.jump), true);
+		if( player.isGrounded()){
+			player.jump();
+			setAnimation(assets.playerStates.get(CharacterState.jump), true);
+		}
+
 	}
 
 	public void shoot () {

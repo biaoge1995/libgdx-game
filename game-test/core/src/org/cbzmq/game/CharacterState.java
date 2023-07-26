@@ -1,4 +1,4 @@
-package org.cbzmq.game.character;
+package org.cbzmq.game;
 
 /**
  * @ClassName CharacterState

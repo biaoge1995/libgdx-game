@@ -1,10 +1,7 @@
-package org.cbzmq.game.screen;
+package org.cbzmq.game.actor.other;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
-import org.cbzmq.game.MainGame;
-import org.cbzmq.game.stage.GameStage;
 
 /**
  * @ClassName GameScreen

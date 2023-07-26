@@ -1,4 +1,4 @@
-package org.cbzmq.game.actor;
+package org.cbzmq.game.actor.other;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;

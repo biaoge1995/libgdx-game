@@ -33,10 +33,8 @@ package org.cbzmq.game;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.spine.AnimationState.TrackEntry;
-import org.cbzmq.game.character.Assets.SoundEffect;
-import org.cbzmq.game.character.Assets;
+import org.cbzmq.game.Assets.SoundEffect;
 import org.cbzmq.game.domain.Enemy;
-import org.cbzmq.game.constant.Constants;
 import org.cbzmq.game.stage.Model;
 import org.cbzmq.game.stage.View;
 import org.cbzmq.game.stage.UI;
@@ -46,7 +44,7 @@ import org.cbzmq.game.stage.UI;
 
 
 
-public class SuperSpineBoyGame extends Game {
+public class SpineBoyGame extends Game {
 	static Vector2 temp = new Vector2();
 
 	View view;

@@ -1,4 +1,4 @@
-package org.cbzmq.game.stage;
+package org.cbzmq.game.actor.other;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -7,11 +7,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
-import org.cbzmq.game.MainGame;
-import org.cbzmq.game.actor.Info;
-import org.cbzmq.game.actor.Person;
-import org.cbzmq.game.actor.SpinePerson;
-import org.cbzmq.game.res.Res;
 
 /**
  * @ClassName GameState

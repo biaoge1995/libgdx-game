@@ -1,4 +1,4 @@
-package org.cbzmq.game.constant;
+package org.cbzmq.game;
 
 /**
  * @ClassName Constans

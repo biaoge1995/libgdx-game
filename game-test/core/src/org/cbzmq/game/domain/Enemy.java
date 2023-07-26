@@ -31,10 +31,10 @@
 package org.cbzmq.game.domain;
 
 import com.badlogic.gdx.math.MathUtils;
-import org.cbzmq.game.character.CharacterState;
-import org.cbzmq.game.actor.EnemyView;
-import org.cbzmq.game.character.Map;
-import org.cbzmq.game.constant.Constants;
+import org.cbzmq.game.CharacterState;
+import org.cbzmq.game.actor.EnemyActor;
+import org.cbzmq.game.Map;
+import org.cbzmq.game.Constants;
 
 
 /** The model class for an enemy. */
@@ -61,7 +61,7 @@ public class Enemy extends Character {
 	public float knockbackX = normalKnockbackX, knockbackY = normalKnockbackY;
 
 	// This is here for convenience, the model should never touch the view.
-	public EnemyView view;
+	public EnemyActor view;
 
 	public Enemy (Map map, Type type) {
 		super(map);
@@ -123,6 +123,7 @@ public class Enemy extends Character {
 		}
 
 		// Enemy grows to a big enemy.
+		//怪物变大尺寸跟变大时间挂钩
 		if (bigTimer > 0) {
 			bigTimer -= delta;
 			size = 1 + (sizeBig - 1) * (1 - Math.max(0, bigTimer / bigDuration));
@@ -149,9 +150,11 @@ public class Enemy extends Character {
 		}
 
 		// Nearly dead enemies jump at the player right away.
+		//濒临死亡的敌人设置他的跳跃时间
 		if (hp == 1 && type != Type.weak && type != Type.small) jumpDelayTimer = 0;
 
 		// Kill enemies stuck in the map or those that have somehow fallen out of the map.
+		//将hp小于0的怪物变成死亡的状态，以及那些卡在地图上的怪物
 		if (state != CharacterState.death && (hp <= 0 || position.y < -100 || collisions > 100)) {
 			state = CharacterState.death;
 			hp = 0;
@@ -172,17 +175,16 @@ public class Enemy extends Character {
 				//如果怪物赢了
 				win();
 			} else {
-				// Jump if within range of the player.
-				//跳向
+				//跳向目标方向
 				if (grounded && (forceJump || Math.abs(targetPosition.x - position.x) < jumpDistance)) {
 					jumpDelayTimer -= delta;
+					//跳跃的定时器
 					if (state != CharacterState.jump && jumpDelayTimer < 0 && position.y <= targetPosition.y) {
 						jump();
 						jumpDelayTimer = MathUtils.random(0, jumpDelay);
 						forceJump = false;
 					}
 				}
-				// Move toward the player.
 				//朝着目标的方向移动
 				if (move) {
 					if (targetPosition.x > position.x) {
@@ -210,6 +212,7 @@ public class Enemy extends Character {
 		boolean result = super.collideX();
 		if (result) {
 			// If grounded and collided with the map, jump to avoid the obstacle.
+			//如果接地并与地图相撞，跳跃以避开障碍物。
 			if (isGrounded()) forceJump = true;
 			collisions++;
 		}

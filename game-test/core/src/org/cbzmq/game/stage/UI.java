@@ -56,15 +56,15 @@ import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.esotericsoftware.spine.SkeletonRendererDebug;
-import org.cbzmq.game.character.Assets;
+import org.cbzmq.game.Assets;
 import org.cbzmq.game.domain.Enemy;
-import org.cbzmq.game.character.GameCamera;
+import org.cbzmq.game.GameCamera;
 import org.cbzmq.game.domain.Player;
-import org.cbzmq.game.constant.Constants;
+import org.cbzmq.game.Constants;
 
 import static com.badlogic.gdx.math.Interpolation.*;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
-import static org.cbzmq.game.constant.Constants.scale;
+import static org.cbzmq.game.Constants.scale;
 
 /** The user interface displayed on top of the game (menu, health bar, splash screens). */
 public class UI extends Stage {

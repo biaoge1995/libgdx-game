@@ -36,7 +36,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.esotericsoftware.spine.*;
 import com.esotericsoftware.spine.AnimationState.AnimationStateAdapter;
 import com.esotericsoftware.spine.attachments.Attachment;
-import org.cbzmq.game.character.Assets;
+import org.cbzmq.game.Assets;
 import org.cbzmq.game.domain.Enemy;
 import org.cbzmq.game.domain.Enemy.Type;
 
@@ -44,15 +44,15 @@ import org.cbzmq.game.domain.Enemy.Type;
 /**
  * The view class for an enemy.
  */
-public class EnemyView extends CharacterView {
+public class EnemyActor extends BaseSkeletonActor {
     public Enemy enemy;
     public Animation hitAnimation;
     public Slot headSlot;
     public Attachment burstHeadAttachment;
     public Color headColor;
 
-    public EnemyView(Assets assets, Enemy enemy) {
-        super(assets);
+    public EnemyActor(Assets assets, Enemy enemy) {
+        super(assets,enemy);
         this.enemy = enemy;
         setSkeleton(new Skeleton(assets.enemySkeletonData));
         burstHeadAttachment = getSkeleton().getAttachment("head", "burst01");
@@ -82,7 +82,7 @@ public class EnemyView extends CharacterView {
 
     @Override
     public void act(float delta) {
-        super.act(delta);
+
         // Change head attachment for enemies that are about to die.
         if (enemy.hp == 1 && enemy.type != Type.weak) headSlot.setAttachment(burstHeadAttachment);
 
@@ -99,9 +99,10 @@ public class EnemyView extends CharacterView {
         Bone root = getSkeleton().getRootBone();
         root.setScaleX(root.getScaleX() * enemy.size);
         root.setScaleY(root.getScaleY() * enemy.size);
-
+//
         getSkeleton().setScaleX(enemy.dir);
         getSkeleton().updateWorldTransform();
+//        super.act(delta);
     }
 
     @Override

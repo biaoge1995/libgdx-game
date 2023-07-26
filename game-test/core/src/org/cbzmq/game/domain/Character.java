@@ -33,9 +33,9 @@ package org.cbzmq.game.domain;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import org.cbzmq.game.character.CharacterState;
-import org.cbzmq.game.character.Map;
-import org.cbzmq.game.constant.Constants;
+import org.cbzmq.game.CharacterState;
+import org.cbzmq.game.Map;
+import org.cbzmq.game.Constants;
 
 
 
@@ -147,7 +147,7 @@ public class Character {
 			velocity.x = 0;
 			setState(CharacterState.idle);
 		}
-		//根据帧数调整速度单位
+		//s=v * delta 该段时间内位移的距离
 		velocity.scl(delta); // Change velocity from units/sec to units since last frame.
 		collideX();
 		collideY();
@@ -242,4 +242,8 @@ public class Character {
 		setState(CharacterState.jump);
 		setGrounded(false);
 	}
+	public void jumpDamping () {
+		if (velocity.y > 0) velocity.y *= Player.jumpDamping;
+	}
+
 }

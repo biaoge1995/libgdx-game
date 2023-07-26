@@ -39,12 +39,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.Pools;
-import org.cbzmq.game.SuperSpineBoyGame;
+import org.cbzmq.game.*;
 import org.cbzmq.game.domain.Character;
-import org.cbzmq.game.character.*;
 import org.cbzmq.game.domain.Enemy;
 import org.cbzmq.game.domain.Enemy.Type;
-import org.cbzmq.game.constant.Constants;
 import org.cbzmq.game.domain.Player;
 
 /** The core of the game logic. The model manages all game information but knows nothing about the view, ie it knows nothing about
@@ -52,7 +50,7 @@ import org.cbzmq.game.domain.Player;
 public class Model {
 
 
-	SuperSpineBoyGame controller;
+	SpineBoyGame controller;
 	Player player;
 	Map map;
 	TiledMapTileLayer collisionLayer;
@@ -63,10 +61,12 @@ public class Model {
 	Array<Enemy> enemies = new Array();
 	Vector2 temp = new Vector2();
 	float gameOverTimer;
+	Assets assets;
 
-	public Model(SuperSpineBoyGame controller) {
+	public Model(SpineBoyGame controller) {
+		this.assets = new Assets();
 		this.controller = controller;
-		this.map = new Map();
+		this.map = new Map(assets.tiledMap);
 		this.collisionLayer = map.collisionLayer;
 		restart();
 	}
@@ -210,7 +210,9 @@ public class Model {
 
 					} else if (player.collisionTimer < 0) {
 						// Player gets hit.
+						//玩家收到撞击
 						player.dir = enemy.position.x + enemy.rect.width / 2 < player.position.x + player.rect.width / 2 ? -1 : 1;
+						//判断击退的量
 						float amount = Player.knockbackX * player.dir;
 						player.velocity.x = -amount;
 						player.velocity.y += Player.knockbackY;

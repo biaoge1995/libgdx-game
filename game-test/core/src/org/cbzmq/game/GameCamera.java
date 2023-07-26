@@ -1,8 +1,7 @@
-package org.cbzmq.game.character;
+package org.cbzmq.game;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
-import org.cbzmq.game.constant.Constants;
 
 /**
  * @ClassName GameCamera

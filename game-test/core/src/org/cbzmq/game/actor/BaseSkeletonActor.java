@@ -32,25 +32,23 @@ package org.cbzmq.game.actor;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.esotericsoftware.spine.Animation;
-import com.esotericsoftware.spine.AnimationState;
 import com.esotericsoftware.spine.AnimationState.TrackEntry;
-import com.esotericsoftware.spine.Skeleton;
 import com.esotericsoftware.spine.SkeletonRenderer;
 import com.esotericsoftware.spine.utils.SkeletonActor;
-import org.cbzmq.game.character.Assets;
-import org.cbzmq.game.character.StateAnimation;
+import org.cbzmq.game.Assets;
+import org.cbzmq.game.StateAnimation;
+import org.cbzmq.game.domain.Character;
+import org.cbzmq.game.domain.Player;
 
 /**
  * The view class for an enemy or player that moves around the map.
  */
-public class CharacterView extends SkeletonActor{
-    //	SpineBoyStage spineBoyStage;
-//	Model model;
-//    public Skeleton skeleton;
-//    public AnimationState animationState;
+public class BaseSkeletonActor extends SkeletonActor{
     public Assets assets;
-    public CharacterView(Assets assets) {
+    public Character character;
+    public BaseSkeletonActor(Assets assets,Character character) {
         this.assets = assets;
+        this.character = character;
         SkeletonRenderer skeletonRenderer = new SkeletonRenderer();
         skeletonRenderer.setPremultipliedAlpha(true);
         setRenderer(skeletonRenderer);
@@ -73,9 +71,16 @@ public class CharacterView extends SkeletonActor{
         return false;
     }
 
+
     @Override
     public void act(float delta) {
         super.act(delta);
+        getSkeleton().setX(character.position.x + character.rect.width / 2);
+        getSkeleton().setY(character.position.y);
+
+        getSkeleton().setScaleX(character.dir);
+        getSkeleton().updateWorldTransform();
+
     }
 
     @Override

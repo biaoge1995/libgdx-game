@@ -1,4 +1,4 @@
-package org.cbzmq.game.character;
+package org.cbzmq.game;
 
 import com.badlogic.gdx.maps.tiled.AtlasTmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -6,7 +6,6 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pools;
-import org.cbzmq.game.constant.Constants;
 
 /**
  * @ClassName Map
@@ -20,8 +19,8 @@ public class Map {
     public TiledMapTileLayer collisionLayer;
     Array<Rectangle> tiles = new Array();
 
-    public Map() {
-        tiledMap = new AtlasTmxMapLoader().load("map/map.tmx");
+    public Map(TiledMap tiledMap) {
+        this.tiledMap = tiledMap;
         collisionLayer = (TiledMapTileLayer)tiledMap.getLayers().get(Constants.mapCollisionLayer);
     }
 

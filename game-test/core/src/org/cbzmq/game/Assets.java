@@ -28,7 +28,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-package org.cbzmq.game.character;
+package org.cbzmq.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
@@ -37,12 +37,13 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.tiled.AtlasTmxMapLoader;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.esotericsoftware.spine.Animation;
 import com.esotericsoftware.spine.AnimationStateData;
 import com.esotericsoftware.spine.SkeletonData;
 import com.esotericsoftware.spine.SkeletonJson;
-import org.cbzmq.game.constant.Constants;
 import org.cbzmq.game.domain.Enemy;
 import org.cbzmq.game.domain.Player;
 
@@ -56,6 +57,7 @@ public class Assets {
 	public AnimationStateData playerAnimationData, enemyAnimationData;
 	public ObjectMap<CharacterState, StateAnimation> playerStates = new ObjectMap(), enemyStates = new ObjectMap();
 	public final AssetManager assetManager;
+	public TiledMap tiledMap;
 
 	public Assets() {
 		assetManager = new AssetManager();
@@ -77,14 +79,22 @@ public class Assets {
 		assetManager.load("sounds/hurt-alien.ogg",Sound.class);
 		assetManager.load("spineboy/spineboy.atlas",TextureAtlas.class);
 		assetManager.load("alien/alien.atlas",TextureAtlas.class);
+
+		assetManager.setLoader(TiledMap.class,new AtlasTmxMapLoader(assetManager.getFileHandleResolver()));
+		assetManager.load("map/map.tmx",TiledMap.class);
 		//等待异步加载结束
 		assetManager.finishLoading();
 
+		loadMap();
 		loadPng();
 		loadSounds();
 		loadPlayerAssets();
 		loadEnemyAssets();
 	}
+	public void loadMap(){
+		tiledMap = assetManager.get("map/map.tmx",TiledMap.class);
+	}
+
 	public void loadPng(){
 		bulletRegion = setTextureFilter(assetManager.get("spineother/bullet.png",Texture.class));
 		hitRegion = setTextureFilter(assetManager.get("spineother/bullet-hit.png",Texture.class));

@@ -3,8 +3,7 @@ package com.cbzmq.game;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.matsemann.libgdxloadingscreen.SomeCoolGame;
-import org.cbzmq.game.MainGame;
+import org.cbzmq.game.actor.other.MainGame;
 
 /**
  * @author Mats Svensson

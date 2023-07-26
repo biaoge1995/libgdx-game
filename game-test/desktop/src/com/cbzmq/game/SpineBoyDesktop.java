@@ -2,7 +2,7 @@ package com.cbzmq.game;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import org.cbzmq.game.SuperSpineBoyGame;
+import org.cbzmq.game.SpineBoyGame;
 
 /**
  * @ClassName SpineBoyDesktop
@@ -16,6 +16,6 @@ public class SpineBoyDesktop {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setTitle("Super Spineboy");
         config.setWindowedMode(800,450);
-        new Lwjgl3Application(new SuperSpineBoyGame(), config);
+        new Lwjgl3Application(new SpineBoyGame(), config);
     }
 }
