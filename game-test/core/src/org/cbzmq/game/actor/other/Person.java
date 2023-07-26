@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.Array;
  * @Date 2023/7/20 11:08 上午
  * @Version 1.0
  **/
+
 public class Person extends Actor {
 
     private Animation<TextureRegion> animation;

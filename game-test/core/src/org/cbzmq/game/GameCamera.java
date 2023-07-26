@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.MathUtils;
  * @Date 2023/7/25 11:40 下午
  * @Version 1.0
  **/
+
 public class GameCamera extends OrthographicCamera {
     public static float cameraMinWidth = 16, cameraMaxWidth = 28, cameraHeight = 16, cameraZoom = 0.4f, cameraZoomSpeed = 0.5f;
     public static float cameraBottom = 2, cameraTop = 7, cameraMinX = 1;

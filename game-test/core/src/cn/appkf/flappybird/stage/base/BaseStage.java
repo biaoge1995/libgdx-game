@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import cn.appkf.flappybird.MainGame;
 
+
 /**
  * 舞台基类
  *

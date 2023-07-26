@@ -6,6 +6,7 @@ import cn.appkf.flappybird.MainGame;
 import cn.appkf.flappybird.actor.base.BaseImageActor;
 import cn.appkf.flappybird.res.Res;
 
+
 /**
  * 水管, 水管可以看做是从屏幕右边进来匀速移动到左边
  * 

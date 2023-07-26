@@ -30,6 +30,7 @@
 
 package org.cbzmq.game.actor;
 
+
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.esotericsoftware.spine.Animation;
 import com.esotericsoftware.spine.AnimationState.TrackEntry;

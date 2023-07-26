@@ -8,6 +8,7 @@ import cn.appkf.flappybird.MainGame;
 import cn.appkf.flappybird.stage.GameOverStage;
 import cn.appkf.flappybird.stage.GameStage;
 
+
 /**
  * 主游戏场景
  * 

@@ -1,5 +1,6 @@
 package org.cbzmq.game;
 
+
 /**
  * @ClassName Constans
  * @Description TODO

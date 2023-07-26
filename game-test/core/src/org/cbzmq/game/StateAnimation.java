@@ -11,6 +11,7 @@ import com.esotericsoftware.spine.Animation;
 
 
 
+
 /** Stores information needed by the view for a character state. */
 public  class StateAnimation {
     public Animation animation;

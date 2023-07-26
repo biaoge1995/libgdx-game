@@ -7,6 +7,7 @@ import cn.appkf.flappybird.MainGame;
 import cn.appkf.flappybird.actor.base.BaseImageActor;
 import cn.appkf.flappybird.res.Res;
 
+
 /**
  * 地板
  * 

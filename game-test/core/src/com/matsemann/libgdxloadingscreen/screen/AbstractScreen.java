@@ -3,6 +3,7 @@ package com.matsemann.libgdxloadingscreen.screen;
 import com.badlogic.gdx.Screen;
 import com.matsemann.libgdxloadingscreen.SomeCoolGame;
 
+
 /**
  * @author Mats Svensson
  */

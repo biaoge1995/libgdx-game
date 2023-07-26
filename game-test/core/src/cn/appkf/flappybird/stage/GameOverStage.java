@@ -13,6 +13,7 @@ import cn.appkf.flappybird.actor.framework.ImageActor;
 import cn.appkf.flappybird.res.Res;
 import cn.appkf.flappybird.stage.base.BaseStage;
 
+
 /**
  * 游戏结束时显示的舞台
  * 

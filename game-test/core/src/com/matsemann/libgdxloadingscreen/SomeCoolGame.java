@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.assets.AssetManager;
 import com.matsemann.libgdxloadingscreen.screen.LoadingScreen;
 
+
 /**
  * @author Mats Svensson
  */

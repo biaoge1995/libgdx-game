@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.Disposable;
  * @Date 2023/7/21 5:09 下午
  * @Version 1.0
  **/
+
 public class Info extends Actor {
 
     private SpriteBatch batch;

@@ -48,6 +48,7 @@ import org.cbzmq.game.stage.Model;
 
 
 
+
 /** The view class for the player. */
 public class PlayerActor extends BaseSkeletonActor {
 	public Player player;

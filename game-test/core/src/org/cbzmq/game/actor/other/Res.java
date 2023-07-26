@@ -5,6 +5,7 @@ package org.cbzmq.game.actor.other;
  * 
  * @xietansheng
  */
+
 public interface Res {
 
     /** 固定世界宽度为 480, 高度根据实际屏幕比例换算 */

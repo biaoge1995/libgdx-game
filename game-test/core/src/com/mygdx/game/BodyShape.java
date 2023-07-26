@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.mygdx.game.model.Ball;
 import com.mygdx.game.model.Paddle;
 
+
 public class BodyShape extends ApplicationAdapter {
     World world;
     Box2DDebugRenderer box2DDebugRenderer;

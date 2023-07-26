@@ -4,6 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 
 import cn.appkf.flappybird.MainGame;
 
+
 /**
  * 演员组基类
  * 

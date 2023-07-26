@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Array;
 import cn.appkf.flappybird.MainGame;
 import cn.appkf.flappybird.res.Res;
 
+
 /**
  * 大数字分数显示
  * 

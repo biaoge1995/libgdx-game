@@ -1,5 +1,6 @@
 package cn.appkf.flappybird.util;
 
+
 /**
  * 游戏状态
  * 

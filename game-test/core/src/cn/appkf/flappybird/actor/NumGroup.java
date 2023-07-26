@@ -9,6 +9,7 @@ import cn.appkf.flappybird.MainGame;
 import cn.appkf.flappybird.actor.base.BaseGroup;
 import cn.appkf.flappybird.actor.framework.ImageActor;
 
+
 /**
  * 数字组显示, 将一个整数的每一位分别用一个演员来表示, 然后水平排列成一组达到显示整数的效果
  * 

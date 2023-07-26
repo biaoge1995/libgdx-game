@@ -22,6 +22,7 @@ import cn.appkf.flappybird.stage.base.BaseStage;
 import cn.appkf.flappybird.util.CollisionUtils;
 import cn.appkf.flappybird.util.GameState;
 
+
 /**
  * 主游戏舞台（主要的游戏逻辑都在这里）
  * 

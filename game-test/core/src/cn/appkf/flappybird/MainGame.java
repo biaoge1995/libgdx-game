@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.Disposable;
 import cn.appkf.flappybird.res.Res;
 import cn.appkf.flappybird.screen.GameScreen;
 
+
 /**
  * 游戏主程序入口类
  * 

@@ -13,6 +13,7 @@ import com.mygdx.game.model.Paddle;
 import java.util.ArrayList;
 import java.util.Random;
 
+
 public class MyGdxGame2 extends ApplicationAdapter {
     ShapeRenderer shape;
     Paddle paddle ;

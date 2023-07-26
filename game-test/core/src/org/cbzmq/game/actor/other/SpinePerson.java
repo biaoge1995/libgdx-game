@@ -16,6 +16,7 @@ import java.util.Stack;
  * @Date 2023/7/20 10:13 下午
  * @Version 1.0
  **/
+
 public class SpinePerson extends SkeletonActor {
 
     private boolean isIdle = false;

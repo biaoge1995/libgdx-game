@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.matsemann.libgdxloadingscreen.SomeCoolGame;
 
+
 /**
  * @author Mats Svensson
  */

@@ -1,3 +1,4 @@
+package org.cbzmq.game;
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.1
@@ -28,7 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-package org.cbzmq.game;
+
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.Vector2;

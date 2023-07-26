@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
  * @Date 2023/7/20 12:20 下午
  * @Version 1.0
  **/
+
 public class GameStage extends Stage {
 
     private Person person;

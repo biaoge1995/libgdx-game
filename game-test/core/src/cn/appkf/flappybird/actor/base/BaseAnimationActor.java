@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Array;
 import cn.appkf.flappybird.MainGame;
 import cn.appkf.flappybird.actor.framework.AnimationActor;
 
+
 /**
  * 动画演员基类
  * 

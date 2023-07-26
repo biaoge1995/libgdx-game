@@ -1,3 +1,4 @@
+package org.cbzmq.game.domain;
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.1
@@ -28,7 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-package org.cbzmq.game.domain;
+
 
 import com.badlogic.gdx.utils.FloatArray;
 import org.cbzmq.game.Map;

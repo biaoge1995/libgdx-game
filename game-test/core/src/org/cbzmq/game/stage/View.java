@@ -56,6 +56,7 @@ import org.cbzmq.game.domain.Enemy;
 import org.cbzmq.game.domain.Player;
 
 
+
 /**
  * The core of the view logic. The view knows about the model and manages everything needed to draw to the screen.
  */
@@ -134,7 +135,7 @@ public class View extends Stage {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        super.draw();
+
 
         if (ui.bgButton.isChecked()) {
             mapRenderer.setBlending(false);
@@ -143,7 +144,7 @@ public class View extends Stage {
             mapRenderer.setBlending(true);
             mapRenderer.render(mapLayersBackground2);
         }
-
+        super.draw();
 
 
         if (ui.bgButton.isChecked()) {

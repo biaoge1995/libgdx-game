@@ -18,6 +18,7 @@ import org.cbzmq.game.actor.other.GameScreen;
  * @Date 2023/7/20 11:00 上午
  * @Version 1.0
  **/
+
 public class MainGame extends Game {
 
     private AssetManager assetManager;

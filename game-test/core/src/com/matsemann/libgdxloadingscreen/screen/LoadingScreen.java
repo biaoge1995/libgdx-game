@@ -14,6 +14,7 @@ import com.matsemann.libgdxloadingscreen.SomeCoolGame;
 import org.cbzmq.game.actor.other.Person;
 import org.cbzmq.game.actor.other.Res;
 
+
 /**
  * @author Mats Svensson
  */

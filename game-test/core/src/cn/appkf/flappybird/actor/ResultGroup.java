@@ -9,6 +9,7 @@ import cn.appkf.flappybird.actor.framework.AnimationActor;
 import cn.appkf.flappybird.actor.framework.ImageActor;
 import cn.appkf.flappybird.res.Res;
 
+
 /**
  * 分数结果显示组合, 显示 奖牌、分数、最好的分数
  * 

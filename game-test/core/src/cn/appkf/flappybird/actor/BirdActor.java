@@ -7,6 +7,7 @@ import cn.appkf.flappybird.actor.base.BaseAnimationActor;
 import cn.appkf.flappybird.res.Res;
 import cn.appkf.flappybird.util.GameState;
 
+
 /**
  * 小鸟, 小鸟可以看做是在竖直方向上跳跃, 水平方向上不动
  * 

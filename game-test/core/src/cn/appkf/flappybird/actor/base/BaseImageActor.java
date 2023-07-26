@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import cn.appkf.flappybird.MainGame;
 import cn.appkf.flappybird.actor.framework.ImageActor;
 
+
 /**
  * 演员基类
  * 

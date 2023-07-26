@@ -1,5 +1,6 @@
 package cn.appkf.flappybird.res;
 
+
 /**
  * 资源常量
  * 
