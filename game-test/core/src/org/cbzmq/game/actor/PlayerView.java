@@ -28,17 +28,23 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-package org.cbzmq.game.character;
+package org.cbzmq.game.actor;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.esotericsoftware.spine.*;
 import com.esotericsoftware.spine.AnimationState.AnimationStateAdapter;
+import org.cbzmq.game.actor.CharacterView;
+import org.cbzmq.game.character.Assets;
 import org.cbzmq.game.character.Assets.SoundEffect;
+import org.cbzmq.game.character.CharacterState;
+import org.cbzmq.game.character.GameCamera;
 import org.cbzmq.game.constant.Constants;
+import org.cbzmq.game.domain.Player;
 import org.cbzmq.game.stage.Model;
 
 
@@ -56,28 +62,28 @@ public class PlayerView extends CharacterView {
 
 	public GameCamera camera;
 
-	public PlayerView (final Assets assets, final Player player,final Viewport viewport,final GameCamera camera,final Model model) {
+	public PlayerView (final Assets assets, final Player player, final Viewport viewport, final GameCamera camera, final Model model) {
 		super(assets);
 		this.player = player;
 		this.viewport = viewport;
 		this.camera = camera;
-		skeleton = new Skeleton(assets.playerSkeletonData);
+		setSkeleton(new Skeleton(assets.playerSkeletonData));
 
 		// We'll allow any of the bones or animations to be null in case someone has swapped out spineboy for a different skeleton.
-		rearUpperArmBone = skeleton.findBone("rear_upper_arm");
-		rearBracerBone = skeleton.findBone("rear_bracer");
-		gunBone = skeleton.findBone("gun");
-		headBone = skeleton.findBone("head");
-		torsoBone = skeleton.findBone("torso");
-		frontUpperArmBone = skeleton.findBone("front_upper_arm");
+		rearUpperArmBone = getSkeleton().findBone("rear_upper_arm");
+		rearBracerBone = getSkeleton().findBone("rear_bracer");
+		gunBone = getSkeleton().findBone("gun");
+		headBone = getSkeleton().findBone("head");
+		torsoBone = getSkeleton().findBone("torso");
+		frontUpperArmBone = getSkeleton().findBone("front_upper_arm");
 		shootAnimation = assets.playerSkeletonData.findAnimation("shoot");
 		hitAnimation = assets.playerSkeletonData.findAnimation("hit");
+		setAnimationState(new AnimationState(assets.playerAnimationData));
 
-		animationState = new AnimationState(assets.playerAnimationData);
 
 		// Play footstep sounds.
 		final EventData footstepEvent = assets.playerSkeletonData.findEvent("footstep");
-		animationState.addListener(new AnimationStateAdapter() {
+		getAnimationState().addListener(new AnimationStateAdapter() {
 			public void event(AnimationState.TrackEntry entry, Event event) {
 				if (event.getData() == footstepEvent) {
 					if (event.getInt() == 1)
@@ -90,7 +96,9 @@ public class PlayerView extends CharacterView {
 		);
 	}
 
-	public void update (float delta) {
+	@Override
+	public void act(float delta) {
+//		super.act(delta);
 		// When not shooting, reset the number of burst shots.
 		if (!touched && burstTimer > 0) {
 			burstTimer -= delta;
@@ -100,11 +108,11 @@ public class PlayerView extends CharacterView {
 		// If jump was pressed in the air, jump as soon as grounded.
 		if (jumpPressed && player.isGrounded()) jump();
 
-		skeleton.setX(player.position.x + Player.width / 2);
-		skeleton.setY(player.position.y);
+		getSkeleton().setX(player.position.x + Player.width / 2);
+		getSkeleton().setY(player.position.y);
 
-		if (!setAnimation(assets.playerStates.get(player.state), player.stateChanged)) animationState.update(delta);
-		animationState.apply(skeleton);
+		if (!setAnimation(assets.playerStates.get(player.state), player.stateChanged)) getAnimationState().update(delta);
+		getAnimationState().apply(getSkeleton());
 
 		Vector2 mouse = temp1.set(Gdx.input.getX(), Gdx.input.getY());
 		viewport.unproject(mouse);
@@ -117,7 +125,7 @@ public class PlayerView extends CharacterView {
 		else if (player.hp > 0
 //				&& !spineBoyStage.ui.hasSplash
 				//骨骼距离鼠标的x和y轴距离要超过一定的数值
-			&& (Math.abs(skeleton.getY() - mouse.y) > 2.7f || Math.abs(skeleton.getX() - mouse.x) > 0.75f)) {
+				&& (Math.abs(getSkeleton().getY() - mouse.y) > 2.7f || Math.abs(getSkeleton().getX() - mouse.x) > 0.75f)) {
 			// Store bone rotations from the animation that was applied.
 			float rearUpperArmRotation = rearUpperArmBone.getRotation();
 			float rearBracerRotation = rearBracerBone.getRotation();
@@ -125,13 +133,13 @@ public class PlayerView extends CharacterView {
 			// Straighten the arm and don't flipX, so the arm can more easily point at the mouse.
 			rearUpperArmBone.setRotation(0);
 			float shootRotation = 11;
-			if (animationState.getCurrent(1) == null) {
+			if (getAnimationState().getCurrent(1) == null) {
 				rearBracerBone.setRotation(0);
 				gunBone.setRotation(0);
 			} else
 				shootRotation += 25; // Use different rotation when shoot animation was applied.
-			skeleton.setScaleX(1);
-			skeleton.updateWorldTransform();
+			getSkeleton().setScaleX(1);
+			getSkeleton().updateWorldTransform();
 
 			// Compute the arm's angle to the mouse, flipping it based on the direction the player faces.
 			Vector2 bonePosition = temp2.set(rearUpperArmBone.getWorldX(), rearUpperArmBone.getWorldY());
@@ -174,12 +182,19 @@ public class PlayerView extends CharacterView {
 			}
 		}
 
-		skeleton.setScaleX(player.dir);
-		skeleton.updateWorldTransform();
+		getSkeleton().setScaleX(player.dir);
+		getSkeleton().updateWorldTransform();
 	}
 
+	@Override
+	public void draw(Batch batch, float parentAlpha) {
+//		super.draw(batch, parentAlpha);
+		if (player.collisionTimer < 0 || (int)(player.collisionTimer / Player.flashTime * 1.5f) % 2 != 0)
+			getRenderer().draw(batch, getSkeleton());
+	}
+
+
 	public void jump () {
-		player.view.
 		player.jump();
 		setAnimation(assets.playerStates.get(CharacterState.jump), true);
 	}
@@ -218,7 +233,7 @@ public class PlayerView extends CharacterView {
 		}
 		player.addBullet(x, y, vx, vy, temp1.set(vx, vy).angle());
 		//开枪时的镜头抖动设置
-		if (shootAnimation != null) animationState.setAnimation(1, shootAnimation, false);
+		if (shootAnimation != null) getAnimationState().setAnimation(1, shootAnimation, false);
 		//镜头抖动设置
 		camera.shackCamera();
 

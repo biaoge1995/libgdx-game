@@ -28,11 +28,13 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-package org.cbzmq.game.character;
+package org.cbzmq.game.domain;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import org.cbzmq.game.character.CharacterState;
+import org.cbzmq.game.character.Map;
 import org.cbzmq.game.constant.Constants;
 
 

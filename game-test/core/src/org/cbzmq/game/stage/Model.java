@@ -40,19 +40,17 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.Pools;
 import org.cbzmq.game.SuperSpineBoyGame;
-import org.cbzmq.game.character.Character;
+import org.cbzmq.game.domain.Character;
 import org.cbzmq.game.character.*;
-import org.cbzmq.game.character.Enemy.Type;
+import org.cbzmq.game.domain.Enemy;
+import org.cbzmq.game.domain.Enemy.Type;
 import org.cbzmq.game.constant.Constants;
+import org.cbzmq.game.domain.Player;
 
 /** The core of the game logic. The model manages all game information but knows nothing about the view, ie it knows nothing about
  * how this information might be drawn to the screen. This model-view separation is a clean way to organize the code. */
 public class Model {
-//	public static float scale = 1 / 64f;
-//	public static float gravity = 32;
-//	public static float fps = 1 / 30f;
-//	public static float gameOverSlowdown = 5.5f;
-//	public static int mapCollisionLayer = 0;
+
 
 	SuperSpineBoyGame controller;
 	Player player;

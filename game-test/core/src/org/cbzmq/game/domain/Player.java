@@ -28,12 +28,12 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-package org.cbzmq.game.character;
+package org.cbzmq.game.domain;
 
 import com.badlogic.gdx.utils.FloatArray;
+import org.cbzmq.game.character.Map;
+import org.cbzmq.game.actor.PlayerView;
 import org.cbzmq.game.constant.Constants;
-import org.cbzmq.game.stage.Model;
-
 
 
 /** The model class for the player. */
@@ -67,9 +67,7 @@ public class Player extends Character {
 
 	public void update (float delta) {
 		stateChanged = false;
-
 		shootTimer -= delta;
-
 		if (hp > 0) {
 			hpTimer -= delta;
 			if (hpTimer < 0) {

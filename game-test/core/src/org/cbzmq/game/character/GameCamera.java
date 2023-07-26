@@ -3,7 +3,6 @@ package org.cbzmq.game.character;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
 import org.cbzmq.game.constant.Constants;
-import org.cbzmq.game.stage.SpineBoyStage;
 
 /**
  * @ClassName GameCamera

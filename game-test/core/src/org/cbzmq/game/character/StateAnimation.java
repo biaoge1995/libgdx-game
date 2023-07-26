@@ -13,9 +13,9 @@ import com.esotericsoftware.spine.Animation;
 
 /** Stores information needed by the view for a character state. */
 public  class StateAnimation {
-    Animation animation;
-    boolean loop;
+    public Animation animation;
+    public boolean loop;
     // Controls the start frame when changing from another animation to this animation.
-    ObjectFloatMap<Animation> startTimes = new ObjectFloatMap();
-    float defaultStartTime;
+    public ObjectFloatMap<Animation> startTimes = new ObjectFloatMap();
+    public float defaultStartTime;
 }

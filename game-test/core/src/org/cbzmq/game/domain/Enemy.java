@@ -28,11 +28,13 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-package org.cbzmq.game.character;
+package org.cbzmq.game.domain;
 
 import com.badlogic.gdx.math.MathUtils;
+import org.cbzmq.game.character.CharacterState;
+import org.cbzmq.game.actor.EnemyView;
+import org.cbzmq.game.character.Map;
 import org.cbzmq.game.constant.Constants;
-import org.cbzmq.game.stage.Model;
 
 
 /** The model class for an enemy. */

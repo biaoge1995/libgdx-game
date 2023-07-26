@@ -35,11 +35,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.spine.AnimationState.TrackEntry;
 import org.cbzmq.game.character.Assets.SoundEffect;
 import org.cbzmq.game.character.Assets;
-import org.cbzmq.game.character.Enemy;
+import org.cbzmq.game.domain.Enemy;
 import org.cbzmq.game.constant.Constants;
 import org.cbzmq.game.stage.Model;
-import org.cbzmq.game.stage.SpineBoyStage;
-import org.cbzmq.game.stage.UI2;
+import org.cbzmq.game.stage.View;
+import org.cbzmq.game.stage.UI;
 
 /** The controller class for the game. It knows about both the model and view and provides a way for the view to know about events
  * that occur in the model. */
@@ -49,32 +49,33 @@ import org.cbzmq.game.stage.UI2;
 public class SuperSpineBoyGame extends Game {
 	static Vector2 temp = new Vector2();
 
-	SpineBoyStage spineBoyStage;
+	View view;
 	Model model;
 	Screen screen;
 
 	static class Screen extends ScreenAdapter{
 
-		SpineBoyStage spineBoyStage;
-		UI2 ui2;
+		View view;
+		UI ui;
 
-		public Screen(SpineBoyStage spineBoyStage, UI2 ui2) {
-			this.spineBoyStage = spineBoyStage;
-			this.ui2 = ui2;
+		public Screen(View view, UI ui) {
+			this.view = view;
+			this.ui = ui;
 		}
 
 		@Override
 		public void render(float delta) {
-			spineBoyStage.render();
-			ui2.act(delta);
-			ui2.draw();
+			view.act(delta);
+			view.draw();
+			ui.act(delta);
+			ui.draw();
 		}
 	}
 
 	public void create () {
 		model = new Model(this);
-		spineBoyStage = new SpineBoyStage(model);
-		screen = new Screen(spineBoyStage, spineBoyStage.ui);
+		view = new View(model);
+		screen = new Screen(view, view.ui);
 		setScreen(screen);
 
 	}
@@ -83,53 +84,53 @@ public class SuperSpineBoyGame extends Game {
 		float delta = Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f) * model.getTimeScale();
 		if (delta > 0) {
 			model.update(delta);
-			spineBoyStage.update(delta);
+//			view.update(delta);
 		}
 		super.render();
 	}
 
 	public void resize (int width, int height) {
-		spineBoyStage.resize(width, height);
+		view.resize(width, height);
 	}
 
 	public void restart () {
 		model.restart();
-		spineBoyStage.restart();
+		view.restart();
 	}
 
 	public void eventHitPlayer (Enemy enemy) {
 		Assets.SoundEffect.hurtPlayer.play();
-		if (spineBoyStage.player.hp > 0 && spineBoyStage.player.view.hitAnimation != null) {
-			TrackEntry entry = spineBoyStage.player.view.animationState.setAnimation(1, spineBoyStage.player.view.hitAnimation, false);
-			entry.setTrackEnd(spineBoyStage.player.view.hitAnimation.getDuration());
+		if (view.player.hp > 0 && view.player.view.hitAnimation != null) {
+			TrackEntry entry = view.player.view.getAnimationState().setAnimation(1, view.player.view.hitAnimation, false);
+			entry.setTrackEnd(view.player.view.hitAnimation.getDuration());
 		}
 	}
 
 	public void eventHitEnemy (Enemy enemy) {
 		SoundEffect.hurtAlien.play();
 		if (enemy.view.hitAnimation != null) {
-			TrackEntry entry = enemy.view.animationState.setAnimation(1, enemy.view.hitAnimation, false);
+			TrackEntry entry = enemy.view.getAnimationState().setAnimation(1, enemy.view.hitAnimation, false);
 			entry.setTrackEnd(enemy.view.hitAnimation.getDuration());
 		}
 	}
 
 	public void eventHitBullet (float x, float y, float vx, float vy) {
 		Vector2 offset = temp.set(vx, vy).nor().scl(15 * Constants.scale);
-		spineBoyStage.hits.add(SpineBoyStage.bulletHitTime);
-		spineBoyStage.hits.add(x + offset.x);
-		spineBoyStage.hits.add(y + offset.y);
-		spineBoyStage.hits.add(temp.angle() + 90);
+		view.hits.add(View.bulletHitTime);
+		view.hits.add(x + offset.x);
+		view.hits.add(y + offset.y);
+		view.hits.add(temp.angle() + 90);
 		SoundEffect.hit.play();
 	}
 
 	public void eventGameOver (boolean win) {
-		if (!spineBoyStage.ui.splashTable.hasParent()) {
-			spineBoyStage.ui.showSplash(spineBoyStage.assets.gameOverRegion, win ? spineBoyStage.assets.youWinRegion : spineBoyStage.assets.youLoseRegion);
-			spineBoyStage.ui.inputTimer = win ? 5 : 1;
+		if (!view.ui.splashTable.hasParent()) {
+			view.ui.showSplash(view.assets.gameOverRegion, win ? view.assets.youWinRegion : view.assets.youLoseRegion);
+			view.ui.inputTimer = win ? 5 : 1;
 		}
-		spineBoyStage.player.view.setJumpPressed(false);
-		spineBoyStage.player.view.setLeftPressed(false);
-		spineBoyStage.player.view.setRightPressed(false);
+		view.player.view.setJumpPressed(false);
+		view.player.view.setLeftPressed(false);
+		view.player.view.setRightPressed(false);
 
 	}
 

@@ -43,6 +43,8 @@ import com.esotericsoftware.spine.AnimationStateData;
 import com.esotericsoftware.spine.SkeletonData;
 import com.esotericsoftware.spine.SkeletonJson;
 import org.cbzmq.game.constant.Constants;
+import org.cbzmq.game.domain.Enemy;
+import org.cbzmq.game.domain.Player;
 
 
 /** Centralized place to load and store assets. */

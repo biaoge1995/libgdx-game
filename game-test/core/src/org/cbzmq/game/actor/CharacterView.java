@@ -28,40 +28,58 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-package org.cbzmq.game.character;
+package org.cbzmq.game.actor;
 
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.esotericsoftware.spine.Animation;
 import com.esotericsoftware.spine.AnimationState;
 import com.esotericsoftware.spine.AnimationState.TrackEntry;
 import com.esotericsoftware.spine.Skeleton;
-import org.cbzmq.game.stage.SpineBoyStage;
+import com.esotericsoftware.spine.SkeletonRenderer;
+import com.esotericsoftware.spine.utils.SkeletonActor;
+import org.cbzmq.game.character.Assets;
+import org.cbzmq.game.character.StateAnimation;
 
 /**
  * The view class for an enemy or player that moves around the map.
  */
-public class CharacterView {
+public class CharacterView extends SkeletonActor{
     //	SpineBoyStage spineBoyStage;
 //	Model model;
-    public Skeleton skeleton;
-    public AnimationState animationState;
+//    public Skeleton skeleton;
+//    public AnimationState animationState;
     public Assets assets;
     public CharacterView(Assets assets) {
         this.assets = assets;
+        SkeletonRenderer skeletonRenderer = new SkeletonRenderer();
+        skeletonRenderer.setPremultipliedAlpha(true);
+        setRenderer(skeletonRenderer);
 
     }
+
 
     public boolean setAnimation(StateAnimation state, boolean force) {
         // Changes the current animation on track 0 of the AnimationState, if needed.
         Animation animation = state.animation;
-        TrackEntry current = animationState.getCurrent(0);
+        TrackEntry current = getAnimationState().getCurrent(0);
         Animation oldAnimation = current == null ? null : current.getAnimation();
         if (force || oldAnimation != animation) {
             if (state.animation == null) return true;
-            TrackEntry entry = animationState.setAnimation(0, state.animation, state.loop);
+            TrackEntry entry = getAnimationState().setAnimation(0, state.animation, state.loop);
             if (oldAnimation != null) entry.setTrackTime(state.startTimes.get(oldAnimation, state.defaultStartTime));
             if (!state.loop) entry.setTrackEnd(Float.MAX_VALUE);
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+    }
+
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        super.draw(batch, parentAlpha);
     }
 }

@@ -32,28 +32,28 @@ package org.cbzmq.game.stage;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.renderers.OrthoCachedTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.FloatArray;
-import com.badlogic.gdx.utils.ObjectFloatMap;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.esotericsoftware.spine.Animation;
 import com.esotericsoftware.spine.SkeletonRenderer;
-import org.cbzmq.game.character.GameCamera.*;
 
+import org.cbzmq.game.actor.EnemyView;
+import org.cbzmq.game.actor.PlayerView;
 import org.cbzmq.game.character.*;
 import org.cbzmq.game.constant.Constants;
+import org.cbzmq.game.domain.Enemy;
+import org.cbzmq.game.domain.Player;
 
 
 /** The core of the view logic. The view knows about the model and manages everything needed to draw to the screen. */
-public class SpineBoyStage extends InputAdapter {
+public class View extends Stage {
 	public static float bulletHitTime = 0.2f, bulletHitOffset = 50 * Constants.scale;
 //	public static float cameraMinWidth = 16, cameraMaxWidth = 28, cameraHeight = 16, cameraZoom = 0.4f, cameraZoomSpeed = 0.5f;
 //	public static float cameraBottom = 2, cameraTop = 7, cameraMinX = 1;
@@ -73,13 +73,13 @@ public class SpineBoyStage extends InputAdapter {
 	public SkeletonRenderer skeletonRenderer;
 	public OrthoCachedTiledMapRenderer mapRenderer;
 	public Assets assets;
-	public UI2 ui;
+	public UI ui;
 
 //	public float shakeX, shakeY, lookahead, zoom = 1;
 	public FloatArray hits = new FloatArray();
 //	public boolean touched, jumpPressed, leftPressed, rightPressed;
 
-	public SpineBoyStage(Model model) {
+	public View(Model model) {
 		this.model = model;
 
 		mapRenderer = new OrthoCachedTiledMapRenderer(model.map.tiledMap, Constants.scale, 3000);
@@ -95,23 +95,99 @@ public class SpineBoyStage extends InputAdapter {
 
 		assets = new Assets();
 
-		ui = new UI2(this);
+		ui = new UI(this);
 
 		Gdx.input.setInputProcessor(new InputMultiplexer( ui, this));
 
 		restart();
 	}
 
-	public void restart () {
-		player = model.player;
-		player.view = new PlayerView(assets,player,viewport,camera,model);
-		camera.lookahead = 0;
-		player.view.setTouched(false);
-		hits.clear();
+	@Override
+	public void draw() {
+		super.draw();
+		viewport.apply();
+
+		Gdx.gl.glClearColor(0, 0, 0, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+		if (ui.bgButton.isChecked()) {
+			mapRenderer.setBlending(false);
+			mapRenderer.render(mapLayersOpaque1);
+
+			mapRenderer.setBlending(true);
+			mapRenderer.render(mapLayersBackground2);
+		}
+
+		batch.begin();
+		// Draw enemies.
+		for (Enemy enemy : model.enemies) {
+			enemy.view.draw(batch,0);
+		}
+		// Draw player.
+		player.view.draw(batch,0);
+//		if (player.collisionTimer < 0 || (int)(player.collisionTimer / Player.flashTime * 1.5f) % 2 != 0)
+//			skeletonRenderer.draw(batch, player.view.skeleton);
+		batch.end();
+
+		if (ui.bgButton.isChecked()) {
+			mapRenderer.setBlending(false);
+			mapRenderer.render(mapLayersOpaque3);
+
+			mapRenderer.setBlending(true);
+			mapRenderer.render(mapForegroundLayers4);
+		}
+
+		batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+		batch.begin();
+
+		// Draw bullets.
+		TextureRegion bulletRegion = assets.bulletRegion;
+		float bulletWidth = bulletRegion.getRegionWidth() * Constants.scale;
+		float bulletHeight = bulletRegion.getRegionHeight() * Constants.scale / 2;
+		for (int i = 2, n = model.bullets.size; i < n; i += 5) {
+			float x = model.bullets.get(i), y = model.bullets.get(i + 1);
+			float angle = model.bullets.get(i + 2);
+			float vx = MathUtils.cosDeg(angle);
+			float vy = MathUtils.sinDeg(angle);
+			// Adjust position so bullet region is drawn with the bullet position in the center of the fireball.
+			x -= vx * bulletWidth * 0.65f;
+			y -= vy * bulletWidth * 0.65f;
+			x += vy * bulletHeight / 2;
+			y += -vx * bulletHeight / 2;
+			batch.draw(bulletRegion, x, y, 0, 0, bulletWidth, bulletHeight, 1, 1, angle);
+		}
+
+		// Draw hit markers.
+		TextureRegion hitRegion = assets.hitRegion;
+		Color color = batch.getColor().set(1, 1, 1, 1);
+		float hitWidth = hitRegion.getRegionWidth() * Constants.scale;
+		float hitHeight = hitRegion.getRegionWidth() * Constants.scale;
+		for (int i = hits.size - 4; i >= 0; i -= 4) {
+			float time = hits.get(i);
+			float x = hits.get(i + 1);
+			float y = hits.get(i + 2);
+			float angle = hits.get(i + 3);
+			color.a = time / bulletHitTime;
+			batch.setColor(color);
+			float vx = MathUtils.cosDeg(angle);
+			float vy = MathUtils.sinDeg(angle);
+			// Adjust position so bullet region is drawn with the bullet position in the center of the fireball.
+			x += vy * bulletHeight * 0.2f;
+			y += -vx * bulletHeight * 0.2f;
+			batch.draw(hitRegion, x - hitWidth / 2, y, hitWidth / 2, 0, hitWidth, hitHeight, 1, 1, angle);
+		}
+		batch.setColor(Color.WHITE);
+
+		batch.end();
+		batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+		if (ui.bgButton.isChecked()) mapRenderer.render(mapForegroundLayers5);
+
 	}
 
-	public void update (float delta) {
-		// Update the hit marker images.
+	@Override
+	public void act(float delta) {
+		super.act(delta);
 		for (int i = hits.size - 4; i >= 0; i -= 4) {
 			float time = hits.get(i) - delta;
 			if (time < 0)
@@ -122,14 +198,26 @@ public class SpineBoyStage extends InputAdapter {
 
 		updateInput(delta);
 		updateCamera(delta);
-
-		player.view.update(delta);
-
 		for (Enemy enemy : model.enemies) {
-			if (enemy.view == null) enemy.view = new EnemyView(assets, enemy);
-			enemy.view.update(delta);
+			if (enemy.view == null) {
+				enemy.view = new EnemyView(assets, enemy);
+				addActor(enemy.view);
+			}
+//			 enemy.view.update(delta);
 		}
 	}
+
+	public void restart () {
+		player = model.player;
+		player.view = new PlayerView(assets,player,viewport,camera,model);
+		camera.lookahead = 0;
+		player.view.setTouched(false);
+		hits.clear();
+		addActor(player.view);
+
+
+	}
+
 
 	public void updateInput (float delta) {
 		if (player.hp == 0) return;
@@ -201,87 +289,7 @@ public class SpineBoyStage extends InputAdapter {
 		camera.shakeY = 0;
 	}
 
-	public void render () {
-		viewport.apply();
 
-		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-		if (ui.bgButton.isChecked()) {
-			mapRenderer.setBlending(false);
-			mapRenderer.render(mapLayersOpaque1);
-
-			mapRenderer.setBlending(true);
-			mapRenderer.render(mapLayersBackground2);
-		}
-
-		batch.begin();
-		// Draw enemies.
-		for (Enemy enemy : model.enemies) {
-			enemy.view.skeleton.getColor().a = Math.min(1, enemy.deathTimer / Enemy.fadeTime);
-			skeletonRenderer.draw(batch, enemy.view.skeleton);
-		}
-		// Draw player.
-		if (player.collisionTimer < 0 || (int)(player.collisionTimer / Player.flashTime * 1.5f) % 2 != 0)
-			skeletonRenderer.draw(batch, player.view.skeleton);
-		batch.end();
-
-		if (ui.bgButton.isChecked()) {
-			mapRenderer.setBlending(false);
-			mapRenderer.render(mapLayersOpaque3);
-
-			mapRenderer.setBlending(true);
-			mapRenderer.render(mapForegroundLayers4);
-		}
-
-		batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
-		batch.begin();
-
-		// Draw bullets.
-		TextureRegion bulletRegion = assets.bulletRegion;
-		float bulletWidth = bulletRegion.getRegionWidth() * Constants.scale;
-		float bulletHeight = bulletRegion.getRegionHeight() * Constants.scale / 2;
-		for (int i = 2, n = model.bullets.size; i < n; i += 5) {
-			float x = model.bullets.get(i), y = model.bullets.get(i + 1);
-			float angle = model.bullets.get(i + 2);
-			float vx = MathUtils.cosDeg(angle);
-			float vy = MathUtils.sinDeg(angle);
-			// Adjust position so bullet region is drawn with the bullet position in the center of the fireball.
-			x -= vx * bulletWidth * 0.65f;
-			y -= vy * bulletWidth * 0.65f;
-			x += vy * bulletHeight / 2;
-			y += -vx * bulletHeight / 2;
-			batch.draw(bulletRegion, x, y, 0, 0, bulletWidth, bulletHeight, 1, 1, angle);
-		}
-
-		// Draw hit markers.
-		TextureRegion hitRegion = assets.hitRegion;
-		Color color = batch.getColor().set(1, 1, 1, 1);
-		float hitWidth = hitRegion.getRegionWidth() * Constants.scale;
-		float hitHeight = hitRegion.getRegionWidth() * Constants.scale;
-		for (int i = hits.size - 4; i >= 0; i -= 4) {
-			float time = hits.get(i);
-			float x = hits.get(i + 1);
-			float y = hits.get(i + 2);
-			float angle = hits.get(i + 3);
-			color.a = time / bulletHitTime;
-			batch.setColor(color);
-			float vx = MathUtils.cosDeg(angle);
-			float vy = MathUtils.sinDeg(angle);
-			// Adjust position so bullet region is drawn with the bullet position in the center of the fireball.
-			x += vy * bulletHeight * 0.2f;
-			y += -vx * bulletHeight * 0.2f;
-			batch.draw(hitRegion, x - hitWidth / 2, y, hitWidth / 2, 0, hitWidth, hitHeight, 1, 1, angle);
-		}
-		batch.setColor(Color.WHITE);
-
-		batch.end();
-		batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
-		if (ui.bgButton.isChecked()) mapRenderer.render(mapForegroundLayers5);
-
-//		ui.render();
-	}
 
 	public void resize (int width, int height) {
 		viewport.update(width, height);

@@ -32,7 +32,6 @@ package org.cbzmq.game.stage;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
@@ -58,24 +57,22 @@ import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.esotericsoftware.spine.SkeletonRendererDebug;
 import org.cbzmq.game.character.Assets;
-import org.cbzmq.game.character.Enemy;
+import org.cbzmq.game.domain.Enemy;
 import org.cbzmq.game.character.GameCamera;
-import org.cbzmq.game.character.Player;
+import org.cbzmq.game.domain.Player;
 import org.cbzmq.game.constant.Constants;
 
 import static com.badlogic.gdx.math.Interpolation.*;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
 import static org.cbzmq.game.constant.Constants.scale;
-import static org.cbzmq.game.stage.SpineBoyStage.*;
 
 /** The user interface displayed on top of the game (menu, health bar, splash screens). */
-public class UI extends InputAdapter {
+public class UI extends Stage {
 	static final Color gray = new Color(0.15f, 0.15f, 0.15f, 1);
-	SpineBoyStage spineBoyStage;
+	View view;
 	Model model;
 	ShapeRenderer shapes;
 	SkeletonRendererDebug skeletonRendererDebug;
-	Stage stage;
 	Skin skin;
 	Label fpsLabel, bindsLabel;
 	TextButton debugButton, zoomButton, bgButton;
@@ -91,9 +88,10 @@ public class UI extends InputAdapter {
 	public float inputTimer;
 	public boolean hasSplash;
 
-	UI(final SpineBoyStage spineBoyStage) {
-		this.spineBoyStage = spineBoyStage;
-		this.model = spineBoyStage.model;
+	UI(final View view) {
+		super(new ScreenViewport());
+		this.view = view;
+		this.model = view.model;
 
 		shapes = new ShapeRenderer();
 
@@ -101,17 +99,17 @@ public class UI extends InputAdapter {
 		skeletonRendererDebug.setScale(Constants.scale);
 		// skeletonRendererDebug.setPremultipliedAlpha(true);
 
-		stage = new Stage(new ScreenViewport());
 		loadSkin();
-
 		create();
 		layout();
 		events();
 
-		showSplash(spineBoyStage.assets.titleRegion, spineBoyStage.assets.startRegion);
+		showSplash(view.assets.titleRegion, view.assets.startRegion);
 	}
 
-	private void create () {
+
+
+	public void create () {
 		speed200Button = speedButton(2f);
 		speed150Button = speedButton(1.5f);
 		speed100Button = speedButton(1);
@@ -172,7 +170,7 @@ public class UI extends InputAdapter {
 		menu.setVisible(false);
 
 		Table root = new Table(skin);
-		stage.addActor(root);
+		this.addActor(root);
 		root.top().left().pad(5).defaults().space(5);
 		root.setFillParent(true);
 		root.add(menuButton).fillX();
@@ -277,52 +275,15 @@ public class UI extends InputAdapter {
 		return button;
 	}
 
-	public void render () {
-		float delta = Gdx.graphics.getDeltaTime();
-		inputTimer -= delta;
-
-		float zoom = zoomButton.isChecked() ? GameCamera.cameraZoom : 1;
-		if (spineBoyStage.camera.zoom != zoom) {
-			if (spineBoyStage.camera.zoom < zoom)
-				spineBoyStage.camera.zoom = Math.min(zoom, spineBoyStage.camera.zoom + GameCamera.cameraZoomSpeed * delta);
-			else
-				spineBoyStage.camera.zoom = Math.max(zoom, spineBoyStage.camera.zoom - GameCamera.cameraZoomSpeed * delta);
-			spineBoyStage.viewport.setMinWorldWidth(GameCamera.cameraMinWidth * spineBoyStage.camera.zoom);
-			spineBoyStage.viewport.setMinWorldHeight(GameCamera.cameraHeight * spineBoyStage.camera.zoom);
-			spineBoyStage.viewport.setMaxWorldWidth(GameCamera.cameraMaxWidth * spineBoyStage.camera.zoom);
-			spineBoyStage.viewport.setMaxWorldHeight(GameCamera.cameraHeight * spineBoyStage.camera.zoom);
-			spineBoyStage.viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		}
-
-		if (!bgButton.isChecked()) {
-			shapes.setTransformMatrix(spineBoyStage.batch.getTransformMatrix());
-			shapes.setProjectionMatrix(spineBoyStage.batch.getProjectionMatrix());
-			shapes.setColor(gray);
-			shapes.begin(ShapeType.Filled);
-			float w = spineBoyStage.viewport.getWorldWidth(), h = spineBoyStage.viewport.getWorldHeight();
-			int x = (int)(spineBoyStage.camera.position.x - w / 2), y = (int)(spineBoyStage.camera.position.y - h / 2);
-			for (Rectangle rect : model.getCollisionTiles(x, y, x + (int)(w + 0.5f), y + (int)(h + 0.5f))) {
-				shapes.rect(rect.x, rect.y, rect.width, rect.height);
-			}
-			shapes.end();
-		}
-
-		healthBar.setValue(Player.hpStart - model.player.hp);
-
-		SpriteCache spriteCache = spineBoyStage.mapRenderer.getSpriteCache();
-		int renderCalls = spineBoyStage.batch.totalRenderCalls + spriteCache.totalRenderCalls;
-		spineBoyStage.batch.totalRenderCalls = 0;
-		spriteCache.totalRenderCalls = 0;
-		fpsLabel.setText(Integer.toString(Gdx.graphics.getFramesPerSecond()));
-		bindsLabel.setText(Integer.toString(renderCalls));
-
+	@Override
+	public void draw() {
+		//如果开启debug模式
 		if (!hasSplash && debugButton.isChecked()) {
-			shapes.setTransformMatrix(spineBoyStage.batch.getTransformMatrix());
-			shapes.setProjectionMatrix(spineBoyStage.batch.getProjectionMatrix());
+			shapes.setTransformMatrix(view.batch.getTransformMatrix());
+			shapes.setProjectionMatrix(view.batch.getProjectionMatrix());
+
 			shapes.begin(ShapeType.Line);
-
 			shapes.setColor(Color.GREEN);
-
 			FloatArray bullets = model.bullets;
 			for (int i = bullets.size - 5; i >= 0; i -= 5) {
 				float x = bullets.get(i + 2);
@@ -330,7 +291,7 @@ public class UI extends InputAdapter {
 				shapes.x(x, y, 10 * scale);
 			}
 
-			FloatArray hits = spineBoyStage.hits;
+			FloatArray hits = view.hits;
 			for (int i = hits.size - 4; i >= 0; i -= 4) {
 				float x = hits.get(i + 1);
 				float y = hits.get(i + 2);
@@ -347,27 +308,71 @@ public class UI extends InputAdapter {
 
 			shapes.end();
 
-			skeletonRendererDebug.draw(model.player.view.skeleton);
+			skeletonRendererDebug.draw(model.player.view.getSkeleton());
 			for (Enemy enemy : model.enemies) {
-				skeletonRendererDebug.draw(enemy.view.skeleton);
+				skeletonRendererDebug.draw(enemy.view.getSkeleton());
 			}
 		}
-
-		stage.act();
-		stage.getViewport().apply(true);
-		stage.draw();
-
-		Batch batch = stage.getBatch();
+		//正常模式
+		this.getViewport().apply(true);
+		super.draw();
+		Batch batch = getBatch();
 		batch.setColor(Color.WHITE);
 		batch.begin();
-		Vector2 cursor = stage.screenToStageCoordinates(temp.set(Gdx.input.getX(), Gdx.input.getY()));
-		TextureRegion crosshair = spineBoyStage.assets.crosshair;
+		Vector2 cursor = this.screenToStageCoordinates(temp.set(Gdx.input.getX(), Gdx.input.getY()));
+		TextureRegion crosshair = view.assets.crosshair;
 		batch.draw(crosshair, cursor.x - crosshair.getRegionWidth() / 2, cursor.y - crosshair.getRegionHeight() / 2 + 2);
 		batch.end();
 	}
 
+	@Override
+	public void act(float delta) {
+		render ();
+		super.act(delta);
+	}
+
+	 void render () {
+		float delta = Gdx.graphics.getDeltaTime();
+		inputTimer -= delta;
+
+		float zoom = zoomButton.isChecked() ? GameCamera.cameraZoom : 1;
+		if (view.camera.zoom != zoom) {
+			if (view.camera.zoom < zoom)
+				view.camera.zoom = Math.min(zoom, view.camera.zoom + GameCamera.cameraZoomSpeed * delta);
+			else
+				view.camera.zoom = Math.max(zoom, view.camera.zoom - GameCamera.cameraZoomSpeed * delta);
+			view.viewport.setMinWorldWidth(GameCamera.cameraMinWidth * view.camera.zoom);
+			view.viewport.setMinWorldHeight(GameCamera.cameraHeight * view.camera.zoom);
+			view.viewport.setMaxWorldWidth(GameCamera.cameraMaxWidth * view.camera.zoom);
+			view.viewport.setMaxWorldHeight(GameCamera.cameraHeight * view.camera.zoom);
+			view.viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		}
+
+		if (!bgButton.isChecked()) {
+			shapes.setTransformMatrix(view.batch.getTransformMatrix());
+			shapes.setProjectionMatrix(view.batch.getProjectionMatrix());
+			shapes.setColor(gray);
+			shapes.begin(ShapeType.Filled);
+			float w = view.viewport.getWorldWidth(), h = view.viewport.getWorldHeight();
+			int x = (int)(view.camera.position.x - w / 2), y = (int)(view.camera.position.y - h / 2);
+			for (Rectangle rect : model.getCollisionTiles(x, y, x + (int)(w + 0.5f), y + (int)(h + 0.5f))) {
+				shapes.rect(rect.x, rect.y, rect.width, rect.height);
+			}
+			shapes.end();
+		}
+
+		healthBar.setValue(Player.hpStart - model.player.hp);
+
+		SpriteCache spriteCache = view.mapRenderer.getSpriteCache();
+		int renderCalls = view.batch.totalRenderCalls + spriteCache.totalRenderCalls;
+		view.batch.totalRenderCalls = 0;
+		spriteCache.totalRenderCalls = 0;
+		fpsLabel.setText(Integer.toString(Gdx.graphics.getFramesPerSecond()));
+		bindsLabel.setText(Integer.toString(renderCalls));
+	}
+
 	public void resize (int width, int height) {
-		stage.getViewport().update(width, height, true);
+		this.getViewport().update(width, height, true);
 	}
 
 	public void toggleFullscreen () {
@@ -383,7 +388,7 @@ public class UI extends InputAdapter {
 	public void showSplash (TextureRegion splash, TextureRegion text) {
 		splashImage.setDrawable(new TextureRegionDrawable(splash));
 		splashTextImage.setDrawable(new TextureRegionDrawable(text));
-		stage.addActor(splashTable);
+		this.addActor(splashTable);
 		splashTable.clearActions();
 		splashTable.getColor().a = 0;
 		splashTable.addAction(fadeIn(1));
@@ -424,9 +429,9 @@ public class UI extends InputAdapter {
 			debugButton.toggle();
 			return true;
 		case Keys.T:
-			spineBoyStage.assets.dispose();
+			view.assets.dispose();
 			Texture.invalidateAllTextures(Gdx.app);
-			spineBoyStage.assets = new Assets();
+			view.assets = new Assets();
 			return true;
 		case Keys.ESCAPE:
 			if (Gdx.graphics.isFullscreen())
@@ -438,7 +443,7 @@ public class UI extends InputAdapter {
 			if (UIUtils.alt()) toggleFullscreen();
 			return true;
 		case Keys.O:
-			showSplash(spineBoyStage.assets.titleRegion, spineBoyStage.assets.startRegion);
+			showSplash(view.assets.titleRegion, view.assets.startRegion);
 			return true;
 		}
 		return hasSplash;
