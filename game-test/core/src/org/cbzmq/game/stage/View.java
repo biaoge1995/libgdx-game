@@ -72,7 +72,6 @@ public class View extends Stage {
     public GameCamera camera;
     public ExtendViewport viewport;
     public SpriteBatch batch;
-    public SkeletonRenderer skeletonRenderer;
     public OrthoCachedTiledMapRenderer mapRenderer;
     public Assets assets;
     public UI ui;
@@ -105,14 +104,13 @@ public class View extends Stage {
         mapRenderer.setMaxTileSize(512, 512);
 
 
-        skeletonRenderer = new SkeletonRenderer();
-        skeletonRenderer.setPremultipliedAlpha(true);
+
 
         assets = model.assets;
 
         ui = new UI(this);
 
-        Gdx.input.setInputProcessor(new InputMultiplexer(ui, this));
+
 
         restart();
     }
@@ -136,6 +134,7 @@ public class View extends Stage {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        super.draw();
 
         if (ui.bgButton.isChecked()) {
             mapRenderer.setBlending(false);
@@ -144,16 +143,8 @@ public class View extends Stage {
             mapRenderer.setBlending(true);
             mapRenderer.render(mapLayersBackground2);
         }
-        super.draw();
-//        batch.begin();
-//        // Draw enemies.
-//		for (Enemy enemy : model.enemies) {
-//			enemy.view.draw(batch,1);
-//		}
-//        // Draw player.
-//		player.view.draw(batch,1);
-//
-//        batch.end();
+
+
 
         if (ui.bgButton.isChecked()) {
             mapRenderer.setBlending(false);

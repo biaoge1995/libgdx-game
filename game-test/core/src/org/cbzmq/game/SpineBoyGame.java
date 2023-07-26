@@ -75,6 +75,7 @@ public class SpineBoyGame extends Game {
 		view = new View(model);
 		screen = new Screen(view, view.ui);
 		setScreen(screen);
+		Gdx.input.setInputProcessor(new InputMultiplexer(view.ui, view));
 
 	}
 

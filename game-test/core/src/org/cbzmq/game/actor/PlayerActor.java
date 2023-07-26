@@ -114,6 +114,7 @@ public class PlayerActor extends BaseSkeletonActor {
 		getAnimationState().apply(getSkeleton());
 
 		Vector2 mouse = temp1.set(Gdx.input.getX(), Gdx.input.getY());
+		//将指定的屏幕坐标系转换为世界坐标系
 		viewport.unproject(mouse);
 
 		// Determine if the player can shoot at the mouse position.
