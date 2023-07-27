@@ -34,7 +34,7 @@ public class EnemyActor extends BaseSkeletonActor {
         setAnimationState(new AnimationState(assets.enemyAnimationData));
 
         // Play squish sound when enemies die.
-        final EventData squishEvent = assets.enemySkeletonData.findEvent("squish");
+
         getAnimationState().addListener(new AnimationStateAdapter() {
             public void event(AnimationState.TrackEntry entry, Event event) {
                 if (event.getData().getName().equals("squish") ) Assets.SoundEffect.squish.play();

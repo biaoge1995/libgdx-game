@@ -30,4 +30,10 @@ public interface Model {
     void setTimeScale(float timeScale);
     void restart();
 
+    EventQueue queue();
+
+    boolean isPlayerWin();
+
+    boolean isGameOver();
+
 }

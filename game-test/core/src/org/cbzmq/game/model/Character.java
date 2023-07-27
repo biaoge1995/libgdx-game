@@ -9,7 +9,8 @@ import org.cbzmq.game.Assets;
 import org.cbzmq.game.CharacterState;
 import org.cbzmq.game.Map;
 import org.cbzmq.game.Constants;
-
+import org.cbzmq.game.stage.EventQueue;
+import org.cbzmq.game.stage.Model;
 
 
 /** The model class for an enemy or player that moves around the map. */
@@ -26,7 +27,7 @@ public class Character {
 	//游戏主逻辑引用
 	public Map map;
 	//事件
-	public CharacterListener listener = new CharacterAdapter();
+	public CharacterListener listener ;
 
 	public String name;
 
@@ -61,6 +62,8 @@ public class Character {
 	//
 	public boolean isWin=false;
 
+	private EventQueue queue;
+
 
 	public void setTargetPosition(Vector2 targetPosition) {
 		this.targetPosition = targetPosition;
@@ -68,10 +71,12 @@ public class Character {
 
 	public Array<Character> childs = new Array<>();
 
+	Model parent;
+
 	public Character(Map map,String name) {
 		this.map = map;
 		this.name = name;
-		listener.born(this);
+
 	}
 
 	public Character explore(){
@@ -100,9 +105,7 @@ public class Character {
 
 	public void update (float delta) {
 		stateTime += delta;
-		if(hp<=0){
-			listener.death(this);
-		}
+
 
 		// If moving downward, change state to fall.
 		//如果角色在往下移动则设置该角色的状态为fll
@@ -162,7 +165,9 @@ public class Character {
 		int endY = (int)(rect.y + rect.height);
 		for (Rectangle tile : map.getCollisionTiles(x, startY, x, endY)) {
 			if (!rect.overlaps(tile)) continue;
-			listener.collisionMap(this,tile);
+			if(queue!=null){
+				queue.collisionMap(this,tile);
+			}
 			if (velocity.x >= 0)
 				position.x = tile.x - rect.width;
 			else
@@ -187,7 +192,10 @@ public class Character {
 		Array<Rectangle> collisionTiles = map.getCollisionTiles(startX, y, endX, y);
 		for (Rectangle tile : collisionTiles) {
 			if (!rect.overlaps(tile)) continue;
-			listener.collisionMap(this,tile);
+			if(queue!=null){
+				queue.collisionMap(this,tile);
+			}
+
 			if (velocity.y > 0)
 				position.y = tile.y - rect.height;
 			else {
@@ -236,5 +244,13 @@ public class Character {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	public EventQueue getQueue() {
+		return queue;
+	}
+
+	public void setQueue(EventQueue queue) {
+		this.queue = queue;
 	}
 }

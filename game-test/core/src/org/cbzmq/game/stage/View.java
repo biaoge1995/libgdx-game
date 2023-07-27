@@ -120,17 +120,23 @@ public class View extends Stage {
             @Override
             public void event(Character character, Event event) {
                 super.event(character, event);
+//                if(event.getData().getName().equals("win")){
+//                    eventGameOver(true);
+//                }else if (event.getData().getName().equals("lose")){
+//                    eventGameOver(false);
+//                }
+
             }
         });
         restart();
     }
 
-    public void gameRestart () {
+    public void gameRestart() {
         model.restart();
         this.restart();
     }
 
-    public void restart() {
+    private void restart() {
         player = model.getPlayer();
 
         playerView = new PlayerActor(assets, player, viewport, camera);
@@ -145,6 +151,18 @@ public class View extends Stage {
         playerGroup.addActor(playerView);
 
     }
+
+    public void eventGameOver(boolean win) {
+        if (!ui.splashTable.hasParent()) {
+            ui.showSplash(assets.gameOverRegion, win ? assets.youWinRegion : assets.youLoseRegion);
+            ui.inputTimer = win ? 5 : 1;
+        }
+        playerView.setJumpPressed(false);
+        playerView.setLeftPressed(false);
+        playerView.setRightPressed(false);
+
+    }
+
 
     @Override
     public void draw() {
@@ -205,6 +223,7 @@ public class View extends Stage {
 
 
         }
+        if (model.isGameOver()) eventGameOver(model.isPlayerWin());
 
     }
 
@@ -212,11 +231,13 @@ public class View extends Stage {
     public void updateInput(float delta) {
         if (player.hp == 0) return;
 
-        if (playerView.isLeftPressed())
+        if (playerView.isLeftPressed()) {
             player.moveLeft(delta);
-        else if (playerView.isRightPressed())
+//            player.setState(CharacterState.run);
+        } else if (playerView.isRightPressed()) {
             player.moveRight(delta);
-        else if (player.state == CharacterState.run) //
+//            player.setState(CharacterState.run);
+        } else if (player.state == CharacterState.run) //
             player.setState(CharacterState.idle);
 
         if (playerView.isTouched()) playerView.shoot();

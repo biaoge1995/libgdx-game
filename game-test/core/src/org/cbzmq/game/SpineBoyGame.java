@@ -50,7 +50,8 @@ public class SpineBoyGame extends Game {
 	Model model;
 	Screen screen;
 
-	static class Screen extends ScreenAdapter{
+	float time;
+	 class Screen extends ScreenAdapter{
 
 		View view;
 		UI ui;
@@ -62,7 +63,13 @@ public class SpineBoyGame extends Game {
 
 		@Override
 		public void render(float delta) {
+
+
+//			if ((int) SpineBoyGame.this.time % 2 == 0) {
+//
+//			}
 			view.act(delta);
+
 			view.draw();
 			ui.act(delta);
 			ui.draw();
@@ -70,8 +77,9 @@ public class SpineBoyGame extends Game {
 	}
 
 	public void create () {
-		model = new LocalModel(this);
+		model = new LocalModel();
 		view = new View(model);
+//		view.gameRestart();
 		screen = new Screen(view, view.ui);
 		setScreen(screen);
 		Gdx.input.setInputProcessor(new InputMultiplexer(view.ui, view));
@@ -80,9 +88,12 @@ public class SpineBoyGame extends Game {
 
 	public void render () {
 		float delta = Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f) * model.getTimeScale();
-		if (delta > 0) {
+		time+=delta;
+//		if ((int)time%2==0) {
+//			model.update(delta);0
+//		}
+		if(delta>0){
 			model.update(delta);
-//			view.update(delta);
 		}
 		super.render();
 	}
@@ -95,41 +106,8 @@ public class SpineBoyGame extends Game {
 		view.gameRestart();
 	}
 
-//	public void eventHitPlayer (Enemy enemy) {
-//		Assets.SoundEffect.hurtPlayer.play();
-//		if (view.player.hp > 0 && view.player.view.hitAnimation != null) {
-//			TrackEntry entry = view.player.view.getAnimationState().setAnimation(1, view.player.view.hitAnimation, false);
-//			entry.setTrackEnd(view.player.view.hitAnimation.getDuration());
-//		}
-//	}
-//
-//	public void eventHitEnemy (Enemy enemy) {
-//		SoundEffect.hurtAlien.play();
-//		if (enemy.view.hitAnimation != null) {
-//			TrackEntry entry = enemy.view.getAnimationState().setAnimation(1, enemy.view.hitAnimation, false);
-//			entry.setTrackEnd(enemy.view.hitAnimation.getDuration());
-//		}
-//	}
 
-//	public void eventHitBullet (float x, float y, float vx, float vy) {
-//		Vector2 offset = temp.set(vx, vy).nor().scl(15 * Constants.scale);
-//		view.hits.add(View.bulletHitTime);
-//		view.hits.add(x + offset.x);
-//		view.hits.add(y + offset.y);
-//		view.hits.add(temp.angle() + 90);
-//		SoundEffect.hit.play();
-//	}
 
-	public void eventGameOver (boolean win) {
-		if (!view.ui.splashTable.hasParent()) {
-			view.ui.showSplash(view.assets.gameOverRegion, win ? view.assets.youWinRegion : view.assets.youLoseRegion);
-			view.ui.inputTimer = win ? 5 : 1;
-		}
-		view.playerView.setJumpPressed(false);
-		view.playerView.setLeftPressed(false);
-		view.playerView.setRightPressed(false);
-
-	}
 
 
 }

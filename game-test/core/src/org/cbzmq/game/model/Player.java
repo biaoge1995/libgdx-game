@@ -57,7 +57,7 @@ public class Player extends Character {
 	//通过timer控制射击的时间间隔
 	public float shootTimer;
 	//控制碰撞时的无敌时间和闪烁
-	public float collisionTimer;
+	public float collisionTimer=0.07f;
 	//控制回血时间
 	public float hpTimer;
 
@@ -109,19 +109,15 @@ public class Player extends Character {
 
 	public void shoot(float startX, float startY, float vx, float vy) {
 		bullets2.add(new Bullet(this,map,startX,startY,vx,vy));
-		listener.attack(this);
+
+		if(getQueue()!=null){
+			getQueue().attack(this);
+		}
 	}
 
 	public Array<Bullet> getBullets() {
 		return bullets2;
 	}
 
-	/**
-	 * 遭受伤害
-	 * @param character
-	 */
-	public void beHit (Character character) {
-		Gdx.app.log("","被胖揍了一下"+character);
-		listener.hit(this,character);
-	}
+
 }

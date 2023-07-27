@@ -83,20 +83,20 @@ public class PlayerActor extends BaseSkeletonActor {
 		getAnimationState().addListener(new AnimationStateAdapter() {
 			public void event(AnimationState.TrackEntry entry, Event event) {
 				String evenName = event.getData().getName();
-				if ( evenName == "footstep") {
+				if ( evenName.equals( "footstep")) {
 					if (event.getInt() == 1)
 						SoundEffect.footstep1.play();
 					else
 						SoundEffect.footstep2.play();
-				}else if (evenName == "hit"){
+				}else if (evenName.equals(  "hit")){
 					SoundEffect.hurtPlayer.play();
 
-				}else if (evenName == "jump"){
+				}else if (evenName.equals(  "jump")){
 					//TODO
-				}else if (evenName == "shoot"){
+				}else if (evenName.equals(  "shoot")){
 					SoundEffect.shoot.play();
 
-				}else if (evenName == "death"){
+				}else if (evenName.equals(  "death")){
 					//TODO
 				}
 			}
@@ -198,9 +198,9 @@ public class PlayerActor extends BaseSkeletonActor {
 
 	@Override
 	public void draw(Batch batch, float parentAlpha) {
-
+		int i = (int) (player.collisionTimer / Player.flashTime * 1.5f) % 2;
 		//在遭受碰撞时持续闪烁
-		if (player.collisionTimer < 0 || (int)(player.collisionTimer / Player.flashTime * 1.5f) % 2 != 0)
+		if (player.collisionTimer < 0 || i != 0)
 			getRenderer().draw(batch, getSkeleton());
 //			super.draw(batch, parentAlpha);
 	}
@@ -253,7 +253,7 @@ public class PlayerActor extends BaseSkeletonActor {
 		camera.shackCamera();
 
 		player.velocity.x -= Player.kickback * player.dir;
-		SoundEffect.shoot.play();
+//		SoundEffect.shoot.play();
 
 		burstShots = Math.min(Player.kickbackShots, burstShots + 1);
 	}
@@ -263,7 +263,7 @@ public class PlayerActor extends BaseSkeletonActor {
 	 * @param enemy
 	 */
 	public void beHit () {
-		Assets.SoundEffect.hurtPlayer.play();
+
 		if (player.hp > 0 && hitAnimation != null) {
 			AnimationState.TrackEntry entry = getAnimationState().setAnimation(1, hitAnimation, false);
 			entry.setTrackEnd(hitAnimation.getDuration());

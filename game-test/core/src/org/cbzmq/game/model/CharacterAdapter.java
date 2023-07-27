@@ -14,28 +14,28 @@ import com.esotericsoftware.spine.Event;
 public  class CharacterAdapter implements CharacterListener{
     @Override
     public void born(Character character) {
-        Gdx.app.log("Character",character+"诞生");
+        Gdx.app.log("Character",character+" born");
     }
 
     @Override
     public void hit(Character character,Character hitCharacter) {
-        Gdx.app.log("Character",character+"被攻击");
+        Gdx.app.log("Character",character+" be hit");
 
     }
 
     @Override
     public void death(Character character) {
-        Gdx.app.log("Character",character+"死亡");
+        Gdx.app.log("Character",character+" death");
     }
 
     @Override
     public void beRemove(Character character) {
-        Gdx.app.log("Character",character+"被移除");
+        Gdx.app.log("Character",character+" be remove");
     }
 
     @Override
     public void dispose(Character character) {
-        Gdx.app.log("Character",character+"销毁");
+        Gdx.app.log("Character",character+" be dispose");
     }
 
     @Override
@@ -45,17 +45,17 @@ public  class CharacterAdapter implements CharacterListener{
 
     @Override
     public void collisionCharacter(Character character, Character other) {
-        Gdx.app.log("Character",character+" 碰撞到了其他角色 "+other);
+        Gdx.app.log("Character",character+" collision character "+other);
     }
 
     @Override
     public void attack(Character character) {
-        Gdx.app.log("Character",character+"攻击");
+        Gdx.app.log("Character",character+" attack");
     }
 
     @Override
     public void event(Character character, Event event) {
-        Gdx.app.log("Character","event:"+event.getData().getName());
+        Gdx.app.log("Character","event :"+character+" "+event.getData().getName());
     }
 
 }

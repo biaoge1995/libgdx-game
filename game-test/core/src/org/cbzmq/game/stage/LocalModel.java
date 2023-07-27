@@ -50,13 +50,11 @@ import org.cbzmq.game.model.Enemy.Type;
  */
 public class LocalModel implements Model {
 
-
-    SpineBoyGame controller;
     Player player;
     Map map;
     TiledMapTileLayer collisionLayer;
     Array<CharacterListener> listeners = new Array();
-    private final EventQueue queue = new EventQueue();
+    private final EventQueue queue = new EventQueue(listeners);
 
     float timeScale = 1;
     Array<Trigger> triggers = new Array();
@@ -65,26 +63,33 @@ public class LocalModel implements Model {
     float gameOverTimer;
     Assets assets;
 
-    public LocalModel(SpineBoyGame controller) {
+    boolean isGameOver;
+
+    boolean isPlayerWin;
+
+    public LocalModel() {
         this.assets = new Assets();
-        this.controller = controller;
         this.map = new Map(assets.tiledMap);
         this.collisionLayer = map.collisionLayer;
         restart();
+//        update(0);
     }
 
     public void restart() {
+        isGameOver = false;
         player = new Player(this.map);
         //TODO 诞生了一个玩家
         queue.born(player);
         player.position.set(4, 8);
         bullets = player.getBullets();
+        player.setQueue(queue);
         bullets.clear();
         enemies.clear();
         gameOverTimer = 0;
 
         // Setup triggers to spawn enemies based on the x coordinate of the player.
         triggers.clear();
+        addTrigger(10, 10, 8, Type.becomesBig, 2);
         addTrigger(17, 17 + 22, 8, Type.normal, 2);
         addTrigger(17, 17 + 22, 8, Type.strong, 1);
         addTrigger(31, 31 + 22, 8, Type.normal, 3);
@@ -123,29 +128,19 @@ public class LocalModel implements Model {
         addTrigger(246, 225, 23, Type.normal, 2);
         addTrigger(246, 220, 23, Type.becomesBig, 3);
         addTrigger(246, 220, 23, Type.becomesBig, 3);
-        triggers.clear();
-        addTrigger(17, 17 + 22, 8, Type.becomesBig, 2);
+
     }
 
-    public void addTrigger(float triggerX, float spawnX, float spawnY, Type type, int count) {
-        Trigger trigger = new Trigger();
-        trigger.x = triggerX;
-        triggers.add(trigger);
-        int offset = spawnX > triggerX ? 2 : -2;
-        for (int i = 0; i < count; i++) {
-            Enemy enemy = new Enemy(this.map, type);
 
-            enemy.position.set(spawnX, spawnY);
-            trigger.enemies.add(enemy);
 
-            spawnX += offset;
-        }
-    }
+
 
     public void update(float delta) {
+        if(isGameOver)  return;
         if (player.hp == 0) {
             gameOverTimer += delta / getTimeScale() * timeScale; // Isn't affected by player death time scaling.
-            controller.eventGameOver(false);
+            queue.event(player, new Event(0, new EventData("lose")));
+            isGameOver=true;
         }
         updateEnemies(delta);
         updateBullets(delta);
@@ -186,11 +181,11 @@ public class LocalModel implements Model {
             //怪物胜利
             if (player.hp == 0 && enemy.hp > 0) {
                 enemy.win();
-                queue.event(enemy, new Event(0, new EventData("win")));
+                queue.event(enemy, new Event(0, new EventData("lose")));
             }
             //怪物孩子出生
-            if (enemy.childs != null) {
-                queue.event(enemy, new Event(0, new EventData("children")));
+            if (enemy.childs != null && enemy.childs.size>0) {
+                queue.event(enemy, new Event(0, new EventData("explore children")));
                 for (Character child : enemy.childs) {
                     Enemy c = (Enemy) child;
                     enemies.add(c);
@@ -216,9 +211,13 @@ public class LocalModel implements Model {
                         enemy.setGrounded(false);
                         enemy.hp -= player.damage;
                         if (enemy.hp <= 0){
+                            //只有第一次发送消息
+                            if(enemy.state!=CharacterState.death){
+                                queue.death(enemy);
+                            }
                             enemy.state = CharacterState.death;
                             //怪物死亡
-                            queue.death(enemy);
+
                         }
 						else enemy.state = CharacterState.fall;
 
@@ -271,8 +270,13 @@ public class LocalModel implements Model {
         }
         // End the game when all enemies are dead and all triggers have occurred.
         if (alive == 0 && triggers.size == 0) {
-            queue.event(player,new Event(0,new EventData("win")));
-            controller.eventGameOver(true);
+            if(!isGameOver){
+                queue.event(player,new Event(0,new EventData("win")));
+                isGameOver=true;
+                isPlayerWin = true;
+            }
+
+
         }
     }
 
@@ -281,7 +285,7 @@ public class LocalModel implements Model {
         outer:
         while (iterator.hasNext()) {
             Bullet bullet = iterator.next();
-
+            bullet.setQueue(queue);
             if (bullet.hp == 0) {
                 continue;
             }
@@ -315,7 +319,20 @@ public class LocalModel implements Model {
         }
     }
 
+    public void addTrigger(float triggerX, float spawnX, float spawnY, Type type, int count) {
+        Trigger trigger = new Trigger();
+        trigger.x = triggerX;
+        triggers.add(trigger);
+        int offset = spawnX > triggerX ? 2 : -2;
+        for (int i = 0; i < count; i++) {
+            Enemy enemy = new Enemy(this.map, type);
+            enemy.setQueue(queue);
+            enemy.position.set(spawnX, spawnY);
+            trigger.enemies.add(enemy);
 
+            spawnX += offset;
+        }
+    }
 
     public float getTimeScale() {
         if (player.hp == 0)
@@ -334,166 +351,8 @@ public class LocalModel implements Model {
         Array<Enemy> enemies = new Array();
     }
 
-     static class ObjectsAndEventType {
-        Array<Object> objects = new Array<>();
-        EventType eventType;
 
 
-    }
-
-    class EventQueue {
-        private final Array<ObjectsAndEventType> objects = new Array<>();
-        boolean drainDisabled=false;
-
-        public void born(Character character) {
-
-            ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-            objectsAndEventType.objects.add(character);
-            objectsAndEventType.eventType = EventType.born;
-            objects.add(objectsAndEventType);
-
-        }
-
-        public void hit(Character character,Character hitCharacter) {
-
-            ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-            objectsAndEventType.objects.add(character);
-            objectsAndEventType.objects.add(hitCharacter);
-            objectsAndEventType.eventType = EventType.hit;
-            objects.add(objectsAndEventType);
-        }
-
-        public void death(Character character) {
-            ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-            objectsAndEventType.objects.add(character);
-            objectsAndEventType.eventType = EventType.death;
-            objects.add(objectsAndEventType);
-        }
-
-        public void beRemove(Character character) {
-            ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-            objectsAndEventType.objects.add(character);
-            objectsAndEventType.eventType = EventType.beRemove;
-            objects.add(objectsAndEventType);
-        }
-
-        public void collisionMap(Character character, Rectangle tile) {
-            //TODO
-            ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-            objectsAndEventType.objects.add(character);
-            objectsAndEventType.objects.add(tile);
-            objectsAndEventType.eventType = EventType.collisionMap;
-            objects.add(objectsAndEventType);
-        }
-
-        public void collisionCharacter(Character character, Character other) {
-            //TODO
-            ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-            objectsAndEventType.objects.add(character);
-            objectsAndEventType.objects.add(other);
-            objectsAndEventType.eventType = EventType.collisionCharacter;
-            objects.add(objectsAndEventType);
-        }
-
-        public void attack(Character character) {
-            //TODO
-            ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-            objectsAndEventType.objects.add(character);
-            objectsAndEventType.eventType = EventType.attack;
-            objects.add(objectsAndEventType);
-        }
-
-        public void dispose(Character character) {
-            //TODO
-            ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-            objectsAndEventType.objects.add(character);
-            objectsAndEventType.eventType = EventType.dispose;
-            objects.add(objectsAndEventType);
-        }
-
-        public void event(Character character, Event event) {
-            ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-            objectsAndEventType.objects.add(character);
-            objectsAndEventType.objects.add(event);
-            objectsAndEventType.eventType = EventType.event;
-            objects.add(objectsAndEventType);
-        }
-
-        public void drain() {
-            if (drainDisabled) return; // Not reentrant.
-            drainDisabled = true;
-
-            Array<ObjectsAndEventType> objects = this.objects;
-            Array<CharacterListener> listeners = LocalModel.this.listeners;
-            for (ObjectsAndEventType objectAndEvent : objects) {
-                EventType type = objectAndEvent.eventType;
-                Character character = (Character) objectAndEvent.objects.get(0);
-                switch (type) {
-                    case born:
-                        if (character.listener != null) character.listener.born(character);
-                        for (int ii = 0; ii < listeners.size; ii++)
-                            listeners.get(ii).born(character);
-                        break;
-                    case death:
-                        if (character.listener != null) character.listener.death(character);
-                        for (int ii = 0; ii < listeners.size; ii++)
-                            listeners.get(ii).death(character);
-                        break;
-                    case hit:
-                        Character hitCharacter = (Character) objectAndEvent.objects.get(1);
-                        if (character.listener != null) character.listener.hit(character,hitCharacter);
-                        for (int ii = 0; ii < listeners.size; ii++)
-                            listeners.get(ii).hit(character,hitCharacter);
-                        // Fall through.
-                    case dispose:
-                        if (character.listener != null) character.listener.dispose(character);
-                        for (int ii = 0; ii < listeners.size; ii++)
-                            listeners.get(ii).dispose(character);
-//						trackEntryPool.free(entry);
-                        break;
-                    case beRemove:
-                        if (character.listener != null) character.listener.beRemove(character);
-                        for (int ii = 0; ii < listeners.size; ii++)
-                            listeners.get(ii).beRemove(character);
-                        break;
-                    case attack:
-                        if (character.listener != null) character.listener.attack(character);
-                        for (int ii = 0; ii < listeners.size; ii++)
-                            listeners.get(ii).attack(character);
-                        break;
-                    case collisionCharacter:
-                        Character other = (Character) objectAndEvent.objects.get(1);
-                        if (character.listener != null) character.listener.collisionCharacter(character, other);
-                        for (int ii = 0; ii < listeners.size; ii++)
-                            listeners.get(ii).collisionCharacter(character, other);
-                        break;
-                    case collisionMap:
-                        Rectangle tile = (Rectangle) objectAndEvent.objects.get(1);
-                        if (character.listener != null) character.listener.collisionMap(character, tile);
-                        for (int ii = 0; ii < listeners.size; ii++)
-                            listeners.get(ii).collisionMap(character, tile);
-                        break;
-                    case event:
-                        Event event = (Event) objectAndEvent.objects.get(1);
-                        if (character.listener != null) character.listener.event(character, event);
-                        for (int ii = 0; ii < listeners.size; ii++)
-                            listeners.get(ii).event(character, event);
-                        break;
-                }
-            }
-            clear();
-
-            drainDisabled = false;
-        }
-
-        public void clear() {
-            objects.clear();
-        }
-    }
-
-    enum EventType {
-        born, hit, death, dispose, beRemove, attack, collisionCharacter, collisionMap, event
-    }
 
     @Override
     public Player getPlayer() {
@@ -526,5 +385,20 @@ public class LocalModel implements Model {
 
     public void addListener(CharacterListener listener) {
         this.listeners.add(listener);
+    }
+
+    @Override
+    public EventQueue queue() {
+        return queue;
+    }
+
+    @Override
+    public boolean isPlayerWin() {
+        return isPlayerWin;
+    }
+
+    @Override
+    public boolean isGameOver() {
+        return isGameOver;
     }
 }
