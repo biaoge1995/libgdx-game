@@ -42,6 +42,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthoCachedTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.esotericsoftware.spine.SkeletonRenderer;
@@ -49,23 +50,24 @@ import com.esotericsoftware.spine.SkeletonRenderer;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.CharacterState;
 import org.cbzmq.game.GameCamera;
+import org.cbzmq.game.actor.BulletActor;
 import org.cbzmq.game.actor.EnemyActor;
 import org.cbzmq.game.actor.PlayerActor;
 import org.cbzmq.game.Constants;
+import org.cbzmq.game.domain.Bullet;
 import org.cbzmq.game.domain.Enemy;
 import org.cbzmq.game.domain.Player;
-
 
 
 /**
  * The core of the view logic. The view knows about the model and manages everything needed to draw to the screen.
  */
 public class View extends Stage {
-    public static float bulletHitTime = 0.2f, bulletHitOffset = 50 * Constants.scale;
+
     public static int[] mapLayersOpaque1 = {1};
     public static int[] mapLayersBackground2 = {2, 3, 4, 5, 6};
     public static int[] mapLayersOpaque3 = {10};
-    public static int[] mapForegroundLayers4 = {7, 8,};
+    public static int[] mapForegroundLayers4 = {7, 8, 9};
     public static int[] mapForegroundLayers5 = {11};
 
     public Model model;
@@ -79,14 +81,16 @@ public class View extends Stage {
     Group playerGroup;
     Group enemyGroup;
 
+    Group bulletGroup;
+
     //	public float shakeX, shakeY, lookahead, zoom = 1;
-    public FloatArray hits = new FloatArray();
+//    public FloatArray hits = new FloatArray();
 //	public boolean touched, jumpPressed, leftPressed, rightPressed;
 
 
     public View(Model model) {
         camera = new GameCamera();
-        batch = (SpriteBatch)getBatch();
+        batch = (SpriteBatch) getBatch();
         viewport = new ExtendViewport(GameCamera.cameraMinWidth
                 , GameCamera.cameraHeight
                 , GameCamera.cameraMaxWidth
@@ -94,8 +98,10 @@ public class View extends Stage {
                 , camera);
         playerGroup = new Group();
         enemyGroup = new Group();
+        bulletGroup = new Group();
         addActor(playerGroup);
         addActor(enemyGroup);
+        addActor(bulletGroup);
 
         setViewport(viewport);
 
@@ -105,12 +111,9 @@ public class View extends Stage {
         mapRenderer.setMaxTileSize(512, 512);
 
 
-
-
         assets = model.assets;
 
         ui = new UI(this);
-
 
 
         restart();
@@ -121,20 +124,19 @@ public class View extends Stage {
         player.view = new PlayerActor(assets, player, viewport, camera);
         camera.lookahead = 0;
         player.view.setTouched(false);
-        hits.clear();
+//        hits.clear();
         playerGroup.clear();
         enemyGroup.clear();
+        bulletGroup.clear();
         playerGroup.addActor(player.view);
     }
 
     @Override
     public void draw() {
 
-//        viewport.apply();
-
+//        setDebugUnderMouse(true);
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
 
 
         if (ui.bgButton.isChecked()) {
@@ -143,76 +145,30 @@ public class View extends Stage {
 
             mapRenderer.setBlending(true);
             mapRenderer.render(mapLayersBackground2);
-        }
-        super.draw();
 
 
-        if (ui.bgButton.isChecked()) {
+            //上下边框
             mapRenderer.setBlending(false);
             mapRenderer.render(mapLayersOpaque3);
 
             mapRenderer.setBlending(true);
             mapRenderer.render(mapForegroundLayers4);
+
+
         }
 
-        batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
-        batch.begin();
 
-        // Draw bullets.
-        TextureRegion bulletRegion = assets.bulletRegion;
-        float bulletWidth = bulletRegion.getRegionWidth() * Constants.scale;
-        float bulletHeight = bulletRegion.getRegionHeight() * Constants.scale / 2;
-        for (int i = 2, n = model.bullets.size; i < n; i += 5) {
-            float x = model.bullets.get(i), y = model.bullets.get(i + 1);
-            float angle = model.bullets.get(i + 2);
-            float vx = MathUtils.cosDeg(angle);
-            float vy = MathUtils.sinDeg(angle);
-            // Adjust position so bullet region is drawn with the bullet position in the center of the fireball.
-            x -= vx * bulletWidth * 0.65f;
-            y -= vy * bulletWidth * 0.65f;
-            x += vy * bulletHeight / 2;
-            y += -vx * bulletHeight / 2;
-            batch.draw(bulletRegion, x, y, 0, 0, bulletWidth, bulletHeight, 1, 1, angle);
-        }
-
-        // Draw hit markers.
-        TextureRegion hitRegion = assets.hitRegion;
-        Color color = batch.getColor().set(1, 1, 1, 1);
-        float hitWidth = hitRegion.getRegionWidth() * Constants.scale;
-        float hitHeight = hitRegion.getRegionWidth() * Constants.scale;
-        for (int i = hits.size - 4; i >= 0; i -= 4) {
-            float time = hits.get(i);
-            float x = hits.get(i + 1);
-            float y = hits.get(i + 2);
-            float angle = hits.get(i + 3);
-            color.a = time / bulletHitTime;
-            batch.setColor(color);
-            float vx = MathUtils.cosDeg(angle);
-            float vy = MathUtils.sinDeg(angle);
-            // Adjust position so bullet region is drawn with the bullet position in the center of the fireball.
-            x += vy * bulletHeight * 0.2f;
-            y += -vx * bulletHeight * 0.2f;
-            batch.draw(hitRegion, x - hitWidth / 2, y, hitWidth / 2, 0, hitWidth, hitHeight, 1, 1, angle);
-        }
-        batch.setColor(Color.WHITE);
-
-        batch.end();
-        batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
+        super.draw();
+        //画出最外层边框
         if (ui.bgButton.isChecked()) mapRenderer.render(mapForegroundLayers5);
+
 
     }
 
     @Override
     public void act(float delta) {
         super.act(delta);
-        for (int i = hits.size - 4; i >= 0; i -= 4) {
-            float time = hits.get(i) - delta;
-            if (time < 0)
-                hits.removeRange(i, i + 3);
-            else
-                hits.set(i, time);
-        }
+
 
         updateInput(delta);
         updateCamera(delta);
@@ -221,11 +177,19 @@ public class View extends Stage {
                 enemy.view = new EnemyActor(assets, enemy);
                 enemyGroup.addActor(enemy.view);
             }
-//			 enemy.view.update(delta);
         }
+        Array.ArrayIterator<Bullet> iterator = model.bullets.iterator();
+        while (iterator.hasNext()) {
+            Bullet next = iterator.next();
+            if (next.view == null) {
+                next.view = new BulletActor(assets, next);
+                bulletGroup.addActor(next.view);
+            }
+
+
+        }
+
     }
-
-
 
 
     public void updateInput(float delta) {

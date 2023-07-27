@@ -58,6 +58,7 @@ import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.esotericsoftware.spine.SkeletonRendererDebug;
 import org.cbzmq.game.Assets;
+import org.cbzmq.game.domain.Bullet;
 import org.cbzmq.game.domain.Enemy;
 import org.cbzmq.game.GameCamera;
 import org.cbzmq.game.domain.Player;
@@ -285,19 +286,23 @@ public class UI extends Stage {
 
 			shapes.begin(ShapeType.Line);
 			shapes.setColor(Color.GREEN);
-			FloatArray bullets = model.bullets;
-			for (int i = bullets.size - 5; i >= 0; i -= 5) {
-				float x = bullets.get(i + 2);
-				float y = bullets.get(i + 3);
-				shapes.x(x, y, 10 * scale);
-			}
+//			FloatArray bullets = model.bullets;
+//			for (int i = bullets.size - 5; i >= 0; i -= 5) {
+//				float x = bullets.get(i + 2);
+//				float y = bullets.get(i + 3);
+//				shapes.x(x, y, 10 * scale);
+//			}
 
-			FloatArray hits = view.hits;
-			for (int i = hits.size - 4; i >= 0; i -= 4) {
-				float x = hits.get(i + 1);
-				float y = hits.get(i + 2);
-				shapes.x(x, y, 10 * scale);
+			for (Bullet bullet : model.bullets) {
+				shapes.x(bullet.position.x, bullet.position.y, 10 * scale);
 			}
+//
+//			FloatArray hits = view.hits;
+//			for (int i = hits.size - 4; i >= 0; i -= 4) {
+//				float x = hits.get(i + 1);
+//				float y = hits.get(i + 2);
+//				shapes.x(x, y, 10 * scale);
+//			}
 
 			for (Enemy enemy : model.enemies) {
 				Rectangle rect = enemy.rect;

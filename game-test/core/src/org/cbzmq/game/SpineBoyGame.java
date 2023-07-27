@@ -115,12 +115,12 @@ public class SpineBoyGame extends Game {
 	}
 
 	public void eventHitBullet (float x, float y, float vx, float vy) {
-		Vector2 offset = temp.set(vx, vy).nor().scl(15 * Constants.scale);
-		view.hits.add(View.bulletHitTime);
-		view.hits.add(x + offset.x);
-		view.hits.add(y + offset.y);
-		view.hits.add(temp.angle() + 90);
-		SoundEffect.hit.play();
+//		Vector2 offset = temp.set(vx, vy).nor().scl(15 * Constants.scale);
+//		view.hits.add(View.bulletHitTime);
+//		view.hits.add(x + offset.x);
+//		view.hits.add(y + offset.y);
+//		view.hits.add(temp.angle() + 90);
+//		SoundEffect.hit.play();
 	}
 
 	public void eventGameOver (boolean win) {

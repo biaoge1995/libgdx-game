@@ -41,6 +41,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.Pools;
 import org.cbzmq.game.*;
+import org.cbzmq.game.domain.Bullet;
 import org.cbzmq.game.domain.Character;
 import org.cbzmq.game.domain.Enemy;
 import org.cbzmq.game.domain.Enemy.Type;
@@ -58,7 +59,8 @@ public class Model {
 	Array<Rectangle> tiles = new Array();
 	float timeScale = 1;
 	Array<Trigger> triggers = new Array();
-	FloatArray bullets;
+//	FloatArray bullets;
+	Array<Bullet> bullets;
 	Array<Enemy> enemies = new Array();
 	Vector2 temp = new Vector2();
 	float gameOverTimer;
@@ -75,7 +77,8 @@ public class Model {
 	public void restart () {
 		player = new Player(this.map);
 		player.position.set(4, 8);
-		bullets = player.getBullets();
+		bullets = player.getBullets2();
+//		bullets = player.getBullets();
 		bullets.clear();
 		enemies.clear();
 		gameOverTimer = 0;
@@ -245,36 +248,52 @@ public class Model {
 	}
 
 	public void updateBullets (float delta) {
+		Array.ArrayIterator<Bullet> iterator = bullets.iterator();
 		outer:
-		for (int i = bullets.size - 5; i >= 0; i -= 5) {
-			//x方向的速度
-			float vx = bullets.get(i);
-			//y方向的速度
-			float vy = bullets.get(i + 1);
-			//x位置
-			float x = bullets.get(i + 2);
-			//y位置
-			float y = bullets.get(i + 3);
+//		int i = bullets.size - 5; i >= 0; i -= 5
+
+		while (iterator.hasNext()) {
+			Bullet bullet = iterator.next();
+//			//x方向的速度
+//			float vx = bullets.get(i);
+//			//y方向的速度
+//			float vy = bullets.get(i + 1);
+//			//x位置
+//			float x = bullets.get(i + 2);
+//			//y位置
+//			float y = bullets.get(i + 3);
 			//如果子弹撞击到了地图
-			if (collisionLayer.getCell((int)x, (int)y) != null) {
-				// Bullet hit map.
-				controller.eventHitBullet(x, y, vx, vy);
-				bullets.removeRange(i, i + 4);
-				continue;
+//			if (collisionLayer.getCell((int)x, (int)y) != null) {
+//				// Bullet hit map.
+//				controller.eventHitBullet(x, y, vx, vy);
+//				bullets.removeRange(i, i + 4);
+//				continue;
+//			}
+			if(bullet.view!=null){
+				bullet.view.act(delta);
+			}
+			if(bullet.hp==0){
+
+//				controller.eventHitBullet(bullet.position.x, bullet.position.y, bullet.velocity.x, bullet.velocity.y);
+//				iterator.remove();
+				continue ;
 			}
 			//如果子弹距离玩家超过25米则移除
-			if (Math.abs(x - player.position.x) > 25) {
-				// Bullet traveled too far.
-				bullets.removeRange(i, i + 4);
-				continue;
-			}
+//			if (Math.abs(x - player.position.x) > 25) {
+//				// Bullet traveled too far.
+//				bullets.removeRange(i, i + 4);
+//				continue;
+//			}
 			for (Enemy enemy : enemies) {
 				if (enemy.state == CharacterState.death) continue;
-				if (enemy.bigTimer <= 0 && enemy.rect.contains(x, y)) {
+				if (enemy.bigTimer <= 0 && enemy.rect.contains(bullet.position)) {
 					// Bullet hit enemy.
 					//子弹击中怪物
-					bullets.removeRange(i, i + 4);
-					controller.eventHitBullet(x, y, vx, vy);
+//					bullets.removeRange(i, i + 4);
+					bullet.hp=0;
+//					iterator.remove();
+//					controller.eventHitBullet(bullet.position.x, bullet.position.y, bullet.velocity.x, bullet.velocity.y);
+//					controller.eventHitBullet(x, y, vx, vy);
 					controller.eventHitEnemy(enemy);
 					enemy.collisionTimer = Enemy.collisionDelay;
 					enemy.hp--;
@@ -290,10 +309,12 @@ public class Model {
 					continue outer;
 				}
 			}
-			x += vx * delta;
-			y += vy * delta;
-			bullets.set(i + 2, x);
-			bullets.set(i + 3, y);
+//			x += vx * delta;
+//			y += vy * delta;
+//			bullets.set(i + 2, x);
+//			bullets.set(i + 3, y);
+			bullet.update(delta);
+
 		}
 	}
 

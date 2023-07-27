@@ -10,6 +10,8 @@ import org.cbzmq.game.Constants;
 
 /** The model class for an enemy or player that moves around the map. */
 public class Character {
+
+
 	public static float minVelocityX = 0.001f, maxVelocityY = 20f;
 	//地面时间
 	public static float groundedTime = 0.15f;

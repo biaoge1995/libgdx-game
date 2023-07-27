@@ -31,6 +31,7 @@ package org.cbzmq.game.domain;
 
 
 
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import org.cbzmq.game.Map;
 import org.cbzmq.game.actor.PlayerActor;
@@ -56,6 +57,8 @@ public class Player extends Character {
 	public float collisionTimer;
 	//控制回血时间
 	public float hpTimer;
+
+	Array<Bullet> bullets2 = new Array<>();
 
 	FloatArray bullets = new FloatArray();
 
@@ -103,11 +106,16 @@ public class Player extends Character {
 		}
 	}
 
-	public void addBullet (float startX, float startY, float vx, float vy, float angle) {
-		bullets.add(vx);
-		bullets.add(vy);
-		bullets.add(startX);
-		bullets.add(startY);
-		bullets.add(angle);
+	public void addBullet (float startX, float startY, float vx, float vy) {
+//		bullets.add(vx);
+//		bullets.add(vy);
+//		bullets.add(startX);
+//		bullets.add(startY);
+//		bullets.add(0);
+		bullets2.add(new Bullet(map,startX,startY,vx,vy));
+	}
+
+	public Array<Bullet> getBullets2() {
+		return bullets2;
 	}
 }

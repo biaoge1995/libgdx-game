@@ -238,7 +238,7 @@ public class PlayerActor extends BaseSkeletonActor {
 			x += cos * Player.shootOffsetX * Constants.scale;
 			y += sin * Player.shootOffsetX * Constants.scale;
 		}
-		player.addBullet(x, y, vx, vy, temp1.set(vx, vy).angle());
+		player.addBullet(x, y, vx, vy);
 		//开枪时的镜头抖动设置
 		if (shootAnimation != null) getAnimationState().setAnimation(1, shootAnimation, false);
 		//镜头抖动设置
