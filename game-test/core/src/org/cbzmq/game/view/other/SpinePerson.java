@@ -1,4 +1,4 @@
-package org.cbzmq.game.actor.other;
+package org.cbzmq.game.view.other;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;

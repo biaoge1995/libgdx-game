@@ -53,16 +53,16 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
-import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.esotericsoftware.spine.SkeletonRendererDebug;
 import org.cbzmq.game.Assets;
-import org.cbzmq.game.domain.Bullet;
-import org.cbzmq.game.domain.Enemy;
+import org.cbzmq.game.model.Bullet;
+import org.cbzmq.game.model.Enemy;
 import org.cbzmq.game.GameCamera;
-import org.cbzmq.game.domain.Player;
+import org.cbzmq.game.model.Player;
 import org.cbzmq.game.Constants;
+import org.cbzmq.game.view.BaseSkeletonActor;
 
 import static com.badlogic.gdx.math.Interpolation.*;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
@@ -208,14 +208,14 @@ public class UI extends Stage {
 		restartButton = button("Restart", false);
 		restartButton.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
-				model.controller.restart();
+				view.gameRestart();
 			}
 		});
 
 		splashTable.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (hasSplash && inputTimer < 0) {
-					model.controller.restart();
+					view.gameRestart();
 					splashTable.clearActions();
 					splashTable.getColor().a = 1;
 					splashTable.addAction(sequence(fadeOut(1, fade), removeActor()));
@@ -265,7 +265,7 @@ public class UI extends Stage {
 		final TextButton button = button((int)(speed * 100) + "%", true);
 		button.addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
-				if (button.isChecked()) model.timeScale = speed;
+				if (button.isChecked()) model.setTimeScale(speed);
 			}
 		});
 		return button;
@@ -293,7 +293,7 @@ public class UI extends Stage {
 //				shapes.x(x, y, 10 * scale);
 //			}
 
-			for (Bullet bullet : model.bullets) {
+			for (Bullet bullet : model.getBullets()) {
 				shapes.x(bullet.position.x, bullet.position.y, 10 * scale);
 			}
 //
@@ -304,19 +304,20 @@ public class UI extends Stage {
 //				shapes.x(x, y, 10 * scale);
 //			}
 
-			for (Enemy enemy : model.enemies) {
+			for (Enemy enemy : model.getEnemies()) {
 				Rectangle rect = enemy.rect;
 				shapes.rect(rect.x, rect.y, rect.width, rect.height);
 			}
 
-			Rectangle rect = model.player.rect;
+			Rectangle rect = model.getPlayer().rect;
 			shapes.rect(rect.x, rect.y, rect.width, rect.height);
 
 			shapes.end();
 
-			skeletonRendererDebug.draw(model.player.view.getSkeleton());
-			for (Enemy enemy : model.enemies) {
-				skeletonRendererDebug.draw(enemy.view.getSkeleton());
+			skeletonRendererDebug.draw(view.playerView.getSkeleton());
+			for (Enemy enemy : model.getEnemies()) {
+				BaseSkeletonActor view = this.view.modelAndViewMap.get(enemy);
+				skeletonRendererDebug.draw(view.getSkeleton());
 			}
 		}
 		//正常模式
@@ -361,13 +362,13 @@ public class UI extends Stage {
 			shapes.begin(ShapeType.Filled);
 			float w = view.viewport.getWorldWidth(), h = view.viewport.getWorldHeight();
 			int x = (int)(view.camera.position.x - w / 2), y = (int)(view.camera.position.y - h / 2);
-			for (Rectangle rect : model.getCollisionTiles(x, y, x + (int)(w + 0.5f), y + (int)(h + 0.5f))) {
+			for (Rectangle rect : model.getMap().getCollisionTiles(x, y, x + (int)(w + 0.5f), y + (int)(h + 0.5f))) {
 				shapes.rect(rect.x, rect.y, rect.width, rect.height);
 			}
 			shapes.end();
 		}
 
-		healthBar.setValue(Player.hpStart - model.player.hp);
+		healthBar.setValue(Player.hpStart - model.getPlayer().hp);
 
 		SpriteCache spriteCache = view.mapRenderer.getSpriteCache();
 		int renderCalls = view.batch.totalRenderCalls + spriteCache.totalRenderCalls;

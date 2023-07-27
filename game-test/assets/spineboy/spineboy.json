@@ -111,7 +111,11 @@
 	}
 },
 "events": {
-	"footstep": {}
+	"footstep": {},
+	"hit": {},
+	"jump": {},
+	"death": {},
+	"shoot": {}
 },
 "animations": {
 	"death": {
@@ -440,7 +444,10 @@
 					{ "time": 0, "x": 1, "y": 1 }
 				]
 			}
-		}
+		},
+		"events": [
+			{ "time": 0, "name": "death" }
+		]
 	},
 	"hit": {
 		"slots": {
@@ -591,7 +598,10 @@
 					{ "time": 0.3333, "angle": -10.31 }
 				]
 			}
-		}
+		},
+		"events": [
+			{ "time": 0, "name": "hit" }
+		]
 	},
 	"idle": {
 		"slots": {
@@ -1386,7 +1396,10 @@
 					{ "time": 0, "x": 1, "y": 1 }
 				]
 			}
-		}
+		},
+		"events": [
+			{ "time": 0, "name": "jump" }
+		]
 	},
 	"run": {
 		"slots": {
@@ -1928,7 +1941,10 @@
 					{ "time": 0.2666, "x": 0, "y": 0 }
 				]
 			}
-		}
+		},
+		"events": [
+			{ "time": 0, "name": "shoot" }
+		]
 	},
 	"walk": {
 		"slots": {
@@ -2310,7 +2326,11 @@
 					{ "time": 0.8, "x": 1, "y": 1 }
 				]
 			}
-		}
+		},
+		"events": [
+			{ "time": 0, "name": "footstep" },
+			{ "time": 0.4, "name": "footstep", "int": 1 }
+		]
 	}
 }
 }

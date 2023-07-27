@@ -45,8 +45,8 @@ import com.esotericsoftware.spine.Animation;
 import com.esotericsoftware.spine.AnimationStateData;
 import com.esotericsoftware.spine.SkeletonData;
 import com.esotericsoftware.spine.SkeletonJson;
-import org.cbzmq.game.domain.Enemy;
-import org.cbzmq.game.domain.Player;
+import org.cbzmq.game.model.Enemy;
+import org.cbzmq.game.model.Player;
 
 
 /** Centralized place to load and store assets. */

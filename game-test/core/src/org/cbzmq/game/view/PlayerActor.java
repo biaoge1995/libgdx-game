@@ -28,7 +28,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-package org.cbzmq.game.actor;
+package org.cbzmq.game.view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -43,10 +43,7 @@ import org.cbzmq.game.Assets.SoundEffect;
 import org.cbzmq.game.CharacterState;
 import org.cbzmq.game.GameCamera;
 import org.cbzmq.game.Constants;
-import org.cbzmq.game.domain.Player;
-import org.cbzmq.game.stage.Model;
-
-
+import org.cbzmq.game.model.Player;
 
 
 /** The view class for the player. */
@@ -85,11 +82,22 @@ public class PlayerActor extends BaseSkeletonActor {
 		final EventData footstepEvent = assets.playerSkeletonData.findEvent("footstep");
 		getAnimationState().addListener(new AnimationStateAdapter() {
 			public void event(AnimationState.TrackEntry entry, Event event) {
-				if (event.getData() == footstepEvent) {
+				String evenName = event.getData().getName();
+				if ( evenName == "footstep") {
 					if (event.getInt() == 1)
 						SoundEffect.footstep1.play();
 					else
 						SoundEffect.footstep2.play();
+				}else if (evenName == "hit"){
+					SoundEffect.hurtPlayer.play();
+
+				}else if (evenName == "jump"){
+					//TODO
+				}else if (evenName == "shoot"){
+					SoundEffect.shoot.play();
+
+				}else if (evenName == "death"){
+					//TODO
 				}
 			}
 		}
@@ -238,7 +246,7 @@ public class PlayerActor extends BaseSkeletonActor {
 			x += cos * Player.shootOffsetX * Constants.scale;
 			y += sin * Player.shootOffsetX * Constants.scale;
 		}
-		player.addBullet(x, y, vx, vy);
+		player.shoot(x, y, vx, vy);
 		//开枪时的镜头抖动设置
 		if (shootAnimation != null) getAnimationState().setAnimation(1, shootAnimation, false);
 		//镜头抖动设置
@@ -249,6 +257,19 @@ public class PlayerActor extends BaseSkeletonActor {
 
 		burstShots = Math.min(Player.kickbackShots, burstShots + 1);
 	}
+
+	/**
+	 *
+	 * @param enemy
+	 */
+	public void beHit () {
+		Assets.SoundEffect.hurtPlayer.play();
+		if (player.hp > 0 && hitAnimation != null) {
+			AnimationState.TrackEntry entry = getAnimationState().setAnimation(1, hitAnimation, false);
+			entry.setTrackEnd(hitAnimation.getDuration());
+		}
+	}
+
 
 	public void setTouched(boolean touched) {
 		this.touched = touched;

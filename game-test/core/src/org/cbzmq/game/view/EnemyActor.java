@@ -1,4 +1,4 @@
-package org.cbzmq.game.actor;
+package org.cbzmq.game.view;
 
 
 
@@ -9,8 +9,8 @@ import com.esotericsoftware.spine.*;
 import com.esotericsoftware.spine.AnimationState.AnimationStateAdapter;
 import com.esotericsoftware.spine.attachments.Attachment;
 import org.cbzmq.game.Assets;
-import org.cbzmq.game.domain.Enemy;
-import org.cbzmq.game.domain.Enemy.Type;
+import org.cbzmq.game.model.Enemy;
+import org.cbzmq.game.model.Enemy.Type;
 
 
 /**
@@ -37,7 +37,8 @@ public class EnemyActor extends BaseSkeletonActor {
         final EventData squishEvent = assets.enemySkeletonData.findEvent("squish");
         getAnimationState().addListener(new AnimationStateAdapter() {
             public void event(AnimationState.TrackEntry entry, Event event) {
-                if (event.getData() == squishEvent) Assets.SoundEffect.squish.play();
+                if (event.getData().getName().equals("squish") ) Assets.SoundEffect.squish.play();
+                else if(event.getData().getName().equals("hit")) Assets.SoundEffect.hurtAlien.play();
             }
         });
 
@@ -83,5 +84,13 @@ public class EnemyActor extends BaseSkeletonActor {
         getSkeleton().getColor().a = Math.min(1, enemy.deathTimer / Enemy.fadeTime);
         getRenderer().draw(batch, getSkeleton());
 
+    }
+
+    public void beHit () {
+//        Assets.SoundEffect.hurtAlien.play();
+        if (hitAnimation != null) {
+            AnimationState.TrackEntry entry = getAnimationState().setAnimation(1, hitAnimation, false);
+            entry.setTrackEnd(hitAnimation.getDuration());
+        }
     }
 }

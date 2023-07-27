@@ -10,4 +10,5 @@ package org.cbzmq.game;
  **/
 public enum CharacterState {
     idle, run, jump, death, fall
+//    ,hit,shoot
 }

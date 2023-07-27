@@ -33,9 +33,7 @@ package org.cbzmq.game;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.Vector2;
-import com.esotericsoftware.spine.AnimationState.TrackEntry;
-import org.cbzmq.game.Assets.SoundEffect;
-import org.cbzmq.game.domain.Enemy;
+import org.cbzmq.game.stage.LocalModel;
 import org.cbzmq.game.stage.Model;
 import org.cbzmq.game.stage.View;
 import org.cbzmq.game.stage.UI;
@@ -72,7 +70,7 @@ public class SpineBoyGame extends Game {
 	}
 
 	public void create () {
-		model = new Model(this);
+		model = new LocalModel(this);
 		view = new View(model);
 		screen = new Screen(view, view.ui);
 		setScreen(screen);
@@ -94,43 +92,42 @@ public class SpineBoyGame extends Game {
 	}
 
 	public void restart () {
-		model.restart();
-		view.restart();
+		view.gameRestart();
 	}
 
-	public void eventHitPlayer (Enemy enemy) {
-		Assets.SoundEffect.hurtPlayer.play();
-		if (view.player.hp > 0 && view.player.view.hitAnimation != null) {
-			TrackEntry entry = view.player.view.getAnimationState().setAnimation(1, view.player.view.hitAnimation, false);
-			entry.setTrackEnd(view.player.view.hitAnimation.getDuration());
-		}
-	}
+//	public void eventHitPlayer (Enemy enemy) {
+//		Assets.SoundEffect.hurtPlayer.play();
+//		if (view.player.hp > 0 && view.player.view.hitAnimation != null) {
+//			TrackEntry entry = view.player.view.getAnimationState().setAnimation(1, view.player.view.hitAnimation, false);
+//			entry.setTrackEnd(view.player.view.hitAnimation.getDuration());
+//		}
+//	}
+//
+//	public void eventHitEnemy (Enemy enemy) {
+//		SoundEffect.hurtAlien.play();
+//		if (enemy.view.hitAnimation != null) {
+//			TrackEntry entry = enemy.view.getAnimationState().setAnimation(1, enemy.view.hitAnimation, false);
+//			entry.setTrackEnd(enemy.view.hitAnimation.getDuration());
+//		}
+//	}
 
-	public void eventHitEnemy (Enemy enemy) {
-		SoundEffect.hurtAlien.play();
-		if (enemy.view.hitAnimation != null) {
-			TrackEntry entry = enemy.view.getAnimationState().setAnimation(1, enemy.view.hitAnimation, false);
-			entry.setTrackEnd(enemy.view.hitAnimation.getDuration());
-		}
-	}
-
-	public void eventHitBullet (float x, float y, float vx, float vy) {
+//	public void eventHitBullet (float x, float y, float vx, float vy) {
 //		Vector2 offset = temp.set(vx, vy).nor().scl(15 * Constants.scale);
 //		view.hits.add(View.bulletHitTime);
 //		view.hits.add(x + offset.x);
 //		view.hits.add(y + offset.y);
 //		view.hits.add(temp.angle() + 90);
 //		SoundEffect.hit.play();
-	}
+//	}
 
 	public void eventGameOver (boolean win) {
 		if (!view.ui.splashTable.hasParent()) {
 			view.ui.showSplash(view.assets.gameOverRegion, win ? view.assets.youWinRegion : view.assets.youLoseRegion);
 			view.ui.inputTimer = win ? 5 : 1;
 		}
-		view.player.view.setJumpPressed(false);
-		view.player.view.setLeftPressed(false);
-		view.player.view.setRightPressed(false);
+		view.playerView.setJumpPressed(false);
+		view.playerView.setLeftPressed(false);
+		view.playerView.setRightPressed(false);
 
 	}
 

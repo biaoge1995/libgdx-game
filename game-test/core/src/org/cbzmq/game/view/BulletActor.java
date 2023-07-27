@@ -1,17 +1,13 @@
-package org.cbzmq.game.actor;
+package org.cbzmq.game.view;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Constants;
-import org.cbzmq.game.actor.BaseSkeletonActor;
-import org.cbzmq.game.domain.Bullet;
-import org.cbzmq.game.domain.Character;
+import org.cbzmq.game.model.Bullet;
 
 public class BulletActor extends BaseSkeletonActor {
     static float bulletHitTime = 0.2f;

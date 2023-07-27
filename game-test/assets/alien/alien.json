@@ -93,7 +93,10 @@
 	}
 },
 "events": {
-	"squish": {}
+	"squish": {},
+	"hit": {},
+	"jump": {},
+	"run": {}
 },
 "animations": {
 	"death": {
@@ -796,7 +799,11 @@
 		},
 		"draworder": [
 			{ "time": 0 }
+		],
+		"events": [
+			{ "time": 0.1, "name": "hit" }
 		]
+
 	},
 	"jump": {
 		"slots": {
@@ -1077,7 +1084,10 @@
 					{ "time": 0, "x": 1, "y": 1 }
 				]
 			}
-		}
+		},
+		"events": [
+			{ "time": 0.1, "name": "jump" }
+		]
 	},
 	"run": {
 		"slots": {

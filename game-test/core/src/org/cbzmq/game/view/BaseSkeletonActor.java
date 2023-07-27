@@ -28,7 +28,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-package org.cbzmq.game.actor;
+package org.cbzmq.game.view;
 
 
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -38,8 +38,7 @@ import com.esotericsoftware.spine.SkeletonRenderer;
 import com.esotericsoftware.spine.utils.SkeletonActor;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.StateAnimation;
-import org.cbzmq.game.domain.Character;
-import org.cbzmq.game.domain.Player;
+import org.cbzmq.game.model.Character;
 
 /**
  * The view class for an enemy or player that moves around the map.
@@ -47,6 +46,7 @@ import org.cbzmq.game.domain.Player;
 public class BaseSkeletonActor extends SkeletonActor{
     public Assets assets;
     public Character character;
+
     public BaseSkeletonActor(Assets assets,Character character) {
         this.assets = assets;
         this.character = character;
@@ -76,6 +76,8 @@ public class BaseSkeletonActor extends SkeletonActor{
     @Override
     public void act(float delta) {
         super.act(delta);
+        setX(character.position.x);
+        setY(character.position.y);
         getSkeleton().setX(character.position.x + character.rect.width / 2);
         getSkeleton().setY(character.position.y);
 
@@ -88,4 +90,8 @@ public class BaseSkeletonActor extends SkeletonActor{
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
     }
+
+    public void beHit () {
+    }
+
 }

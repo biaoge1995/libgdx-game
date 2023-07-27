@@ -32,31 +32,27 @@ package org.cbzmq.game.stage;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.renderers.OrthoCachedTiledMapRenderer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.esotericsoftware.spine.SkeletonRenderer;
-
+import com.esotericsoftware.spine.Event;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.CharacterState;
-import org.cbzmq.game.GameCamera;
-import org.cbzmq.game.actor.BulletActor;
-import org.cbzmq.game.actor.EnemyActor;
-import org.cbzmq.game.actor.PlayerActor;
 import org.cbzmq.game.Constants;
-import org.cbzmq.game.domain.Bullet;
-import org.cbzmq.game.domain.Enemy;
-import org.cbzmq.game.domain.Player;
+import org.cbzmq.game.GameCamera;
+import org.cbzmq.game.model.*;
+import org.cbzmq.game.model.Character;
+import org.cbzmq.game.view.BaseSkeletonActor;
+import org.cbzmq.game.view.BulletActor;
+import org.cbzmq.game.view.EnemyActor;
+import org.cbzmq.game.view.PlayerActor;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -70,8 +66,11 @@ public class View extends Stage {
     public static int[] mapForegroundLayers4 = {7, 8, 9};
     public static int[] mapForegroundLayers5 = {11};
 
+    Map<Character, BaseSkeletonActor> modelAndViewMap = new HashMap<>();
+
     public Model model;
     public Player player;
+    public PlayerActor playerView;
     public GameCamera camera;
     public ExtendViewport viewport;
     public SpriteBatch batch;
@@ -80,12 +79,7 @@ public class View extends Stage {
     public UI ui;
     Group playerGroup;
     Group enemyGroup;
-
     Group bulletGroup;
-
-    //	public float shakeX, shakeY, lookahead, zoom = 1;
-//    public FloatArray hits = new FloatArray();
-//	public boolean touched, jumpPressed, leftPressed, rightPressed;
 
 
     public View(Model model) {
@@ -106,29 +100,50 @@ public class View extends Stage {
         setViewport(viewport);
 
         this.model = model;
-        mapRenderer = new OrthoCachedTiledMapRenderer(model.map.tiledMap, Constants.scale, 3000);
+        mapRenderer = new OrthoCachedTiledMapRenderer(model.getMap().tiledMap, Constants.scale, 3000);
         mapRenderer.setOverCache(0.6f);
         mapRenderer.setMaxTileSize(512, 512);
-
-
-        assets = model.assets;
-
+        assets = model.getAssets();
         ui = new UI(this);
+        model.addListener(new CharacterAdapter() {
+            @Override
+            public void hit(Character character, Character hitCharacter) {
+                super.hit(character, hitCharacter);
 
+                if (modelAndViewMap.containsKey(character)) {
+                    BaseSkeletonActor baseSkeletonActor = modelAndViewMap.get(character);
+                    baseSkeletonActor.beHit();
+                }
 
+            }
+
+            @Override
+            public void event(Character character, Event event) {
+                super.event(character, event);
+            }
+        });
         restart();
     }
 
+    public void gameRestart () {
+        model.restart();
+        this.restart();
+    }
+
     public void restart() {
-        player = model.player;
-        player.view = new PlayerActor(assets, player, viewport, camera);
+        player = model.getPlayer();
+
+        playerView = new PlayerActor(assets, player, viewport, camera);
         camera.lookahead = 0;
-        player.view.setTouched(false);
+        playerView.setTouched(false);
 //        hits.clear();
         playerGroup.clear();
         enemyGroup.clear();
         bulletGroup.clear();
-        playerGroup.addActor(player.view);
+        modelAndViewMap.clear();
+        modelAndViewMap.put(player, playerView);
+        playerGroup.addActor(playerView);
+
     }
 
     @Override
@@ -172,18 +187,20 @@ public class View extends Stage {
 
         updateInput(delta);
         updateCamera(delta);
-        for (Enemy enemy : model.enemies) {
-            if (enemy.view == null) {
-                enemy.view = new EnemyActor(assets, enemy);
-                enemyGroup.addActor(enemy.view);
+        for (Enemy enemy : model.getEnemies()) {
+            if (!modelAndViewMap.containsKey(enemy)) {
+                EnemyActor view = new EnemyActor(assets, enemy);
+                enemyGroup.addActor(view);
+                modelAndViewMap.put(enemy, view);
             }
         }
-        Array.ArrayIterator<Bullet> iterator = model.bullets.iterator();
+        Array.ArrayIterator<Bullet> iterator = model.getBullets().iterator();
         while (iterator.hasNext()) {
-            Bullet next = iterator.next();
-            if (next.view == null) {
-                next.view = new BulletActor(assets, next);
-                bulletGroup.addActor(next.view);
+            Bullet bullet = iterator.next();
+            if (!modelAndViewMap.containsKey(bullet)) {
+                BulletActor view = new BulletActor(assets, bullet);
+                bulletGroup.addActor(view);
+                modelAndViewMap.put(bullet, view);
             }
 
 
@@ -195,21 +212,21 @@ public class View extends Stage {
     public void updateInput(float delta) {
         if (player.hp == 0) return;
 
-        if (player.view.isLeftPressed())
+        if (playerView.isLeftPressed())
             player.moveLeft(delta);
-        else if (player.view.isRightPressed())
+        else if (playerView.isRightPressed())
             player.moveRight(delta);
         else if (player.state == CharacterState.run) //
             player.setState(CharacterState.idle);
 
-        if (player.view.isTouched()) player.view.shoot();
+        if (playerView.isTouched()) playerView.shoot();
     }
 
     public void updateCamera(float delta) {
         if (player.hp > 0) {
             // Reduce camera lookahead based on distance of enemies behind the player.
             float enemyBehindDistance = 0;
-            for (Enemy enemy : model.enemies) {
+            for (Enemy enemy : model.getEnemies()) {
                 float dist = enemy.position.x - player.position.x;
                 if (enemy.hp > 0 && Math.signum(dist) == -player.dir) {
                     dist = Math.abs(dist);
@@ -273,13 +290,13 @@ public class View extends Stage {
 
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 
-        player.view.setTouched(true);
-        player.view.shoot();
+        playerView.setTouched(true);
+        playerView.shoot();
         return true;
     }
 
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        player.view.setTouched(false);
+        playerView.setTouched(false);
         return true;
     }
 
@@ -289,16 +306,16 @@ public class View extends Stage {
             case Keys.UP:
             case Keys.SPACE:
                 if (player.hp == 0) return false;
-                player.view.setJumpPressed(true);
-                player.view.jump();
+                playerView.setJumpPressed(true);
+                playerView.jump();
                 return true;
             case Keys.A:
             case Keys.LEFT:
-                player.view.setLeftPressed(true);
+                playerView.setLeftPressed(true);
                 return true;
             case Keys.D:
             case Keys.RIGHT:
-                player.view.setRightPressed(true);
+                playerView.setRightPressed(true);
                 return true;
         }
         return false;
@@ -313,15 +330,15 @@ public class View extends Stage {
                 // Releasing jump on the way up reduces jump height.
                 //如果快速松开空格时候可以实现小的跳跃，长时间按空格可以大跳
                 player.jumpDamping();
-                player.view.setJumpPressed(false);
+                playerView.setJumpPressed(false);
                 return true;
             case Keys.A:
             case Keys.LEFT:
-                player.view.setLeftPressed(false);
+                playerView.setLeftPressed(false);
                 return true;
             case Keys.D:
             case Keys.RIGHT:
-                player.view.setRightPressed(false);
+                playerView.setRightPressed(false);
                 return true;
         }
         return false;

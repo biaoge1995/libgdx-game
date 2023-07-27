@@ -1,27 +1,31 @@
-package org.cbzmq.game.domain;
+package org.cbzmq.game.model;
 
 import org.cbzmq.game.Map;
-import org.cbzmq.game.actor.BulletActor;
+import org.cbzmq.game.view.BulletActor;
 
 public class Bullet extends Character{
-    public final static float damage=1;
+
+
     public final static float width=1;
     public final static float height=1;
     public final static float distance = 25;
 
+    public float damage=1;
     public float distanceCounter=25;
-    public BulletActor view;
+//    public BulletActor view;
+    public Player player;
 
 
 
 
-    public Bullet(Map map,float startX, float startY, float vx, float vy){
-        super(map);
+    public Bullet(Player player,Map map,float startX, float startY, float vx, float vy){
+        super(map,"bullet");
         position.set(startX,startY);
         velocity.set(vx,vy);
         hp=1;
         rect.width = width;
         rect.height = height;
+        this.player = player;
 
     }
 

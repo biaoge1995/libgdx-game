@@ -1,4 +1,4 @@
-package org.cbzmq.game.domain;
+package org.cbzmq.game.model;
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.1
@@ -31,10 +31,11 @@ package org.cbzmq.game.domain;
 
 
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import org.cbzmq.game.Map;
-import org.cbzmq.game.actor.PlayerActor;
+import org.cbzmq.game.view.PlayerActor;
 import org.cbzmq.game.Constants;
 
 
@@ -50,6 +51,8 @@ public class Player extends Character {
 	public static float kickbackShots = 33, kickbackAngle = 30, kickbackVarianceShots = 11, kickbackVariance = 6, kickback = 1.6f;
 	public static float knockbackX = 14, knockbackY = 5, collisionDelay = 2.5f, flashTime = 0.07f;
 	public static float headBounceX = 12, headBounceY = 20;
+
+	public float damage=2;
 	//计时器
 	//通过timer控制射击的时间间隔
 	public float shootTimer;
@@ -63,10 +66,11 @@ public class Player extends Character {
 	FloatArray bullets = new FloatArray();
 
 	// This is here for convenience, the model should never touch the view.
-	public PlayerActor view;
+	// 这是为了方便起见，模型永远不应该接触到视图。
+//	public PlayerActor view;
 
 	public Player (Map map) {
-		super(map);
+		super(map,"spine boy");
 		rect.width = width;
 		rect.height = height;
 		hp = hpStart;
@@ -92,9 +96,6 @@ public class Player extends Character {
 		super.update(delta);
 	}
 
-	public FloatArray getBullets() {
-		return bullets;
-	}
 
 	public void setBullets(FloatArray bullets) {
 		this.bullets = bullets;
@@ -106,16 +107,21 @@ public class Player extends Character {
 		}
 	}
 
-	public void addBullet (float startX, float startY, float vx, float vy) {
-//		bullets.add(vx);
-//		bullets.add(vy);
-//		bullets.add(startX);
-//		bullets.add(startY);
-//		bullets.add(0);
-		bullets2.add(new Bullet(map,startX,startY,vx,vy));
+	public void shoot(float startX, float startY, float vx, float vy) {
+		bullets2.add(new Bullet(this,map,startX,startY,vx,vy));
+		listener.attack(this);
 	}
 
-	public Array<Bullet> getBullets2() {
+	public Array<Bullet> getBullets() {
 		return bullets2;
+	}
+
+	/**
+	 * 遭受伤害
+	 * @param character
+	 */
+	public void beHit (Character character) {
+		Gdx.app.log("","被胖揍了一下"+character);
+		listener.hit(this,character);
 	}
 }

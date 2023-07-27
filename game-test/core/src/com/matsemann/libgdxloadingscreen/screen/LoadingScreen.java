@@ -11,8 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.Array;
 import com.matsemann.libgdxloadingscreen.LoadingBar;
 import com.matsemann.libgdxloadingscreen.SomeCoolGame;
-import org.cbzmq.game.actor.other.Person;
-import org.cbzmq.game.actor.other.Res;
+import org.cbzmq.game.view.other.Person;
+import org.cbzmq.game.view.other.Res;
 
 
 /**

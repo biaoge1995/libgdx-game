@@ -1,8 +1,8 @@
-package org.cbzmq.game.domain;
+package org.cbzmq.game.model;
 
 import com.badlogic.gdx.math.MathUtils;
 import org.cbzmq.game.CharacterState;
-import org.cbzmq.game.actor.EnemyActor;
+import org.cbzmq.game.view.EnemyActor;
 import org.cbzmq.game.Map;
 import org.cbzmq.game.Constants;
 
@@ -34,10 +34,10 @@ public class Enemy extends Character {
 	public float knockbackX = normalKnockbackX, knockbackY = normalKnockbackY;
 
 	// This is here for convenience, the model should never touch the view.
-	public EnemyActor view;
+//	public EnemyActor view;
 
 	public Enemy (Map map, Type type) {
-		super(map);
+		super(map,"alien-"+type);
 		this.type = type;
 
 		rect.width = width;

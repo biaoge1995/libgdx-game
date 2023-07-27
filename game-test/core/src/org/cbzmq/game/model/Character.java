@@ -1,7 +1,11 @@
-package org.cbzmq.game.domain;
+package org.cbzmq.game.model;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.esotericsoftware.spine.AnimationState;
+import com.esotericsoftware.spine.Event;
+import org.cbzmq.game.Assets;
 import org.cbzmq.game.CharacterState;
 import org.cbzmq.game.Map;
 import org.cbzmq.game.Constants;
@@ -21,6 +25,10 @@ public class Character {
 	public static float runGroundX = 80, runAirSame = 45, runAirOpposite = 45;
 	//游戏主逻辑引用
 	public Map map;
+	//事件
+	public CharacterListener listener = new CharacterAdapter();
+
+	public String name;
 
 	//位置向量
 	public Vector2 position = new Vector2();
@@ -60,8 +68,10 @@ public class Character {
 
 	public Array<Character> childs = new Array<>();
 
-	public Character(Map map) {
+	public Character(Map map,String name) {
 		this.map = map;
+		this.name = name;
+		listener.born(this);
 	}
 
 	public Character explore(){
@@ -90,6 +100,9 @@ public class Character {
 
 	public void update (float delta) {
 		stateTime += delta;
+		if(hp<=0){
+			listener.death(this);
+		}
 
 		// If moving downward, change state to fall.
 		//如果角色在往下移动则设置该角色的状态为fll
@@ -149,6 +162,7 @@ public class Character {
 		int endY = (int)(rect.y + rect.height);
 		for (Rectangle tile : map.getCollisionTiles(x, startY, x, endY)) {
 			if (!rect.overlaps(tile)) continue;
+			listener.collisionMap(this,tile);
 			if (velocity.x >= 0)
 				position.x = tile.x - rect.width;
 			else
@@ -173,6 +187,7 @@ public class Character {
 		Array<Rectangle> collisionTiles = map.getCollisionTiles(startX, y, endX, y);
 		for (Rectangle tile : collisionTiles) {
 			if (!rect.overlaps(tile)) continue;
+			listener.collisionMap(this,tile);
 			if (velocity.y > 0)
 				position.y = tile.y - rect.height;
 			else {
@@ -217,4 +232,9 @@ public class Character {
 		if (velocity.y > 0) velocity.y *= Player.jumpDamping;
 	}
 
+
+	@Override
+	public String toString() {
+		return name;
+	}
 }

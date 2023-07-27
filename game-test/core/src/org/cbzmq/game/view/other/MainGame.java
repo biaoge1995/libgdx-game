@@ -1,4 +1,4 @@
-package org.cbzmq.game.actor.other;
+package org.cbzmq.game.view.other;
 
 
 import com.badlogic.gdx.Game;
@@ -7,8 +7,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import org.cbzmq.game.actor.other.Res;
-import org.cbzmq.game.actor.other.GameScreen;
 
 
 /**

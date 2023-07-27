@@ -1,4 +1,4 @@
-package org.cbzmq.game.actor.other;
+package org.cbzmq.game.view.other;
 
 /**
  * 资源常量
