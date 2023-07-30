@@ -35,5 +35,6 @@ public interface Model {
     boolean isPlayerWin();
 
     boolean isGameOver();
+    int generalId();
 
 }

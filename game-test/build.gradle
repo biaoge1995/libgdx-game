@@ -1,5 +1,5 @@
 buildscript {
-    
+
 
     repositories {
         mavenLocal()
@@ -31,6 +31,8 @@ allprojects {
         gdxControllersVersion = '2.2.1'
         //spineVersion = '4.1.0'
         spineVersion = '3.7.94.1'
+        nettyVersion = '4.1.52.Final'
+        protobufVersion = '2.5.0'
     }
 
     repositories {
@@ -61,7 +63,7 @@ project(":desktop") {
         api "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
         api "com.esotericsoftware.spine:spine-libgdx:$spineVersion"
-        
+
     }
 }
 
@@ -79,6 +81,8 @@ project(":core") {
         api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         api "com.esotericsoftware.spine:spine-libgdx:$spineVersion"
-        
+        api "io.netty:netty-all:$nettyVersion"
+        api "com.google.protobuf:protobuf-java:${protobufVersion}"
+
     }
 }

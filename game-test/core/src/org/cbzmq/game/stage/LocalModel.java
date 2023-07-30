@@ -34,14 +34,14 @@ package org.cbzmq.game.stage;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.spine.Event;
 import com.esotericsoftware.spine.EventData;
 import org.cbzmq.game.*;
+import org.cbzmq.game.enums.CharacterState;
+import org.cbzmq.game.enums.EnemyType;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.model.*;
-import org.cbzmq.game.model.Enemy.Type;
 
 /**
  * The core of the game logic. The model manages all game information but knows nothing about the view, ie it knows nothing about
@@ -50,6 +50,8 @@ import org.cbzmq.game.model.Enemy.Type;
  */
 public class LocalModel implements Model {
 
+    Group<Character> root;
+    int id;
     Player player;
     Map map;
     TiledMapTileLayer collisionLayer;
@@ -58,8 +60,12 @@ public class LocalModel implements Model {
 
     float timeScale = 1;
     Array<Trigger> triggers = new Array();
-    Array<Bullet> bullets;
-    Array<Enemy> enemies = new Array();
+//    Array<Bullet> bullets = new Array<>();
+//    Array<Enemy> enemies = new Array();
+
+    Group<Bullet> bulletGroup;
+    Group<Enemy> enemyGroup ;
+    Group<Player> playerGroup ;
     float gameOverTimer;
     Assets assets;
 
@@ -71,63 +77,111 @@ public class LocalModel implements Model {
         this.assets = new Assets();
         this.map = new Map(assets.tiledMap);
         this.collisionLayer = map.collisionLayer;
+        this.root = new Group<>();
+        root.setModel(this);
+        root.setQueue(queue);
+
+        //初始化
+        init();
+    }
+
+    public void init(){
+        bulletGroup = new Group<>();
+        enemyGroup = new Group<>();
+        playerGroup = new Group<>();
+        addCharacter(playerGroup);
+        addCharacter(bulletGroup);
+        addCharacter((enemyGroup));
         restart();
-//        update(0);
+    }
+
+    public void addCharacter(Character character){
+        root.addCharacter(character);
+    }
+
+    public void addBullet(Bullet bullet){
+//        bullets.add(bullet);
+//        bullet.setQueue(queue);
+//        bullet.setId(generalId());
+        bulletGroup.addCharacter(bullet);
+    }
+
+    public void addEnemy(Enemy enemy){
+
+//        enemy.setQueue(queue);
+//        enemy.setId(generalId());
+//        enemies.add(enemy);
+        enemyGroup.addCharacter(enemy);
+    }
+    public void initPlayer(){
+        player = new Player(this.map);
+        player.setId(generalId());
+        //TODO 诞生了一个玩家
+        queue.born(player);
+        player.setQueue(queue);
+        player.position.set(4, 8);
+        playerGroup.addCharacter(player);
+    }
+
+    public int generalId(){
+        return id++;
     }
 
     public void restart() {
         isGameOver = false;
-        player = new Player(this.map);
-        //TODO 诞生了一个玩家
-        queue.born(player);
-        player.position.set(4, 8);
-        bullets = player.getBullets();
-        player.setQueue(queue);
-        bullets.clear();
-        enemies.clear();
+        playerGroup.clear();
+        enemyGroup.clear();
+        playerGroup.clear();
+        initPlayer();
+
+//        bullets.clear();
+//        enemies.clear();
         gameOverTimer = 0;
 
         // Setup triggers to spawn enemies based on the x coordinate of the player.
         triggers.clear();
-        addTrigger(10, 10, 8, Type.becomesBig, 2);
-        addTrigger(17, 17 + 22, 8, Type.normal, 2);
-        addTrigger(17, 17 + 22, 8, Type.strong, 1);
-        addTrigger(31, 31 + 22, 8, Type.normal, 3);
-        addTrigger(43, 43 + 22, 8, Type.strong, 3);
-        addTrigger(64, 64 + 22, 8, Type.normal, 10);
-        addTrigger(64, 64 + 29, 8, Type.strong, 1);
-        addTrigger(76, 76 - 19, 8, Type.strong, 2);
-        addTrigger(87, 87 - 19, 8, Type.normal, 2);
-        addTrigger(97, 97 - 19, 8, Type.normal, 2);
-        addTrigger(100, 100 + 34, 8, Type.strong, 2);
-        addTrigger(103, 103 + 34, 8, Type.normal, 4);
-        addTrigger(125, 60 - 19, 8, Type.normal, 10);
-        addTrigger(125, 125 - 19, 8, Type.weak, 10);
-        addTrigger(125, 125 - 45, 8, Type.becomesBig, 1);
-        addTrigger(125, 125 + 22, 22, Type.normal, 5);
-        addTrigger(125, 125 + 32, 22, Type.normal, 2);
-        addTrigger(125, 220, 23, Type.strong, 3);
-        addTrigger(158, 158 - 19, 8, Type.weak, 10);
-        addTrigger(158, 158 - 23, 8, Type.strong, 1);
-        addTrigger(158, 158 + 22, 23, Type.normal, 3);
-        addTrigger(165, 165 + 22, 23, Type.strong, 4);
-        addTrigger(176, 176 + 22, 23, Type.normal, 12);
-        addTrigger(176, 176 + 22, 23, Type.weak, 10);
-        addTrigger(176, 151, 8, Type.strong, 1);
-        addTrigger(191, 191 - 19, 23, Type.normal, 5);
-        addTrigger(191, 191 - 19, 23, Type.weak, 15);
-        addTrigger(191, 191 - 27, 23, Type.strong, 2);
-        addTrigger(191, 191 + 34, 23, Type.weak, 10);
-        addTrigger(191, 191 + 34, 23, Type.weak, 8);
-        addTrigger(191, 191 + 34, 23, Type.normal, 2);
-        addTrigger(191, 191 + 42, 23, Type.strong, 2);
-        addTrigger(213, 213 + 22, 23, Type.normal, 3);
-        addTrigger(213, 213 + 22, 23, Type.strong, 3);
-        addTrigger(213, 213 - 19, 23, Type.normal, 7);
-        addTrigger(246, 247 - 30, 23, Type.strong, 7);
-        addTrigger(246, 225, 23, Type.normal, 2);
-        addTrigger(246, 220, 23, Type.becomesBig, 3);
-        addTrigger(246, 220, 23, Type.becomesBig, 3);
+        addTrigger(10, 10, 8, EnemyType.becomesBig, 2);
+        addTrigger(17, 17 + 22, 8, EnemyType.normal, 2);
+        addTrigger(17, 17 + 22, 8, EnemyType.strong, 1);
+        addTrigger(31, 31 + 22, 8, EnemyType.normal, 3);
+        addTrigger(43, 43 + 22, 8, EnemyType.strong, 3);
+        addTrigger(64, 64 + 22, 8, EnemyType.normal, 10);
+        addTrigger(64, 64 + 29, 8, EnemyType.strong, 1);
+        addTrigger(76, 76 - 19, 8, EnemyType.strong, 2);
+        addTrigger(87, 87 - 19, 8, EnemyType.normal, 2);
+        addTrigger(97, 97 - 19, 8, EnemyType.normal, 2);
+        addTrigger(100, 100 + 34, 8, EnemyType.strong, 2);
+        addTrigger(103, 103 + 34, 8, EnemyType.normal, 4);
+        addTrigger(125, 60 - 19, 8, EnemyType.normal, 10);
+        addTrigger(125, 125 - 19, 8, EnemyType.weak, 10);
+        addTrigger(125, 125 - 45, 8, EnemyType.becomesBig, 1);
+        addTrigger(125, 125 + 22, 22, EnemyType.normal, 5);
+        addTrigger(125, 125 + 32, 22, EnemyType.normal, 2);
+        addTrigger(125, 220, 23, EnemyType.strong, 3);
+        addTrigger(158, 158 - 19, 8, EnemyType.weak, 10);
+        addTrigger(158, 158 - 23, 8, EnemyType.strong, 1);
+        addTrigger(158, 158 + 22, 23, EnemyType.normal, 3);
+        addTrigger(165, 165 + 22, 23, EnemyType.strong, 4);
+        addTrigger(176, 176 + 22, 23, EnemyType.normal, 12);
+        addTrigger(176, 176 + 22, 23, EnemyType.weak, 10);
+        addTrigger(176, 151, 8, EnemyType.strong, 1);
+        addTrigger(191, 191 - 19, 23, EnemyType.normal, 5);
+        addTrigger(191, 191 - 19, 23, EnemyType.weak, 15);
+        addTrigger(191, 191 - 27, 23, EnemyType.strong, 2);
+        addTrigger(191, 191 + 34, 23, EnemyType.weak, 10);
+        addTrigger(191, 191 + 34, 23, EnemyType.weak, 8);
+        addTrigger(191, 191 + 34, 23, EnemyType.normal, 2);
+        addTrigger(191, 191 + 42, 23, EnemyType.strong, 2);
+        addTrigger(213, 213 + 22, 23, EnemyType.normal, 3);
+        addTrigger(213, 213 + 22, 23, EnemyType.strong, 3);
+        addTrigger(213, 213 - 19, 23, EnemyType.normal, 7);
+        addTrigger(246, 247 - 30, 23, EnemyType.strong, 7);
+        addTrigger(246, 225, 23, EnemyType.normal, 2);
+        addTrigger(246, 220, 23, EnemyType.becomesBig, 3);
+        addTrigger(246, 220, 23, EnemyType.becomesBig, 3);
+        // Setup triggers to spawn enemies based on the x coordinate of the player.
+        triggers.clear();
+        addTrigger(10, 10, 8, EnemyType.becomesBig, 2);
 
     }
 
@@ -137,14 +191,22 @@ public class LocalModel implements Model {
 
     public void update(float delta) {
         if(isGameOver)  return;
-        if (player.hp == 0) {
-            gameOverTimer += delta / getTimeScale() * timeScale; // Isn't affected by player death time scaling.
-            queue.event(player, new Event(0, new EventData("lose")));
-            isGameOver=true;
+        root.update(delta);
+
+
+        for (Player p : playerGroup.getChildren()) {
+            if(p.hp>0) break;
+            else  {
+                gameOverTimer += delta / getTimeScale() * timeScale; // Isn't affected by player death time scaling.
+                queue.event(player, new Event(0, new EventData("lose")));
+                isGameOver=true;
+            }
         }
-        updateEnemies(delta);
-        updateBullets(delta);
-        player.update(delta);
+
+
+        updateEnemies();
+        updateBullets();
+//        player.update(delta);
         updateTriggers();
         //将事件队列处理掉
         queue.drain();
@@ -155,7 +217,8 @@ public class LocalModel implements Model {
             Trigger trigger = triggers.get(i);
             if (player.position.x > trigger.x) {
                 for (Enemy enemy : trigger.enemies) {
-                    enemies.add(enemy);
+//                    enemies.add(enemy);
+                    addEnemy(enemy);
                     //TODO 出生了一头怪物
                     queue.born(enemy);
                 }
@@ -165,34 +228,18 @@ public class LocalModel implements Model {
         }
     }
 
-    public void updateEnemies(float delta) {
+    public void updateEnemies() {
         int alive = 0;
-        for (int i = enemies.size - 1; i >= 0; i--) {
-            Enemy enemy = enemies.get(i);
+        for (int i = enemyGroup.getChildren().size - 1; i >= 0; i--) {
+            Enemy enemy = enemyGroup.getChildren().get(i);
 
-            enemy.update(delta);
 
-            if (enemy.deathTimer < 0) {
-                enemies.removeIndex(i);
-                //TODO 移除了一头
-                queue.beRemove(enemy);
-                continue;
-            }
             //怪物胜利
             if (player.hp == 0 && enemy.hp > 0) {
                 enemy.win();
                 queue.event(enemy, new Event(0, new EventData("lose")));
             }
-            //怪物孩子出生
-            if (enemy.childs != null && enemy.childs.size>0) {
-                queue.event(enemy, new Event(0, new EventData("explore children")));
-                for (Character child : enemy.childs) {
-                    Enemy c = (Enemy) child;
-                    enemies.add(c);
-                    queue.born(c);
-                }
-                enemy.childs.clear();
-            }
+
             if (enemy.hp > 0) {
                 alive++;
             }
@@ -211,13 +258,7 @@ public class LocalModel implements Model {
                         enemy.setGrounded(false);
                         enemy.hp -= player.damage;
                         if (enemy.hp <= 0){
-                            //只有第一次发送消息
-                            if(enemy.state!=CharacterState.death){
-                                queue.death(enemy);
-                            }
-                            enemy.state = CharacterState.death;
-                            //怪物死亡
-
+                            enemy.beDeath();
                         }
 						else enemy.state = CharacterState.fall;
 
@@ -280,17 +321,21 @@ public class LocalModel implements Model {
         }
     }
 
-    public void updateBullets(float delta) {
-        Array.ArrayIterator<Bullet> iterator = bullets.iterator();
+    public void updateBullets() {
+        while(player.getBullets().size>0){
+//            bullets.add();
+            addBullet( player.getBullets().pop());
+        }
+        Array.ArrayIterator<Bullet> iterator = bulletGroup.getChildren().iterator();
         outer:
         while (iterator.hasNext()) {
             Bullet bullet = iterator.next();
-            bullet.setQueue(queue);
+
             if (bullet.hp == 0) {
                 continue;
             }
 
-            for (Enemy enemy : enemies) {
+            for (Enemy enemy : enemyGroup.getChildren()) {
                 if (enemy.state == CharacterState.death) continue;
                 if (enemy.bigTimer <= 0 && enemy.rect.contains(bullet.position)) {
                     // Bullet hit enemy.
@@ -314,19 +359,19 @@ public class LocalModel implements Model {
                     continue outer;
                 }
             }
-            bullet.update(delta);
+//            bullet.update(delta);
 
         }
     }
 
-    public void addTrigger(float triggerX, float spawnX, float spawnY, Type type, int count) {
+    public void addTrigger(float triggerX, float spawnX, float spawnY, EnemyType enemyType, int count) {
         Trigger trigger = new Trigger();
         trigger.x = triggerX;
         triggers.add(trigger);
         int offset = spawnX > triggerX ? 2 : -2;
         for (int i = 0; i < count; i++) {
-            Enemy enemy = new Enemy(this.map, type);
-            enemy.setQueue(queue);
+            Enemy enemy = new Enemy(this.map, enemyType);
+
             enemy.position.set(spawnX, spawnY);
             trigger.enemies.add(enemy);
 
@@ -370,12 +415,12 @@ public class LocalModel implements Model {
 
     @Override
     public Array<Bullet> getBullets() {
-        return bullets;
+        return bulletGroup.getChildren();
     }
 
     @Override
     public Array<Enemy> getEnemies() {
-        return enemies;
+        return enemyGroup.getChildren();
     }
 
     @Override

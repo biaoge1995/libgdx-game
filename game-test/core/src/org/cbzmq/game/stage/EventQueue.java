@@ -97,9 +97,9 @@ public class EventQueue {
         Array<ObjectsAndEventType> objects = this.objects;
         Array<CharacterListener> listeners = this.listeners;
         for (ObjectsAndEventType objectAndEvent : objects) {
-            EventType type = objectAndEvent.eventType;
+            EventType enemyType = objectAndEvent.eventType;
             Character character = (Character) objectAndEvent.objects.get(0);
-            switch (type) {
+            switch (enemyType) {
                 case born:
                     if (character.listener != null) character.listener.born(character);
                     for (int ii = 0; ii < listeners.size; ii++)

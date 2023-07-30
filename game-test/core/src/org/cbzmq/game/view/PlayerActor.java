@@ -40,9 +40,9 @@ import com.esotericsoftware.spine.*;
 import com.esotericsoftware.spine.AnimationState.AnimationStateAdapter;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Assets.SoundEffect;
-import org.cbzmq.game.CharacterState;
 import org.cbzmq.game.GameCamera;
 import org.cbzmq.game.Constants;
+import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.model.Player;
 
 
@@ -260,7 +260,7 @@ public class PlayerActor extends BaseSkeletonActor {
 
 	/**
 	 *
-	 * @param enemy
+	 * @param
 	 */
 	public void beHit () {
 

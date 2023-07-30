@@ -1,0 +1,81 @@
+//使用 proto3 语法 ,未指定则使用proto2
+syntax = "proto2";
+
+
+//生成 proto 文件所在包路径
+option java_package = "org.cbzmq.game.enums";
+
+//生成 proto 文件名
+//option java_outer_classname = "MsgProto";
+
+option java_multiple_files = true;
+
+// 会生成多个对象文件，一个Message一个
+enum CharacterState {
+    idle = 0;
+    run = 1;
+    jump = 2;
+    death = 3;
+    fall = 4;
+}
+
+enum CharacterType {
+    player = 0;
+    enemy = 1;
+    bullet = 2;
+    unknown=3;
+}
+
+enum EnemyType {
+    weak = 0;
+    normal = 1;
+    strong = 2;
+    becomesBig = 3;
+    big = 4;
+    small = 5;
+}
+
+
+enum MsgHeader {
+    /**服务端的请求头**/
+    //同步所有角色的信息给客户端
+    SYNC_CHARACTERS_INFO=0;
+    //同步角色的事件给客户端
+    SYNC_CHARACTERS_EVENT=1;
+    //同步角色的事件给客户端
+    SYNC_GAME_STATUS=3;
+
+    /**客户端请求头**/
+    //客户端
+    REGISTER = 4;//注册
+    QUIT=5;
+    GAME_ACTION = 6; //游戏操作
+}
+
+ enum GameAction {
+     JUMP=0;
+     RUN=1;
+     SHOOT=2;
+ }
+
+
+
+
+//游戏状态
+enum  GameStatus {
+    NOT_START = 0; // 未开始
+    LOADING = 1; // 加载状态
+    READY = 2; // 准备
+    RUNNING = 3;  //已开始
+    GAME_OVER = 4; //结束
+    PAUSE = 5;  //暂停状态
+}
+
+
+//消息状态
+enum Code {
+    OK = 200; //成功
+    SERVER_FAILED = 500;//服务器异常
+}
+
+

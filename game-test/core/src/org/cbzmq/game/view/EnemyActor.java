@@ -9,8 +9,8 @@ import com.esotericsoftware.spine.*;
 import com.esotericsoftware.spine.AnimationState.AnimationStateAdapter;
 import com.esotericsoftware.spine.attachments.Attachment;
 import org.cbzmq.game.Assets;
+import org.cbzmq.game.enums.EnemyType;
 import org.cbzmq.game.model.Enemy;
-import org.cbzmq.game.model.Enemy.Type;
 
 
 /**
@@ -43,7 +43,7 @@ public class EnemyActor extends BaseSkeletonActor {
         });
 
         // Enemies have slight color variations.
-        if (enemy.type == Enemy.Type.strong)
+        if (enemy.enemyType == EnemyType.strong)
             headColor = new Color(1, 0.6f, 1, 1);
         else
             headColor = new Color(MathUtils.random(0.8f, 1), MathUtils.random(0.8f, 1), MathUtils.random(0.8f, 1), 1);
@@ -57,10 +57,10 @@ public class EnemyActor extends BaseSkeletonActor {
     public void act(float delta) {
 
         // Change head attachment for enemies that are about to die.
-        if (enemy.hp == 1 && enemy.type != Type.weak) headSlot.setAttachment(burstHeadAttachment);
+        if (enemy.hp == 1 && enemy.enemyType != EnemyType.weak) headSlot.setAttachment(burstHeadAttachment);
 
         // Change color for big enemies.
-        if (enemy.type == Type.big)
+        if (enemy.enemyType == EnemyType.big)
             headSlot.getColor().set(headColor).lerp(0, 1, 1, 1, 1 - enemy.bigTimer / Enemy.bigDuration);
 
         getSkeleton().setX(enemy.position.x + Enemy.width / 2);

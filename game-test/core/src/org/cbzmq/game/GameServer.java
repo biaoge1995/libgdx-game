@@ -33,6 +33,7 @@ package org.cbzmq.game;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.Vector2;
+import org.cbzmq.game.netty.UdpServer;
 import org.cbzmq.game.stage.LocalModel;
 import org.cbzmq.game.stage.Model;
 import org.cbzmq.game.stage.View;
@@ -43,12 +44,13 @@ import org.cbzmq.game.stage.UI;
 
 
 
-public class SpineBoyGame extends Game {
+public class GameServer extends Game {
 	static Vector2 temp = new Vector2();
 
 	View view;
 	Model model;
 	Screen screen;
+	UdpServer udpServer;
 
 	float time;
 	 class Screen extends ScreenAdapter{
@@ -78,6 +80,13 @@ public class SpineBoyGame extends Game {
 
 	public void create () {
 		model = new LocalModel();
+		try {
+			udpServer = new UdpServer(model);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+
 		view = new View(model);
 //		view.gameRestart();
 		screen = new Screen(view, view.ui);
@@ -93,7 +102,12 @@ public class SpineBoyGame extends Game {
 //			model.update(delta);0
 //		}
 		if(delta>0){
-			model.update(delta);
+			try {
+				udpServer.update(delta);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				System.exit(-1);
+			}
 		}
 		super.render();
 	}

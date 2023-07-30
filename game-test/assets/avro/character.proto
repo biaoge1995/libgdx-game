@@ -1,0 +1,98 @@
+//使用 proto3 语法 ,未指定则使用proto2
+syntax = "proto2";
+
+//生成 proto 文件所在包路径
+
+//引入外部proto文件，并让引入了该文件的proto文件也能访问被引入类型。需要在IDEA的settings-ProtocolBuffers中设置proto文件路径
+import "avro/enums.proto";
+
+//生成 proto 文件所在包路径
+option java_package = "org.cbzmq.game.proto";
+
+//生成 proto 文件名
+option java_outer_classname = "CharacterProto";
+option java_multiple_files = false; // 会生成多个对象文件，一个Message一个
+
+message Character {
+
+
+    required CharacterType type = 1;
+    //位置向量
+    required Vector2 position=2;
+
+    //目标位置向量
+    optional Vector2 targetPosition=3;
+
+    //速度向量
+    required Vector2 velocity=4;
+    //默认的动画状态
+    required CharacterState state=5;
+    //开始时间
+    optional float stateTime=6;
+    //方向
+    required float dir=7;
+    //空中的时间
+    optional float airTime=8;
+    //角色的矩阵
+    required Rectangle rect =9;
+    //是否状态改变
+    required bool stateChanged=11;
+    //雪条
+    required  float hp=12;
+    //最大x方向上的位移
+    optional  float maxVelocityX=13;
+    //碰撞Y的偏移量
+    optional  float collisionOffsetY=14;
+    //跳的速度在Y上
+    optional  float jumpVelocity=15;
+    //伤害
+    optional float damage=16;
+    //控制碰撞时的无敌时间和闪烁
+    optional float collisionTimer=17;
+
+    /** player相关参数 */
+    //计时器
+    //通过timer控制射击的时间间隔
+    optional float shootTimer=18;
+    //控制回血时间
+    optional float hpTimer=19;
+    repeated Character bullets=20;
+
+    /** Bullet 相关参数 */
+    optional CharacterType player=21;
+
+    /******** Enemy **********/
+
+    optional float deathTimer=22;
+    optional float maxVelocityGroundX=23;
+    optional float jumpDelayTimer=24;
+    optional EnemyType enemyType = 25;
+    optional float size = 26;
+    optional float bigTimer=27;
+    optional float spawnSmallsTimer=28;
+    optional bool move=29;
+    optional bool forceJump=30;
+    optional int32 collisions=31;
+    optional float knockbackX=32;
+    optional float knockbackY=33;
+
+    required int32 id=34;
+
+    ;
+
+
+
+}
+
+message Vector2{
+    required float x=1;
+    required float y=2;
+}
+
+message Rectangle{
+    required float x=1;
+    required float y=2;
+    required float width=3;
+    required float height=4;
+}
+

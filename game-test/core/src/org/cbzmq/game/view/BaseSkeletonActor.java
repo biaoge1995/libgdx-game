@@ -38,6 +38,7 @@ import com.esotericsoftware.spine.SkeletonRenderer;
 import com.esotericsoftware.spine.utils.SkeletonActor;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.StateAnimation;
+import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.model.Character;
 
 /**
@@ -83,6 +84,11 @@ public class BaseSkeletonActor extends SkeletonActor{
 
         getSkeleton().setScaleX(character.dir);
         getSkeleton().updateWorldTransform();
+
+        //如果角色死亡则remove掉自己
+        if(character.state== CharacterState.death){
+            remove();
+        }
 
     }
 

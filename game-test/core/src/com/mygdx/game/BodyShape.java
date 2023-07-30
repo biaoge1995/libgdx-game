@@ -38,7 +38,7 @@ public class BodyShape extends ApplicationAdapter {
         ball.createBody(world);
         paddle.createBody(world);
 //        BodyDef bodyDef = new BodyDef();
-//        bodyDef.type = BodyDef.BodyType.DynamicBody;
+//        bodyDef.enemyType = BodyDef.BodyType.DynamicBody;
 //        bodyDef.position.set(scene_width/2,6f);
 //        bodyDef.linearVelocity.set(0,10);
 //

@@ -1,0 +1,26 @@
+//使用 proto3 语法 ,未指定则使用proto2
+syntax = "proto2";
+
+import "avro/character.proto";
+import "avro/enums.proto";
+
+
+//生成 proto 文件所在包路径
+option java_package = "org.cbzmq.game.proto";
+
+//生成 proto 文件名
+option java_outer_classname = "MsgProto";
+
+option java_multiple_files = false; // 会生成多个对象文件，一个Message一个
+
+message Msg{
+    //自身属性
+    required MsgHeader header=1;
+    required int64 timeStamp=2;
+    optional Code code=3;
+    repeated Character characterData=4;
+    optional GameAction gameAction = 5;
+}
+
+
+

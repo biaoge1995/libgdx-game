@@ -41,9 +41,9 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.esotericsoftware.spine.Event;
 import org.cbzmq.game.Assets;
-import org.cbzmq.game.CharacterState;
 import org.cbzmq.game.Constants;
 import org.cbzmq.game.GameCamera;
+import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.view.BaseSkeletonActor;
@@ -66,7 +66,7 @@ public class View extends Stage {
     public static int[] mapForegroundLayers4 = {7, 8, 9};
     public static int[] mapForegroundLayers5 = {11};
 
-    Map<Character, BaseSkeletonActor> modelAndViewMap = new HashMap<>();
+    Map<Integer, BaseSkeletonActor> modelAndViewMap = new HashMap<>();
 
     public Model model;
     public Player player;
@@ -110,8 +110,8 @@ public class View extends Stage {
             public void hit(Character character, Character hitCharacter) {
                 super.hit(character, hitCharacter);
 
-                if (modelAndViewMap.containsKey(character)) {
-                    BaseSkeletonActor baseSkeletonActor = modelAndViewMap.get(character);
+                if (modelAndViewMap.containsKey(character.getId())) {
+                    BaseSkeletonActor baseSkeletonActor = modelAndViewMap.get(character.getId());
                     baseSkeletonActor.beHit();
                 }
 
@@ -147,7 +147,7 @@ public class View extends Stage {
         enemyGroup.clear();
         bulletGroup.clear();
         modelAndViewMap.clear();
-        modelAndViewMap.put(player, playerView);
+        modelAndViewMap.put(player.getId(), playerView);
         playerGroup.addActor(playerView);
 
     }
@@ -205,20 +205,23 @@ public class View extends Stage {
 
         updateInput(delta);
         updateCamera(delta);
+
+//        modelAndViewMap.clear();
+
         for (Enemy enemy : model.getEnemies()) {
-            if (!modelAndViewMap.containsKey(enemy)) {
+            if (!modelAndViewMap.containsKey(enemy.getId())) {
                 EnemyActor view = new EnemyActor(assets, enemy);
                 enemyGroup.addActor(view);
-                modelAndViewMap.put(enemy, view);
+                modelAndViewMap.put(enemy.getId(), view);
             }
         }
         Array.ArrayIterator<Bullet> iterator = model.getBullets().iterator();
         while (iterator.hasNext()) {
             Bullet bullet = iterator.next();
-            if (!modelAndViewMap.containsKey(bullet)) {
+            if (!modelAndViewMap.containsKey(bullet.getId())) {
                 BulletActor view = new BulletActor(assets, bullet);
                 bulletGroup.addActor(view);
-                modelAndViewMap.put(bullet, view);
+                modelAndViewMap.put(bullet.getId(), view);
             }
 
 

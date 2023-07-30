@@ -45,6 +45,7 @@ import com.esotericsoftware.spine.Animation;
 import com.esotericsoftware.spine.AnimationStateData;
 import com.esotericsoftware.spine.SkeletonData;
 import com.esotericsoftware.spine.SkeletonJson;
+import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.model.Enemy;
 import org.cbzmq.game.model.Player;
 

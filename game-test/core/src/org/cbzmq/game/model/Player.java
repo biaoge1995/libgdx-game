@@ -31,12 +31,11 @@ package org.cbzmq.game.model;
 
 
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.FloatArray;
 import org.cbzmq.game.Map;
-import org.cbzmq.game.view.PlayerActor;
 import org.cbzmq.game.Constants;
+import org.cbzmq.game.enums.CharacterType;
+import org.cbzmq.game.proto.CharacterProto;
 
 
 /** The model class for the player. */
@@ -56,18 +55,15 @@ public class Player extends Character {
 	//计时器
 	//通过timer控制射击的时间间隔
 	public float shootTimer;
-	//控制碰撞时的无敌时间和闪烁
-	public float collisionTimer=0.07f;
+
 	//控制回血时间
 	public float hpTimer;
 
-	Array<Bullet> bullets2 = new Array<>();
+	Array<Bullet> bullets = new Array<>();
 
-	FloatArray bullets = new FloatArray();
 
 	// This is here for convenience, the model should never touch the view.
 	// 这是为了方便起见，模型永远不应该接触到视图。
-//	public PlayerActor view;
 
 	public Player (Map map) {
 		super(map,"spine boy");
@@ -75,6 +71,8 @@ public class Player extends Character {
 		rect.height = height;
 		hp = hpStart;
 		jumpVelocity = playerJumpVelocity;
+		//控制碰撞时的无敌时间和闪烁
+		collisionTimer=0.07f;
 	}
 
 	public void update (float delta) {
@@ -97,18 +95,9 @@ public class Player extends Character {
 	}
 
 
-	public void setBullets(FloatArray bullets) {
-		this.bullets = bullets;
-	}
-
-	public void clearBullets(){
-		if(bullets!=null){
-			bullets.clear();
-		}
-	}
 
 	public void shoot(float startX, float startY, float vx, float vy) {
-		bullets2.add(new Bullet(this,map,startX,startY,vx,vy));
+		bullets.add(new Bullet(this,map,startX,startY,vx,vy));
 
 		if(getQueue()!=null){
 			getQueue().attack(this);
@@ -116,8 +105,23 @@ public class Player extends Character {
 	}
 
 	public Array<Bullet> getBullets() {
-		return bullets2;
+		return bullets;
 	}
 
+	public static Player parserProto(CharacterProto.Character proto) {
+		Player player = new Player(null);
+		Character father = Character.parserProto(proto);
+		Character.copyToSon(father,player);
+		player.shootTimer = proto.getShootTimer();
+		return player;
+	}
 
+	public static CharacterProto.Character toPlayProto(Player player) {
+		CharacterProto.Character.Builder builder = Character.toCharacterProto(player);
+
+		return builder.setType(CharacterType.player)
+				.setShootTimer(player.shootTimer)
+//				.setHpTimer(player.hpTimer)
+				.build();
+	}
 }
