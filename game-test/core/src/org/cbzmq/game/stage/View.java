@@ -37,7 +37,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.renderers.OrthoCachedTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.esotericsoftware.spine.Event;
 import org.cbzmq.game.Assets;
@@ -138,7 +137,6 @@ public class View extends Stage {
 
     private void restart() {
         player = model.getPlayer();
-
         playerView = new PlayerActor(assets, player, viewport, camera);
         camera.lookahead = 0;
         playerView.setTouched(false);
@@ -147,8 +145,12 @@ public class View extends Stage {
         enemyGroup.clear();
         bulletGroup.clear();
         modelAndViewMap.clear();
-        modelAndViewMap.put(player.getId(), playerView);
-        playerGroup.addActor(playerView);
+
+        if(player!=null){
+            modelAndViewMap.put(player.getId(), playerView);
+            playerGroup.addActor(playerView);
+        }
+
 
     }
 
@@ -205,23 +207,42 @@ public class View extends Stage {
 
         updateInput(delta);
         updateCamera(delta);
+        player = model.getPlayer();
+        playerView.model = model.getPlayer();
 
-//        modelAndViewMap.clear();
+        if(player!=null){
+            if(!modelAndViewMap.containsKey(player.getId()))
+            modelAndViewMap.put(player.getId(), playerView);
+            playerGroup.addActor(playerView);
+        }else {
+            modelAndViewMap.get(player.getId()).model = player;
+        }
 
-        for (Enemy enemy : model.getEnemies()) {
+
+
+        for (int i = 0; i < model.getEnemies().size; i++) {
+            Enemy enemy = model.getEnemies().get(i);
             if (!modelAndViewMap.containsKey(enemy.getId())) {
                 EnemyActor view = new EnemyActor(assets, enemy);
                 enemyGroup.addActor(view);
                 modelAndViewMap.put(enemy.getId(), view);
             }
+            else {
+                modelAndViewMap.get(enemy.getId()).model = enemy;
+            }
         }
-        Array.ArrayIterator<Bullet> iterator = model.getBullets().iterator();
-        while (iterator.hasNext()) {
-            Bullet bullet = iterator.next();
+
+        for (int i = 0; i < model.getBullets().size; i++) {
+            Bullet bullet = model.getBullets().get(i);
             if (!modelAndViewMap.containsKey(bullet.getId())) {
                 BulletActor view = new BulletActor(assets, bullet);
                 bulletGroup.addActor(view);
                 modelAndViewMap.put(bullet.getId(), view);
+            }else {
+                BaseSkeletonActor baseSkeletonActor = modelAndViewMap.get(bullet.getId());
+                baseSkeletonActor.model = bullet;
+
+//                System.out.println("map"+baseSkeletonActor.model +":"+baseSkeletonActor.model.position);
             }
 
 
@@ -250,8 +271,10 @@ public class View extends Stage {
         if (player.hp > 0) {
             // Reduce camera lookahead based on distance of enemies behind the player.
             float enemyBehindDistance = 0;
-            for (Enemy enemy : model.getEnemies()) {
-                float dist = enemy.position.x - player.position.x;
+            for (int i = 0; i < model.getEnemies().size; i++) {
+
+                 Enemy enemy = model.getEnemies().get(i);
+                 float dist = enemy.position.x - player.position.x;
                 if (enemy.hp > 0 && Math.signum(dist) == -player.dir) {
                     dist = Math.abs(dist);
                     enemyBehindDistance = enemyBehindDistance == 0 ? dist : Math.min(enemyBehindDistance, dist);

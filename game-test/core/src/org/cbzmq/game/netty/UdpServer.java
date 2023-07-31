@@ -105,9 +105,9 @@ public final class UdpServer {
         byte[] bytes = msg.toByteArray();
         ByteBuf byteBuf = Unpooled.copiedBuffer(bytes);
 //        System.out.println(msg);
-        System.out.println("元素数量" + msg.getCharacterDataList().size());
-        System.out.println("protobuf消息长度" + bytes.length + "byte");
-        System.out.println("string消息长度" + msg.toString().getBytes(StandardCharsets.UTF_8).length + "byte\n");
+//        System.out.println("元素数量" + msg.getCharacterDataList().size());
+//        System.out.println("protobuf消息长度" + bytes.length + "byte");
+//        System.out.println("string消息长度" + msg.toString().getBytes(StandardCharsets.UTF_8).length + "byte\n");
 
 //            Iterator<Channel> iterator = null;
 //            while (iterator.hasNext()) {

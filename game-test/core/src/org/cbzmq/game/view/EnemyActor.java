@@ -16,8 +16,7 @@ import org.cbzmq.game.model.Enemy;
 /**
  * The view class for an enemy.
  */
-public class EnemyActor extends BaseSkeletonActor {
-    public Enemy enemy;
+public class EnemyActor extends BaseSkeletonActor<Enemy> {
     public Animation hitAnimation;
     public Slot headSlot;
     public Attachment burstHeadAttachment;
@@ -25,7 +24,6 @@ public class EnemyActor extends BaseSkeletonActor {
 
     public EnemyActor(Assets assets, Enemy enemy) {
         super(assets,enemy);
-        this.enemy = enemy;
         setSkeleton(new Skeleton(assets.enemySkeletonData));
         burstHeadAttachment = getSkeleton().getAttachment("head", "burst01");
         headSlot = getSkeleton().findSlot("head");
@@ -57,23 +55,23 @@ public class EnemyActor extends BaseSkeletonActor {
     public void act(float delta) {
 
         // Change head attachment for enemies that are about to die.
-        if (enemy.hp == 1 && enemy.enemyType != EnemyType.weak) headSlot.setAttachment(burstHeadAttachment);
+        if (model.hp == 1 && model.enemyType != EnemyType.weak) headSlot.setAttachment(burstHeadAttachment);
 
         // Change color for big enemies.
-        if (enemy.enemyType == EnemyType.big)
-            headSlot.getColor().set(headColor).lerp(0, 1, 1, 1, 1 - enemy.bigTimer / Enemy.bigDuration);
+        if (model.enemyType == EnemyType.big)
+            headSlot.getColor().set(headColor).lerp(0, 1, 1, 1, 1 - model.bigTimer / Enemy.bigDuration);
 
-        getSkeleton().setX(enemy.position.x + Enemy.width / 2);
-        getSkeleton().setY(enemy.position.y);
+        getSkeleton().setX(model.position.x + Enemy.width / 2);
+        getSkeleton().setY(model.position.y);
 
-        if (!setAnimation(assets.enemyStates.get(enemy.state), enemy.stateChanged)) getAnimationState().update(delta);
+        if (!setAnimation(assets.enemyStates.get(model.state), model.stateChanged)) getAnimationState().update(delta);
         getAnimationState().apply(getSkeleton());
 
         Bone root = getSkeleton().getRootBone();
-        root.setScaleX(root.getScaleX() * enemy.size);
-        root.setScaleY(root.getScaleY() * enemy.size);
+        root.setScaleX(root.getScaleX() * model.size);
+        root.setScaleY(root.getScaleY() * model.size);
 //
-        getSkeleton().setScaleX(enemy.dir);
+        getSkeleton().setScaleX(model.dir);
         getSkeleton().updateWorldTransform();
 //        super.act(delta);
     }
@@ -81,7 +79,7 @@ public class EnemyActor extends BaseSkeletonActor {
     @Override
     public void draw(Batch batch, float parentAlpha) {
 //		super.draw(batch, parentAlpha);
-        getSkeleton().getColor().a = Math.min(1, enemy.deathTimer / Enemy.fadeTime);
+        getSkeleton().getColor().a = Math.min(1, model.deathTimer / Enemy.fadeTime);
         getRenderer().draw(batch, getSkeleton());
 
     }

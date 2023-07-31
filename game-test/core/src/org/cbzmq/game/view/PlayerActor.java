@@ -47,8 +47,7 @@ import org.cbzmq.game.model.Player;
 
 
 /** The view class for the player. */
-public class PlayerActor extends BaseSkeletonActor {
-	public Player player;
+public class PlayerActor extends BaseSkeletonActor<Player> {
 	public Bone rearUpperArmBone, rearBracerBone, gunBone, headBone, torsoBone, frontUpperArmBone;
 	public Animation shootAnimation, hitAnimation;
 	public boolean canShoot;
@@ -61,7 +60,6 @@ public class PlayerActor extends BaseSkeletonActor {
 
 	public PlayerActor(final Assets assets, final Player player, final Viewport viewport, final GameCamera camera) {
 		super(assets,player);
-		this.player = player;
 		this.viewport = viewport;
 		this.camera = camera;
 		setSkeleton(new Skeleton(assets.playerSkeletonData));
@@ -116,10 +114,10 @@ public class PlayerActor extends BaseSkeletonActor {
 		// If jump was pressed in the air, jump as soon as grounded.
 		if (jumpPressed ) jump();
 
-		getSkeleton().setX(player.position.x + Player.width / 2);
-		getSkeleton().setY(player.position.y);
+		getSkeleton().setX(model.position.x + Player.width / 2);
+		getSkeleton().setY(model.position.y);
 
-		if (!setAnimation(assets.playerStates.get(player.state), player.stateChanged)) getAnimationState().update(delta);
+		if (!setAnimation(assets.playerStates.get(model.state), model.stateChanged)) getAnimationState().update(delta);
 		getAnimationState().apply(getSkeleton());
 
 		Vector2 mouse = temp1.set(Gdx.input.getX(), Gdx.input.getY());
@@ -131,7 +129,7 @@ public class PlayerActor extends BaseSkeletonActor {
 		canShoot = false;
 		if (rearUpperArmBone == null || rearBracerBone == null || gunBone == null)
 			canShoot = true;
-		else if (player.hp > 0
+		else if (model.hp > 0
 //				&& !spineBoyStage.ui.hasSplash
 				//骨骼距离鼠标的x和y轴距离要超过一定的数值
 				&& (Math.abs(getSkeleton().getY() - mouse.y) > 2.7f || Math.abs(getSkeleton().getX() - mouse.x) > 0.75f)) {
@@ -155,10 +153,10 @@ public class PlayerActor extends BaseSkeletonActor {
 			float angle = bonePosition.sub(mouse).angle();
 			float behind = (angle < 90 || angle > 270) ? -1 : 1;
 			if (behind == -1) angle = -angle;
-			if (player.state == CharacterState.idle || (touched && (player.state == CharacterState.jump || player.state == CharacterState.fall)))
-				player.dir = behind;
-			if (behind != player.dir) angle = -angle;
-			if (player.state != CharacterState.idle && behind != player.dir) {
+			if (model.state == CharacterState.idle || (touched && (model.state == CharacterState.jump || model.state == CharacterState.fall)))
+				model.dir = behind;
+			if (behind != model.dir) angle = -angle;
+			if (model.state != CharacterState.idle && behind != model.dir) {
 				// Don't allow the player to shoot behind themselves unless idle. Use the rotations stored earlier from the animation.
 				rearBracerBone.setRotation(rearBracerRotation);
 				rearUpperArmBone.setRotation(rearUpperArmRotation);
@@ -170,7 +168,7 @@ public class PlayerActor extends BaseSkeletonActor {
 				float gunArmAngle = angle - shootRotation;
 				// Compute the head, torso and front arm angles so the player looks up or down.
 				float headAngle;
-				if (player.dir == -1) {
+				if (model.dir == -1) {
 					angle += 360;
 					if (angle < 180)
 						headAngle = 25 * Interpolation.pow2In.apply(Math.min(1, angle / 50f));
@@ -191,32 +189,32 @@ public class PlayerActor extends BaseSkeletonActor {
 			}
 		}
 
-		getSkeleton().setScaleX(player.dir);
+		getSkeleton().setScaleX(model.dir);
 		getSkeleton().updateWorldTransform();
 //		super.act(delta);
 	}
 
 	@Override
 	public void draw(Batch batch, float parentAlpha) {
-		int i = (int) (player.collisionTimer / Player.flashTime * 1.5f) % 2;
+		int i = (int) (model.collisionTimer / Player.flashTime * 1.5f) % 2;
 		//在遭受碰撞时持续闪烁
-		if (player.collisionTimer < 0 || i != 0)
+		if (model.collisionTimer < 0 || i != 0)
 			getRenderer().draw(batch, getSkeleton());
 //			super.draw(batch, parentAlpha);
 	}
 
 
 	public void jump () {
-		if( player.isGrounded()){
-			player.jump();
+		if( model.isGrounded()){
+			model.jump();
 			setAnimation(assets.playerStates.get(CharacterState.jump), true);
 		}
 
 	}
 
 	public void shoot () {
-		if (!canShoot || player.shootTimer >= 0) return;
-		player.shootTimer = Player.shootDelay;
+		if (!canShoot || model.shootTimer >= 0) return;
+		model.shootTimer = Player.shootDelay;
 		burstTimer = Player.burstDuration;
 
 		// Compute the position and velocity to spawn a new bullet.
@@ -233,26 +231,26 @@ public class PlayerActor extends BaseSkeletonActor {
 		Vector2 unproject = viewport.unproject(temp1.set(mouseX, mouseY));
 
 		float angle = unproject.sub(x, y).angle();
-		angle += Player.kickbackAngle * Math.min(1, burstShots / Player.kickbackShots) * player.dir;
+		angle += Player.kickbackAngle * Math.min(1, burstShots / Player.kickbackShots) * model.dir;
 		float variance = Player.kickbackVariance * Math.min(1, burstShots / Player.kickbackVarianceShots);
 		angle += MathUtils.random(-variance, variance);
 
 		float cos = MathUtils.cosDeg(angle), sin = MathUtils.sinDeg(angle);
-		float vx = cos * Player.bulletSpeed + player.velocity.x * Player.bulletInheritVelocity;
-		float vy = sin * Player.bulletSpeed + player.velocity.y * Player.bulletInheritVelocity;
+		float vx = cos * Player.bulletSpeed + model.velocity.x * Player.bulletInheritVelocity;
+		float vy = sin * Player.bulletSpeed + model.velocity.y * Player.bulletInheritVelocity;
 		if (rearUpperArmBone != null && rearBracerBone != null && gunBone != null) {
 			x = gunBone.getWorldX();
 			y = gunBone.getWorldY() + Player.shootOffsetY * Constants.scale;
 			x += cos * Player.shootOffsetX * Constants.scale;
 			y += sin * Player.shootOffsetX * Constants.scale;
 		}
-		player.shoot(x, y, vx, vy);
+		model.shoot(x, y, vx, vy);
 		//开枪时的镜头抖动设置
 		if (shootAnimation != null) getAnimationState().setAnimation(1, shootAnimation, false);
 		//镜头抖动设置
 		camera.shackCamera();
 
-		player.velocity.x -= Player.kickback * player.dir;
+		model.velocity.x -= Player.kickback * model.dir;
 //		SoundEffect.shoot.play();
 
 		burstShots = Math.min(Player.kickbackShots, burstShots + 1);
@@ -264,7 +262,7 @@ public class PlayerActor extends BaseSkeletonActor {
 	 */
 	public void beHit () {
 
-		if (player.hp > 0 && hitAnimation != null) {
+		if (model.hp > 0 && hitAnimation != null) {
 			AnimationState.TrackEntry entry = getAnimationState().setAnimation(1, hitAnimation, false);
 			entry.setTrackEnd(hitAnimation.getDuration());
 		}

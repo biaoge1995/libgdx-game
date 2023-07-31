@@ -44,13 +44,13 @@ import org.cbzmq.game.model.Character;
 /**
  * The view class for an enemy or player that moves around the map.
  */
-public class BaseSkeletonActor extends SkeletonActor{
+public class BaseSkeletonActor<T extends Character> extends SkeletonActor{
     public Assets assets;
-    public Character character;
+    public T model;
 
-    public BaseSkeletonActor(Assets assets,Character character) {
+    public BaseSkeletonActor(Assets assets,T model) {
         this.assets = assets;
-        this.character = character;
+        this.model = model;
         SkeletonRenderer skeletonRenderer = new SkeletonRenderer();
         skeletonRenderer.setPremultipliedAlpha(true);
         setRenderer(skeletonRenderer);
@@ -77,16 +77,16 @@ public class BaseSkeletonActor extends SkeletonActor{
     @Override
     public void act(float delta) {
         super.act(delta);
-        setX(character.position.x);
-        setY(character.position.y);
-        getSkeleton().setX(character.position.x + character.rect.width / 2);
-        getSkeleton().setY(character.position.y);
+        setX(model.position.x);
+        setY(model.position.y);
+        getSkeleton().setX(model.position.x + model.rect.width / 2);
+        getSkeleton().setY(model.position.y);
 
-        getSkeleton().setScaleX(character.dir);
+        getSkeleton().setScaleX(model.dir);
         getSkeleton().updateWorldTransform();
 
         //如果角色死亡则remove掉自己
-        if(character.state== CharacterState.death){
+        if(model.state== CharacterState.death){
             remove();
         }
 

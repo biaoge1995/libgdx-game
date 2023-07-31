@@ -86,45 +86,13 @@ public class LocalModel implements Model {
     }
 
     public void init(){
-        bulletGroup = new Group<>();
-        enemyGroup = new Group<>();
-        playerGroup = new Group<>();
+        bulletGroup = new Group<>("bulletGroup");
+        enemyGroup = new Group<>("enemyGroup");
+        playerGroup = new Group<>("playerGroup");
         addCharacter(playerGroup);
         addCharacter(bulletGroup);
         addCharacter((enemyGroup));
         restart();
-    }
-
-    public void addCharacter(Character character){
-        root.addCharacter(character);
-    }
-
-    public void addBullet(Bullet bullet){
-//        bullets.add(bullet);
-//        bullet.setQueue(queue);
-//        bullet.setId(generalId());
-        bulletGroup.addCharacter(bullet);
-    }
-
-    public void addEnemy(Enemy enemy){
-
-//        enemy.setQueue(queue);
-//        enemy.setId(generalId());
-//        enemies.add(enemy);
-        enemyGroup.addCharacter(enemy);
-    }
-    public void initPlayer(){
-        player = new Player(this.map);
-        player.setId(generalId());
-        //TODO 诞生了一个玩家
-        queue.born(player);
-        player.setQueue(queue);
-        player.position.set(4, 8);
-        playerGroup.addCharacter(player);
-    }
-
-    public int generalId(){
-        return id++;
     }
 
     public void restart() {
@@ -134,8 +102,6 @@ public class LocalModel implements Model {
         playerGroup.clear();
         initPlayer();
 
-//        bullets.clear();
-//        enemies.clear();
         gameOverTimer = 0;
 
         // Setup triggers to spawn enemies based on the x coordinate of the player.
@@ -219,8 +185,6 @@ public class LocalModel implements Model {
                 for (Enemy enemy : trigger.enemies) {
 //                    enemies.add(enemy);
                     addEnemy(enemy);
-                    //TODO 出生了一头怪物
-                    queue.born(enemy);
                 }
                 triggers.removeIndex(i);
                 break;
@@ -378,6 +342,31 @@ public class LocalModel implements Model {
             spawnX += offset;
         }
     }
+
+
+    public void addCharacter(Character character){
+        root.addCharacter(character);
+    }
+
+    public void addBullet(Bullet bullet){
+        bulletGroup.addCharacter(bullet);
+    }
+
+    public void addEnemy(Enemy enemy){
+        enemyGroup.addCharacter(enemy);
+    }
+    public void initPlayer(){
+        player = new Player(this.map);
+
+        //TODO 诞生了一个玩家
+        player.position.set(4, 8);
+        playerGroup.addCharacter(player);
+    }
+
+    public int generalId(){
+        return id++;
+    }
+
 
     public float getTimeScale() {
         if (player.hp == 0)

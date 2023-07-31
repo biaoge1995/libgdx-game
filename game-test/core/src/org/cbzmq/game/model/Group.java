@@ -14,7 +14,6 @@ import org.cbzmq.game.stage.Model;
  * @Version 1.0
  **/
 public class Group<T extends Character> extends Character {
-    String name;
     final Array<T> children = new Array<>();
 
     public Group(String name) {

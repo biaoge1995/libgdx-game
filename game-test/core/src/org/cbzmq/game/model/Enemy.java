@@ -13,7 +13,7 @@ import org.cbzmq.game.proto.CharacterProto;
 
 
 /** The model class for an enemy. */
-public class Enemy extends Character {
+public class Enemy extends Character<Enemy> {
 	public static float heightSource = 398, width = 105 * Constants.scale, height = 200 * Constants.scale;
 	public static float maxVelocityMinX = 4f, maxVelocityMaxX = 8.5f, maxVelocityAirX = 19f;
 	public static float hpWeak = 1, hpSmall = 2, hpNormal = 3, hpStrong = 5, hpBecomesBig = 8, hpBig = 20;
@@ -46,7 +46,7 @@ public class Enemy extends Character {
 	public Enemy (Map map, EnemyType enemyType) {
 		super(map,"alien-"+ enemyType);
 		this.enemyType = enemyType;
-
+		this.characterType = CharacterType.enemy;
 		rect.width = width;
 		rect.height = height;
 
@@ -195,7 +195,6 @@ public class Enemy extends Character {
 				if(parent!=null){
 					parent.addCharacter(c);
 				}
-				getQueue().born(c);
 			}
 			this.childs.clear();
 		}
@@ -250,5 +249,24 @@ public class Enemy extends Character {
 //				.setKnockbackX(enemy.knockbackX)
 //				.setKnockbackY(enemy.knockbackY)
 				.build();
+	}
+
+
+	public void updateByCharacter(Enemy father) {
+		super.updateByCharacter(father);
+		this.deathTimer = father.deathTimer;
+		this.maxVelocityGroundX = father.maxVelocityGroundX;
+		this.jumpDelayTimer = father.jumpDelayTimer;
+		this.jumpDistance = father.jumpDistance;
+		this.jumpDelay = father.jumpDelay;
+		this.enemyType = father.enemyType;
+		this.size = father.size;
+		this.bigTimer = father.bigTimer;
+		this.spawnSmallsTimer = father.spawnSmallsTimer;
+		this.move = father.move;
+		this.forceJump = father.forceJump;
+		this.collisions = father.collisions;
+		this.knockbackX = father.knockbackX;
+		this.knockbackY = father.knockbackY;
 	}
 }

@@ -39,7 +39,7 @@ import org.cbzmq.game.proto.CharacterProto;
 
 
 /** The model class for the player. */
-public class Player extends Character {
+public class Player extends Character<Player>{
 	public static float heightSource = 625, width = 67 * Constants.scale, height = 285 * Constants.scale;
 	public static float hpStart = 4, hpDuration = 15;
 	public static float maxVelocityGroundX = 12.5f, maxVelocityAirX = 13.5f;
@@ -73,6 +73,7 @@ public class Player extends Character {
 		jumpVelocity = playerJumpVelocity;
 		//控制碰撞时的无敌时间和闪烁
 		collisionTimer=0.07f;
+		this.characterType = CharacterType.player;
 	}
 
 	public void update (float delta) {
@@ -124,4 +125,14 @@ public class Player extends Character {
 //				.setHpTimer(player.hpTimer)
 				.build();
 	}
+
+	public void updateByCharacter(Player father) {
+		super.updateByCharacter(father);
+		this.damage = father.damage;
+		this.shootTimer = father.shootTimer;
+		this.hpTimer = father.hpTimer;
+		this.bullets = father.bullets;
+	}
+
+
 }

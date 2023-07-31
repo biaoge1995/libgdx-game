@@ -9,9 +9,8 @@ import org.cbzmq.game.Assets;
 import org.cbzmq.game.Constants;
 import org.cbzmq.game.model.Bullet;
 
-public class BulletActor extends BaseSkeletonActor {
+public class BulletActor extends BaseSkeletonActor<Bullet> {
     static float bulletHitTime = 0.2f;
-    Bullet bullet;
     float bulletWidth;
     float bulletHeight;
     TextureRegion bulletRegion;
@@ -24,7 +23,6 @@ public class BulletActor extends BaseSkeletonActor {
 
     public BulletActor(Assets assets, Bullet bullet) {
         super(assets, bullet);
-        this.bullet = bullet;
         bulletRegion = assets.bulletRegion;
         hitRegion = assets.hitRegion;
         bulletWidth = bulletRegion.getRegionWidth() * Constants.scale;
@@ -32,9 +30,11 @@ public class BulletActor extends BaseSkeletonActor {
         time = bulletHitTime;
     }
 
+
+
     @Override
     public void act(float delta) {
-        if(bullet.hp==0){
+        if(model.hp==0){
             time = time - delta;
             if(!isHitSound){
                 Assets.SoundEffect.hit.play();
@@ -52,11 +52,11 @@ public class BulletActor extends BaseSkeletonActor {
     public void draw(Batch batch, float parentAlpha) {
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
 
-        float x = bullet.position.x, y = bullet.position.y;
-        float angle = bullet.velocity.angleDeg();
+        float x = model.position.x, y = model.position.y;
+        float angle = model.velocity.angleDeg();
         float vx = MathUtils.cosDeg(angle);
         float vy = MathUtils.sinDeg(angle);
-        if(bullet.hp>0){
+        if(model.hp>0){
 
             // Adjust position so bullet region is drawn with the bullet position in the center of the fireball.
             x -= vx * bulletWidth * 0.65f;
@@ -64,6 +64,7 @@ public class BulletActor extends BaseSkeletonActor {
             x += vy * bulletHeight / 2;
             y += -vx * bulletHeight / 2;
             batch.draw(bulletRegion, x, y, 0, 0, bulletWidth, bulletHeight, 1, 1, angle);
+//            System.out.println("actor"+ model +":"+x+","+y);
         }else {
 //            Vector2 temp = new Vector2();
 //            Vector2 offset = temp.set(vx, vy).nor().scl(15 * Constants.scale);

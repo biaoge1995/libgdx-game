@@ -11,15 +11,16 @@ import org.cbzmq.game.Assets;
 import org.cbzmq.game.Map;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.model.Bullet;
+import org.cbzmq.game.model.Character;
 import org.cbzmq.game.model.CharacterListener;
 import org.cbzmq.game.model.Enemy;
 import org.cbzmq.game.model.Player;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.proto.MsgProto;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-
 
 /**
  * @ClassName RemoteModel
@@ -37,6 +38,8 @@ public class RemoteModel implements Model {
     Array<Enemy> enemies = new Array<>();
 
     Set<Integer> existsId = new HashSet<>();
+
+    java.util.Map<Integer,Character> characterMap= new HashMap<>();
 
     Array<CharacterListener> listeners = new Array<>();
     EventQueue queue = new EventQueue(listeners);
@@ -75,27 +78,13 @@ public class RemoteModel implements Model {
 
     public void sync(MsgProto.Msg msgProto) {
 
-        existsId.clear();
+
+
         for (CharacterProto.Character proto : msgProto.getCharacterDataList()) {
             existsId.add(proto.getId());
-        }
 
-        for (Bullet bullet : getBullets()) {
-           if( !existsId.contains(bullet.getId())){
-               bullet.state = CharacterState.death;
-           }
-        }
+            Character character = null;
 
-        for (Enemy enemy : getEnemies()) {
-            if( !existsId.contains(enemy.getId())){
-                enemy.state = CharacterState.death;
-            }
-        }
-
-        getBullets().clear();
-        getEnemies().clear();
-        for (CharacterProto.Character proto : msgProto.getCharacterDataList()) {
-            existsId.add(proto.getId());
 
             switch (proto.getType()) {
                 case player:
@@ -103,17 +92,39 @@ public class RemoteModel implements Model {
                     setPlayer(player);
                     break;
                 case bullet:
-                    Bullet bullet = Bullet.parserProto(proto);
-                    getBullets().add(bullet);
+                    character = Bullet.parserProto(proto);
+//                    getBullets().add(bullet);
                     break;
                 case enemy:
-                    Enemy enemy = Enemy.parserProto(proto);
-                    getEnemies().add(enemy);
+                    character = Enemy.parserProto(proto);
+//                    getEnemies().add(enemy);
                     break;
             }
+            if(character!=null && !characterMap.containsKey(proto.getId())){
+                characterMap.put(proto.getId(),character);
+            }
+           else if(character!=null){
+               characterMap.get(proto.getId()).updateByCharacter(character);;
+
+            }
         }
+        for (Character value : characterMap.values()) {
+            if(!existsId.contains(value.getId())){
+                value.state = CharacterState.death;
+            }
+            switch (value.characterType) {
+                case player:
+                    break;
+                case bullet:
 
+                    getBullets().add((Bullet) value);
+                    break;
+                case enemy:
+                    getEnemies().add((Enemy) value);
+                    break;
+            }
 
+        }
 
     }
 
@@ -216,9 +227,9 @@ class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         model.sync(msgProto);
 //        gameClient.acceptMsg(msgProto);
         if (msgProto.getCharacterDataList().size() > 0) {
-            System.out.println("消息大小" + msgProto.toByteArray().length);
-            System.err.println("客户端接收到消息: \nheader:" + msgProto.getHeader() + "\n" + msgProto.getCharacterDataList().toString());
-            System.out.println("element数量：" + msgProto.getCharacterDataList().size());
+//            System.out.println("消息大小" + msgProto.toByteArray().length);
+//            System.err.println("客户端接收到消息: \nheader:" + msgProto.getHeader() + "\n" + msgProto.getCharacterDataList().toString());
+//            System.out.println("element数量：" + msgProto.getCharacterDataList().size());
 
 
         }

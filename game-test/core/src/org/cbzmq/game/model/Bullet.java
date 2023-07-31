@@ -6,7 +6,7 @@ import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.view.BulletActor;
 
-public class Bullet extends Character {
+public class Bullet extends Character<Bullet> {
 
 
     public final static float width = 1;
@@ -25,6 +25,7 @@ public class Bullet extends Character {
         rect.width = width;
         rect.height = height;
         this.player = player;
+        this.characterType = CharacterType.bullet;
 
     }
 
@@ -80,5 +81,11 @@ public class Bullet extends Character {
     public static CharacterProto.Character toBulletProto(Bullet bullet) {
         return Character.toCharacterProto(bullet).setType(CharacterType.bullet).build();
 
+    }
+
+
+    public  void updateByCharacter(Bullet father) {
+        super.updateByCharacter(father);
+        this.player = father.player;
     }
 }

@@ -16,7 +16,7 @@ import org.cbzmq.game.stage.Model;
 /**
  * The model class for an enemy or player that moves around the map.
  */
-public class Character {
+public class Character<T extends Character>{
 
 
     public static float minVelocityX = 0.001f, maxVelocityY = 20f;
@@ -28,8 +28,10 @@ public class Character {
     public static float runGroundX = 80, runAirSame = 45, runAirOpposite = 45;
     //游戏主逻辑引用
     public Map map;
+
+    public CharacterType characterType=CharacterType.unknown;
     //事件
-    public CharacterListener listener;
+    public CharacterListener listener = new CharacterAdapter();
 
     @Null
     Group<Character> parent;
@@ -287,7 +289,7 @@ public class Character {
 
     @Override
     public String toString() {
-        return name;
+        return name+getId();
     }
 
     public EventQueue getQueue() {
@@ -298,7 +300,10 @@ public class Character {
         this.queue = queue;
     }
 
+
+
     public static <T extends Character> void copyToSon(Character father,T son){
+        son.id = father.id;
         son.map = father.map;
         son.listener = father.listener;
         son.name = father.name;
@@ -384,4 +389,33 @@ public class Character {
     public void setId(int id) {
         this.id = id;
     }
+
+    public void updateByCharacter(T character) {
+
+        this.id = character.id;
+        this.map = character.map;
+        this.listener = character.listener;
+        this.name = character.name;
+        this.position = character.position;
+        this.targetPosition = character.targetPosition;
+        this.velocity = character.velocity;
+        this.state = character.state;
+        this.stateTime = character.stateTime;
+        this.dir = character.dir;
+        this.airTime = character.airTime;
+        this.rect = character.rect;
+        this.stateChanged = character.stateChanged;
+        this.hp = character.hp;
+        this.maxVelocityX = character.maxVelocityX;
+        this.collisionOffsetY = character.collisionOffsetY;
+        this.jumpVelocity = character.jumpVelocity;
+        this.isWin = character.isWin;
+        this.damage = character.damage;
+        this.collisionTimer = character.collisionTimer;
+        this.setQueue(character.getQueue());
+        this.childs = character.childs;
+        this.parent = character.parent;
+    }
 }
+
+
