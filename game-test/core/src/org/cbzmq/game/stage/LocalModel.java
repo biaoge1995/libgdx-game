@@ -106,7 +106,7 @@ public class LocalModel implements Model {
 
         // Setup triggers to spawn enemies based on the x coordinate of the player.
         triggers.clear();
-        addTrigger(10, 10, 8, EnemyType.becomesBig, 2);
+//        addTrigger(10, 10, 8, EnemyType.becomesBig, 2);
         addTrigger(17, 17 + 22, 8, EnemyType.normal, 2);
         addTrigger(17, 17 + 22, 8, EnemyType.strong, 1);
         addTrigger(31, 31 + 22, 8, EnemyType.normal, 3);
@@ -146,8 +146,8 @@ public class LocalModel implements Model {
         addTrigger(246, 220, 23, EnemyType.becomesBig, 3);
         addTrigger(246, 220, 23, EnemyType.becomesBig, 3);
         // Setup triggers to spawn enemies based on the x coordinate of the player.
-        triggers.clear();
-        addTrigger(10, 10, 8, EnemyType.becomesBig, 2);
+//        triggers.clear();
+//        addTrigger(10, 10, 8, EnemyType.becomesBig, 2);
 
     }
 
@@ -156,9 +156,7 @@ public class LocalModel implements Model {
 
 
     public void update(float delta) {
-        if(isGameOver)  return;
         root.update(delta);
-
 
         for (Player p : playerGroup.getChildren()) {
             if(p.hp>0) break;
@@ -168,11 +166,8 @@ public class LocalModel implements Model {
                 isGameOver=true;
             }
         }
-
-
         updateEnemies();
         updateBullets();
-//        player.update(delta);
         updateTriggers();
         //将事件队列处理掉
         queue.drain();
@@ -192,6 +187,21 @@ public class LocalModel implements Model {
         }
     }
 
+    public void gameResult(boolean isPlayerWin){
+        if(isGameOver) return;
+        this.isPlayerWin = isPlayerWin;
+        if(isPlayerWin){
+            queue.event(playerGroup, new Event(0, new EventData("win")));
+            queue.event(enemyGroup, new Event(0, new EventData("lose")));
+            isGameOver=true;
+        }else {
+            queue.event(playerGroup, new Event(0, new EventData("lose")));
+            queue.event(enemyGroup, new Event(0, new EventData("win")));
+            isGameOver=true;
+        }
+
+    }
+
     public void updateEnemies() {
         int alive = 0;
         for (int i = enemyGroup.getChildren().size - 1; i >= 0; i--) {
@@ -201,7 +211,7 @@ public class LocalModel implements Model {
             //怪物胜利
             if (player.hp == 0 && enemy.hp > 0) {
                 enemy.win();
-                queue.event(enemy, new Event(0, new EventData("lose")));
+                gameResult(false);
             }
 
             if (enemy.hp > 0) {
@@ -275,9 +285,7 @@ public class LocalModel implements Model {
         // End the game when all enemies are dead and all triggers have occurred.
         if (alive == 0 && triggers.size == 0) {
             if(!isGameOver){
-                queue.event(player,new Event(0,new EventData("win")));
-                isGameOver=true;
-                isPlayerWin = true;
+                gameResult(true);
             }
 
 
@@ -304,6 +312,7 @@ public class LocalModel implements Model {
                     // Bullet hit enemy.
                     //子弹击中怪物
                     bullet.hp = 0;
+                    bullet.beDeath();
                     //TODO 这块要改掉
 //                    enemy.view.beHit();
                     //怪物被击中事件

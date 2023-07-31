@@ -34,15 +34,13 @@ public class Bullet extends Character<Bullet> {
 
        super.update(delta);
 
-        ;
-
     }
 
     @Override
     public boolean collideX() {
         if (super.collideX()) {
             hp = 0;
-            state = CharacterState.death;
+            beDeath();
             return true;
         }
         return false;
@@ -52,7 +50,7 @@ public class Bullet extends Character<Bullet> {
     public boolean collideY() {
         if (super.collideY()) {
             hp = 0;
-            state = CharacterState.death;
+            beDeath();
             return true;
         }
         return false;

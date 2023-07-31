@@ -168,6 +168,7 @@ public class Character<T extends Character>{
 
     public void beDeath(){
         if(this.state!=CharacterState.death){
+            this.hp = 0;
             this.state = CharacterState.death;
             if(queue!=null) queue.death(this);
         }
@@ -444,8 +445,6 @@ public class Character<T extends Character>{
     }
 }
 
-interface UpdateAble<T>{
-    void updateByOther(T other);
-}
+
 
 

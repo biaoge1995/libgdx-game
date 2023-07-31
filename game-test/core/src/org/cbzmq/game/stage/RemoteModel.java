@@ -9,6 +9,7 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Map;
+import org.cbzmq.game.CompressUtils;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.model.Bullet;
 import org.cbzmq.game.model.Character;
@@ -39,7 +40,7 @@ public class RemoteModel implements Model {
 
     Set<Integer> existsId = new HashSet<>();
 
-    java.util.Map<Integer,Character> characterMap= new HashMap<>();
+    java.util.Map<Integer, Character> characterMap = new HashMap<>();
 
     Array<CharacterListener> listeners = new Array<>();
     EventQueue queue = new EventQueue(listeners);
@@ -47,6 +48,8 @@ public class RemoteModel implements Model {
     boolean isPlayerWin = false;
     boolean isGameOver = false;
     Channel ch;
+
+    boolean isStartSynced = false;
 
     public static void main(String[] args) throws InterruptedException {
         new RemoteModel();
@@ -76,10 +79,18 @@ public class RemoteModel implements Model {
 
     }
 
+    public boolean isStartSynced() {
+        return isStartSynced;
+    }
+
+    public void setStartSynced(boolean startSynced) {
+        isStartSynced = startSynced;
+    }
+
     public void sync(MsgProto.Msg msgProto) {
 
-
-
+        isStartSynced = false;
+        existsId.clear();
         for (CharacterProto.Character proto : msgProto.getCharacterDataList()) {
             existsId.add(proto.getId());
 
@@ -88,8 +99,7 @@ public class RemoteModel implements Model {
 
             switch (proto.getType()) {
                 case player:
-                    Player player = Player.parserProto(proto);
-                    setPlayer(player);
+                    character = Player.parserProto(proto);
                     break;
                 case bullet:
                     character = Bullet.parserProto(proto);
@@ -100,23 +110,23 @@ public class RemoteModel implements Model {
 //                    getEnemies().add(enemy);
                     break;
             }
-            if(character!=null && !characterMap.containsKey(proto.getId())){
-                characterMap.put(proto.getId(),character);
-            }
-           else if(character!=null){
-               characterMap.get(proto.getId()).updateByCharacter(character);;
+            if (character != null && !characterMap.containsKey(proto.getId())) {
+                characterMap.put(proto.getId(), character);
+            } else if (character != null) {
+                characterMap.get(proto.getId()).updateByCharacter(character);
+                ;
 
             }
         }
         for (Character value : characterMap.values()) {
-            if(!existsId.contains(value.getId())){
-                value.state = CharacterState.death;
+            if (!existsId.contains(value.getId())) {
+                value.beDeath();
             }
             switch (value.characterType) {
                 case player:
+                    player = (Player) value;
                     break;
                 case bullet:
-
                     getBullets().add((Bullet) value);
                     break;
                 case enemy:
@@ -130,7 +140,9 @@ public class RemoteModel implements Model {
 
     @Override
     public void update(float delta) {
-
+//        for (Character value : characterMap.values()) {
+//            value.update(delta);
+//        }
     }
 
     @Override
@@ -223,13 +235,18 @@ class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
     @Override
     public void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
         byte[] bytes = ByteBufUtil.getBytes(msg.content());
-        MsgProto.Msg msgProto = MsgProto.Msg.parseFrom(bytes);
+
+        byte[] decompress = CompressUtils.decompress(bytes);
+
+        System.out.println("msg byte length :" + bytes.length + "byte");
+        MsgProto.Msg msgProto = MsgProto.Msg.parseFrom(decompress);
+
+
         model.sync(msgProto);
-//        gameClient.acceptMsg(msgProto);
-        if (msgProto.getCharacterDataList().size() > 0) {
-//            System.out.println("消息大小" + msgProto.toByteArray().length);
+        if (msgProto.getCharacterDataList().size() > 21) {
+
 //            System.err.println("客户端接收到消息: \nheader:" + msgProto.getHeader() + "\n" + msgProto.getCharacterDataList().toString());
-//            System.out.println("element数量：" + msgProto.getCharacterDataList().size());
+            System.out.println("element num ：" + msgProto.getCharacterDataList().size());
 
 
         }

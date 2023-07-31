@@ -45,6 +45,7 @@ public class BulletActor extends BaseSkeletonActor<Bullet> {
             }
         }
 
+//        super.act(delta);
 
     }
 

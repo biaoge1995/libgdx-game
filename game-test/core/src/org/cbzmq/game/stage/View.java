@@ -186,6 +186,7 @@ public class View extends Stage {
 
         for (int i = 0; i < model.getEnemies().size; i++) {
             Enemy enemy = model.getEnemies().get(i);
+            if(enemy==null) continue;
             if (!modelAndViewMap.containsKey(enemy.getId())) {
                 EnemyActor view = new EnemyActor(assets, enemy);
                 enemyGroup.addActor(view);
@@ -198,6 +199,7 @@ public class View extends Stage {
 
         for (int i = 0; i < model.getBullets().size; i++) {
             Bullet bullet = model.getBullets().get(i);
+            if(bullet==null) continue;
             if (!modelAndViewMap.containsKey(bullet.getId())) {
                 BulletActor view = new BulletActor(assets, bullet);
                 bulletGroup.addActor(view);

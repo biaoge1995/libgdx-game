@@ -76,19 +76,19 @@ public class BaseSkeletonActor<T extends Character> extends SkeletonActor{
 
     @Override
     public void act(float delta) {
-        super.act(delta);
-        setX(model.position.x);
-        setY(model.position.y);
-        getSkeleton().setX(model.position.x + model.rect.width / 2);
-        getSkeleton().setY(model.position.y);
-
-        getSkeleton().setScaleX(model.dir);
-        getSkeleton().updateWorldTransform();
+//        super.act(delta);
+//        setX(model.position.x);
+//        setY(model.position.y);
+//        getSkeleton().setX(model.position.x + model.rect.width / 2);
+//        getSkeleton().setY(model.position.y);
+//
+//        getSkeleton().setScaleX(model.dir);
+//        getSkeleton().updateWorldTransform();
 
         //如果角色死亡则remove掉自己
-        if(model.state== CharacterState.death){
-            remove();
-        }
+//        if(model.state== CharacterState.death){
+//            remove();
+//        }
 
     }
 

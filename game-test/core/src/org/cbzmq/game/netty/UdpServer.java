@@ -10,6 +10,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.SocketUtils;
+import org.cbzmq.game.CompressUtils;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.MsgHeader;
 import org.cbzmq.game.model.Bullet;
@@ -17,15 +18,10 @@ import org.cbzmq.game.model.Enemy;
 import org.cbzmq.game.model.Player;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.proto.MsgProto;
-import org.cbzmq.game.stage.LocalModel;
 import org.cbzmq.game.stage.Model;
 
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * @ClassName UdpServer
@@ -103,7 +99,8 @@ public final class UdpServer {
                 .build();
 
         byte[] bytes = msg.toByteArray();
-        ByteBuf byteBuf = Unpooled.copiedBuffer(bytes);
+        CompressUtils.CompressData compress = CompressUtils.compress(bytes);
+        ByteBuf byteBuf = Unpooled.copiedBuffer(compress.getOutput());
 //        System.out.println(msg);
 //        System.out.println("元素数量" + msg.getCharacterDataList().size());
 //        System.out.println("protobuf消息长度" + bytes.length + "byte");
