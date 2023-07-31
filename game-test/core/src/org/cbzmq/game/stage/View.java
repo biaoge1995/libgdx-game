@@ -165,7 +165,54 @@ public class View extends Stage {
 
     }
 
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+        updateInput(delta);
+        updateCamera(delta);
+        player = model.getPlayer();
+        playerView.model = model.getPlayer();
 
+        if(player!=null){
+            if(!modelAndViewMap.containsKey(player.getId()))
+                modelAndViewMap.put(player.getId(), playerView);
+            playerGroup.addActor(playerView);
+        }
+//        else {
+//            modelAndViewMap.get(player.getId()).model = player;
+//        }
+
+
+
+        for (int i = 0; i < model.getEnemies().size; i++) {
+            Enemy enemy = model.getEnemies().get(i);
+            if (!modelAndViewMap.containsKey(enemy.getId())) {
+                EnemyActor view = new EnemyActor(assets, enemy);
+                enemyGroup.addActor(view);
+                modelAndViewMap.put(enemy.getId(), view);
+            }
+//            else {
+//                modelAndViewMap.get(enemy.getId()).model = enemy;
+//            }
+        }
+
+        for (int i = 0; i < model.getBullets().size; i++) {
+            Bullet bullet = model.getBullets().get(i);
+            if (!modelAndViewMap.containsKey(bullet.getId())) {
+                BulletActor view = new BulletActor(assets, bullet);
+                bulletGroup.addActor(view);
+                modelAndViewMap.put(bullet.getId(), view);
+            }
+//            else {
+//                BaseSkeletonActor baseSkeletonActor = modelAndViewMap.get(bullet.getId());
+//                baseSkeletonActor.model = bullet;
+//            }
+
+
+        }
+        if (model.isGameOver()) eventGameOver(model.isPlayerWin());
+
+    }
     @Override
     public void draw() {
 
@@ -200,56 +247,7 @@ public class View extends Stage {
 
     }
 
-    @Override
-    public void act(float delta) {
-        super.act(delta);
 
-
-        updateInput(delta);
-        updateCamera(delta);
-        player = model.getPlayer();
-        playerView.model = model.getPlayer();
-
-        if(player!=null){
-            if(!modelAndViewMap.containsKey(player.getId()))
-            modelAndViewMap.put(player.getId(), playerView);
-            playerGroup.addActor(playerView);
-        }else {
-            modelAndViewMap.get(player.getId()).model = player;
-        }
-
-
-
-        for (int i = 0; i < model.getEnemies().size; i++) {
-            Enemy enemy = model.getEnemies().get(i);
-            if (!modelAndViewMap.containsKey(enemy.getId())) {
-                EnemyActor view = new EnemyActor(assets, enemy);
-                enemyGroup.addActor(view);
-                modelAndViewMap.put(enemy.getId(), view);
-            }
-            else {
-                modelAndViewMap.get(enemy.getId()).model = enemy;
-            }
-        }
-
-        for (int i = 0; i < model.getBullets().size; i++) {
-            Bullet bullet = model.getBullets().get(i);
-            if (!modelAndViewMap.containsKey(bullet.getId())) {
-                BulletActor view = new BulletActor(assets, bullet);
-                bulletGroup.addActor(view);
-                modelAndViewMap.put(bullet.getId(), view);
-            }else {
-                BaseSkeletonActor baseSkeletonActor = modelAndViewMap.get(bullet.getId());
-                baseSkeletonActor.model = bullet;
-
-//                System.out.println("map"+baseSkeletonActor.model +":"+baseSkeletonActor.model.position);
-            }
-
-
-        }
-        if (model.isGameOver()) eventGameOver(model.isPlayerWin());
-
-    }
 
 
     public void updateInput(float delta) {

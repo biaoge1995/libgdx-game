@@ -32,16 +32,10 @@ public class Bullet extends Character<Bullet> {
     @Override
     public void update(float delta) {
 
-        if (hp > 0) super.update(delta);
-        else {
-            state = CharacterState.death;
-        }
+       super.update(delta);
+
         ;
 
-//        distanceCounter+=velocity.x*delta;
-//        if(distanceCounter>=25){
-//            hp=0;
-//        }
     }
 
     @Override

@@ -86,12 +86,9 @@ public class Character<T extends Character>{
 
     private EventQueue queue;
 
-
-    public void setTargetPosition(Vector2 targetPosition) {
-        this.targetPosition = targetPosition;
-    }
-
     public Array<Character> childs = new Array<>();
+
+
 
 
     public Character() {
@@ -103,53 +100,14 @@ public class Character<T extends Character>{
 
     }
 
-    public boolean remove(){
-        if(parent!=null){
-           return parent.removeCharacter(this,true);
-        }
-        return false;
-    }
 
-    public Group getParent() {
-        return parent;
-    }
-
-    public void setParent(Group parent) {
-        this.parent = parent;
-    }
-
-    public Model getModel() {
-        return model;
-    }
-
-    public void setModel(Model model) {
-        this.model = model;
-    }
-
-    public void addChild(Character child) {
-        childs.add(child);
-    }
-
-    public void win() {
-
-    }
-
-    public void beDeath(){
-        if(this.state!=CharacterState.death){
-            this.state = CharacterState.death;
-            if(queue!=null) queue.death(this);
-        }
-    }
-
-    public void setState(CharacterState newState) {
-        if ((state == newState && state != CharacterState.fall) || state == CharacterState.death) return;
-        state = newState;
-        stateTime = 0;
-        stateChanged = true;
-    }
 
     public void update(float delta) {
         stateTime += delta;
+
+        if(hp<=0){
+            beDeath();
+        }
 
 
         // If moving downward, change state to fall.
@@ -185,6 +143,41 @@ public class Character<T extends Character>{
         collideY();
         position.add(velocity);
         velocity.scl(1 / delta); // Change velocity back.
+
+//        if(isCanBeRemove()){
+//            remove();
+//        }
+    }
+
+    //是否可以被从parent中清除掉
+    public boolean isCanBeRemove(){
+        if(state==CharacterState.death){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean remove(){
+        if(parent!=null){
+            return parent.removeCharacter(this,true);
+        }
+        return false;
+    }
+
+
+
+    public void beDeath(){
+        if(this.state!=CharacterState.death){
+            this.state = CharacterState.death;
+            if(queue!=null) queue.death(this);
+        }
+    }
+
+    public void setState(CharacterState newState) {
+        if ((state == newState && state != CharacterState.fall) || state == CharacterState.death) return;
+        state = newState;
+        stateTime = 0;
+        stateChanged = true;
     }
 
     public boolean isGrounded() {
@@ -287,18 +280,6 @@ public class Character<T extends Character>{
     }
 
 
-    @Override
-    public String toString() {
-        return name+getId();
-    }
-
-    public EventQueue getQueue() {
-        return queue;
-    }
-
-    public void setQueue(EventQueue queue) {
-        this.queue = queue;
-    }
 
 
 
@@ -382,13 +363,7 @@ public class Character<T extends Character>{
         return builder;
     }
 
-    public int getId() {
-        return id;
-    }
 
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public void updateByCharacter(T character) {
 
@@ -416,6 +391,61 @@ public class Character<T extends Character>{
         this.childs = character.childs;
         this.parent = character.parent;
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Group getParent() {
+        return parent;
+    }
+
+    public void setParent(Group parent) {
+        this.parent = parent;
+    }
+
+    public Model getModel() {
+        return model;
+    }
+
+    public void setTargetPosition(Vector2 targetPosition) {
+        this.targetPosition = targetPosition;
+    }
+
+
+    public void setModel(Model model) {
+        this.model = model;
+    }
+
+    public void addChild(Character child) {
+        childs.add(child);
+    }
+
+    public void win() {
+
+    }
+
+
+    @Override
+    public String toString() {
+        return name+getId();
+    }
+
+    public EventQueue getQueue() {
+        return queue;
+    }
+
+    public void setQueue(EventQueue queue) {
+        this.queue = queue;
+    }
+}
+
+interface UpdateAble<T>{
+    void updateByOther(T other);
 }
 
 

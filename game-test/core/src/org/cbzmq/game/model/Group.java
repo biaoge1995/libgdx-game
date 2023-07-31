@@ -30,6 +30,9 @@ public class Group<T extends Character> extends Character {
         while (iterator.hasNext()) {
             Character c = iterator.next();
             c.update(delta);
+            if(c.isCanBeRemove()){
+                c.remove();
+            }
         }
     }
 
@@ -51,6 +54,8 @@ public class Group<T extends Character> extends Character {
         int index = children.indexOf(actor, true);
         if (index == -1) return false;
         removeActorAt(index, unfocus);
+        //TODO 移除了一头
+        getQueue().beRemove(actor);
         return true;
     }
 

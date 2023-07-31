@@ -221,10 +221,9 @@ public class LocalModel implements Model {
                         enemy.velocity.y -= 10f;
                         enemy.setGrounded(false);
                         enemy.hp -= player.damage;
-                        if (enemy.hp <= 0){
-                            enemy.beDeath();
+                        if (enemy.hp > 0){
+                            enemy.state = CharacterState.fall;
                         }
-						else enemy.state = CharacterState.fall;
 
                         player.velocity.x = bounceX;
                         player.velocity.y = Player.headBounceY;

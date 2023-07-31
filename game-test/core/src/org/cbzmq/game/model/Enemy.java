@@ -180,11 +180,9 @@ public class Enemy extends Character<Enemy> {
 		if (!grounded || collisions == previousCollision) collisions = 0;
 
 		//如果死亡则移除自己
-		if (this.deathTimer < 0) {
-			remove();
-			//TODO 移除了一头
-			getQueue().beRemove(this);
-		}
+//		if (this.deathTimer < 0) {
+//			remove();
+//		}
 
 		//怪物孩子出生
 		if (this.childs != null && this.childs.size>0) {
@@ -198,6 +196,14 @@ public class Enemy extends Character<Enemy> {
 			}
 			this.childs.clear();
 		}
+	}
+
+	@Override
+	public boolean isCanBeRemove() {
+		if(state==CharacterState.death && this.deathTimer < 0){
+			return true;
+		}
+		return false;
 	}
 
 	public void win(){
