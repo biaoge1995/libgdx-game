@@ -4,10 +4,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.esotericsoftware.spine.SkeletonRendererDebug;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Constants;
 import org.cbzmq.game.model.Bullet;
+
+import static org.cbzmq.game.Constants.scale;
 
 public class BulletActor extends BaseSkeletonActor<Bullet> {
     static float bulletHitTime = 0.2f;
@@ -21,20 +25,23 @@ public class BulletActor extends BaseSkeletonActor<Bullet> {
 
     public boolean isHitSound=false;
 
-    public BulletActor(Assets assets, Bullet bullet) {
-        super(assets, bullet);
+    public BulletActor(Bullet bullet) {
+        super(bullet);
+        time = bulletHitTime;
+    }
+
+    @Override
+    public void loadAssets(Assets assets) {
+        super.loadAssets(assets);
         bulletRegion = assets.bulletRegion;
         hitRegion = assets.hitRegion;
         bulletWidth = bulletRegion.getRegionWidth() * Constants.scale;
         bulletHeight = bulletRegion.getRegionHeight() * Constants.scale / 2;
-        time = bulletHitTime;
     }
-
-
 
     @Override
     public void act(float delta) {
-        if(model.hp==0){
+        if(getModel().hp==0){
             time = time - delta;
             if(!isHitSound){
                 Assets.SoundEffect.hit.play();
@@ -53,11 +60,11 @@ public class BulletActor extends BaseSkeletonActor<Bullet> {
     public void draw(Batch batch, float parentAlpha) {
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
 
-        float x = model.position.x, y = model.position.y;
-        float angle = model.velocity.angleDeg();
+        float x = getModel().position.x, y = getModel().position.y;
+        float angle = getModel().velocity.angleDeg();
         float vx = MathUtils.cosDeg(angle);
         float vy = MathUtils.sinDeg(angle);
-        if(model.hp>0){
+        if(getModel().hp>0){
 
             // Adjust position so bullet region is drawn with the bullet position in the center of the fireball.
             x -= vx * bulletWidth * 0.65f;
@@ -91,6 +98,13 @@ public class BulletActor extends BaseSkeletonActor<Bullet> {
 
         }
 
+    public void drawDebug(SkeletonRendererDebug skeletonRendererDebug){
+        ShapeRenderer shapeRenderer = skeletonRendererDebug.getShapeRenderer();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.GREEN);
+        shapeRenderer.x(getModel().position.x, getModel().position.y, 10 * scale);
+        shapeRenderer.end();
 
+    }
 
 }

@@ -242,38 +242,38 @@ public class Character<T extends Character>{
 
     }
 
-    public static CharacterProto.Character.Builder toCharacterProto(Character character) {
+    public  CharacterProto.Character.Builder toCharacterProto() {
         CharacterProto.Character.Builder builder = CharacterProto.Character.newBuilder();
         CharacterProto.Vector2.Builder positionProto = CharacterProto.Vector2.newBuilder();
         CharacterProto.Vector2.Builder velocityProto = CharacterProto.Vector2.newBuilder();
 //        CharacterProto.Vector2.Builder tartgetPositionProto = CharacterProto.Vector2.newBuilder();
         CharacterProto.Rectangle.Builder rectProto = CharacterProto.Rectangle.newBuilder();
         builder.setType(CharacterType.unknown)
-                .setId(character.getId())
+                .setId(this.getId())
                 .setPosition(positionProto
-                        .setX(character.position.x)
-                        .setY(character.position.y)
+                        .setX(this.position.x)
+                        .setY(this.position.y)
                         .build())
                 .setVelocity(velocityProto
-                        .setX(character.velocity.x)
-                        .setY(character.velocity.y)
+                        .setX(this.velocity.x)
+                        .setY(this.velocity.y)
                         .build())
-                .setState(character.state)
+                .setState(this.state)
 //                .setStateTime(character.stateTime)
-                .setDir(character.dir)
+                .setDir(this.dir)
 //                .setAirTime(character.airTime)
                 .setRect(rectProto
-                        .setX(character.rect.x)
-                        .setY(character.rect.y)
-                        .setWidth(character.rect.width)
-                        .setHeight(character.rect.height))
-                .setStateChanged(character.stateChanged)
-                .setHp(character.hp)
+                        .setX(this.rect.x)
+                        .setY(this.rect.y)
+                        .setWidth(this.rect.width)
+                        .setHeight(this.rect.height))
+                .setStateChanged(this.stateChanged)
+                .setHp(this.hp)
 //                .setMaxVelocityX(character.maxVelocityX)
 //                .setCollisionOffsetY(character.collisionOffsetY)
 //                .setJumpVelocity(character.jumpVelocity)
 //                .setDamage(character.damage)
-                .setCollisionTimer(character.collisionTimer);
+                .setCollisionTimer(this.collisionTimer);
 //                .setTargetPosition(tartgetPositionProto
 //                        .setX(character.targetPosition.x)
 //                        .setY(character.targetPosition.y)

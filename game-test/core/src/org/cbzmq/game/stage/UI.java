@@ -284,30 +284,34 @@ public class UI extends Stage {
 			shapes.setTransformMatrix(view.batch.getTransformMatrix());
 			shapes.setProjectionMatrix(view.batch.getProjectionMatrix());
 
-			shapes.begin(ShapeType.Line);
-			shapes.setColor(Color.GREEN);
-
-
-			for (Bullet bullet : model.getBullets()) {
-				shapes.x(bullet.position.x, bullet.position.y, 10 * scale);
+			for (BaseSkeletonActor value : view.modelAndViewMap.values()) {
+				value.drawDebug(skeletonRendererDebug);
 			}
 
-
-			for (Enemy enemy : model.getEnemies()) {
-				Rectangle rect = enemy.rect;
-				shapes.rect(rect.x, rect.y, rect.width, rect.height);
-			}
-
-			Rectangle rect = model.getPlayer().rect;
-			shapes.rect(rect.x, rect.y, rect.width, rect.height);
-
-			shapes.end();
-
-			skeletonRendererDebug.draw(view.playerView.getSkeleton());
-			for (Enemy enemy : model.getEnemies()) {
-				BaseSkeletonActor view = this.view.modelAndViewMap.get(enemy);
-				skeletonRendererDebug.draw(view.getSkeleton());
-			}
+//			shapes.begin(ShapeType.Line);
+//			shapes.setColor(Color.GREEN);
+//
+//
+//			for (Bullet bullet : model.getBullets()) {
+//				shapes.x(bullet.position.x, bullet.position.y, 10 * scale);
+//			}
+//
+//
+//			for (Enemy enemy : model.getEnemies()) {
+//				Rectangle rect = enemy.rect;
+//				shapes.rect(rect.x, rect.y, rect.width, rect.height);
+//			}
+//
+//			Rectangle rect = model.getPlayer().rect;
+//			shapes.rect(rect.x, rect.y, rect.width, rect.height);
+//
+//			shapes.end();
+//
+//			skeletonRendererDebug.draw(view.playerView.getSkeleton());
+//			for (Enemy enemy : model.getEnemies()) {
+//				BaseSkeletonActor view = this.view.modelAndViewMap.get(enemy);
+//				skeletonRendererDebug.draw(view.getSkeleton());
+//			}
 		}
 		//正常模式
 		this.getViewport().apply(true);

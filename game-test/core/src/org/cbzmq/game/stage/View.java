@@ -35,6 +35,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.renderers.OrthoCachedTiledMapRenderer;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
@@ -46,10 +47,7 @@ import org.cbzmq.game.GameCamera;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
-import org.cbzmq.game.view.BaseSkeletonActor;
-import org.cbzmq.game.view.BulletActor;
-import org.cbzmq.game.view.EnemyActor;
-import org.cbzmq.game.view.PlayerActor;
+import org.cbzmq.game.view.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -66,7 +64,8 @@ public class View extends Stage {
     public static int[] mapForegroundLayers4 = {7, 8, 9};
     public static int[] mapForegroundLayers5 = {11};
 
-    Map<Integer, BaseSkeletonActor> modelAndViewMap = new HashMap<>();
+    public Map<Integer, BaseSkeletonActor> modelAndViewMap = new HashMap<>();
+    ActorFactory actorFactory;
 
     public Model model;
     public Player player;
@@ -90,12 +89,7 @@ public class View extends Stage {
                 , GameCamera.cameraMaxWidth
                 , GameCamera.cameraHeight
                 , camera);
-//        playerGroup = new Group();
-//        enemyGroup = new Group();
-//        bulletGroup = new Group();
-//        addActor(playerGroup);
-//        addActor(enemyGroup);
-//        addActor(bulletGroup);
+        actorFactory = new ActorFactoryImp();
 
         setViewport(viewport);
 
@@ -141,7 +135,7 @@ public class View extends Stage {
         clear();
         modelAndViewMap.clear();
         player = model.getPlayer();
-        playerView = new PlayerActor(assets, player, viewport, camera);
+        playerView = new PlayerActor(player);
 
         modelAndViewMap.put(player.getId(), playerView);
         addActor(playerView);
@@ -163,6 +157,15 @@ public class View extends Stage {
         playerView.setJumpPressed(false);
         playerView.setLeftPressed(false);
         playerView.setRightPressed(false);
+
+    }
+
+
+    public void addActor(BaseSkeletonActor actor) {
+        super.addActor(actor);
+        actor.loadAssets(assets);
+        actor.setViewport(viewport);
+        actor.setCamera(camera);
 
     }
 
@@ -193,12 +196,12 @@ public class View extends Stage {
                     break;
                 case enemy:
                     if (!exists) {
-                        actor = new EnemyActor(assets, (Enemy) character);
+                        actor = new EnemyActor((Enemy) character);
                     }
                     break;
                 case bullet:
                     if (!exists) {
-                        actor = new BulletActor(assets, (Bullet) character);
+                        actor = new BulletActor((Bullet) character);
                     }
                     break;
             }
@@ -310,7 +313,7 @@ public class View extends Stage {
             camera.position.y += (maxY - camera.position.y) * GameCamera.cameraSpeed / camera.zoom * delta;
             if (Math.abs(camera.position.y - maxY) < 0.1f) camera.position.y = maxY;
         }
-
+        camera.position.z =0.5f;
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         mapRenderer.setView(camera);

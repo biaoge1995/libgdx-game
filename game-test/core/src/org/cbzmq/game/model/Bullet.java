@@ -1,10 +1,8 @@
 package org.cbzmq.game.model;
 
-import org.cbzmq.game.Map;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.proto.CharacterProto;
-import org.cbzmq.game.view.BulletActor;
 
 public class Bullet extends Character<Bullet> {
 
@@ -21,7 +19,7 @@ public class Bullet extends Character<Bullet> {
         position.set(startX, startY);
         velocity.set(vx, vy);
         damage = 1;
-        hp = 1;
+        hp = 0.2f;
         rect.width = width;
         rect.height = height;
         this.player = player;
@@ -67,8 +65,9 @@ public class Bullet extends Character<Bullet> {
     }
 
 
-    public static CharacterProto.Character toBulletProto(Bullet bullet) {
-        return Character.toCharacterProto(bullet).setType(CharacterType.bullet).build();
+    public  CharacterProto.Character.Builder toCharacterProto() {
+        CharacterProto.Character.Builder builder = super.toCharacterProto();
+        return builder.setType(CharacterType.bullet);
 
     }
 

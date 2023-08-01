@@ -124,13 +124,13 @@ public class Player extends Character<Player>{
 		return player;
 	}
 
-	public static CharacterProto.Character toPlayProto(Player player) {
-		CharacterProto.Character.Builder builder = Character.toCharacterProto(player);
+	public  CharacterProto.Character.Builder toCharacterProto() {
+		CharacterProto.Character.Builder builder = super.toCharacterProto();
 
 		return builder.setType(CharacterType.player)
-				.setShootTimer(player.shootTimer)
+				.setShootTimer(this.shootTimer)
 //				.setHpTimer(player.hpTimer)
-				.build();
+				;
 	}
 
 	public void updateByCharacter(Player father) {

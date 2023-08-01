@@ -14,6 +14,7 @@ import org.cbzmq.game.CompressUtils;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.MsgHeader;
 import org.cbzmq.game.model.Bullet;
+import org.cbzmq.game.model.Character;
 import org.cbzmq.game.model.Enemy;
 import org.cbzmq.game.model.Player;
 import org.cbzmq.game.proto.CharacterProto;
@@ -75,21 +76,15 @@ public final class UdpServer {
 
     public void update(float delta) throws InterruptedException {
         model.update(delta);
-        Array<CharacterProto.Character> characterProtos = new Array<>();
-        characterProtos.add(Player.toPlayProto(model.getPlayer()));
+        Array<Character> all = model.getAll();
 
-        for (Enemy enemy : model.getEnemies()) {
-            if(enemy.state== CharacterState.death) {
-                continue;
-            }
-            characterProtos.add(Enemy.toEnemyProto(enemy));
+        Array<CharacterProto.Character> characterProtos = new Array<>();
+        for (Character character : all) {
+            if(character.state ==CharacterState.death) continue;
+            CharacterProto.Character proto = character.toCharacterProto().build();
+            characterProtos.add(proto);
         }
-        for (Bullet bullet : model.getBullets()) {
-            if(bullet.state== CharacterState.death) {
-                continue;
-            }
-            characterProtos.add(Bullet.toBulletProto(bullet));
-        }
+
 
         MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
         MsgProto.Msg msg = builder

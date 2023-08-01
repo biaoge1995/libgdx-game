@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.spine.Event;
 import com.esotericsoftware.spine.EventData;
-import org.cbzmq.game.Map;
 import org.cbzmq.game.Constants;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
@@ -253,26 +252,23 @@ public class Enemy extends Character<Enemy> {
         return enemy;
     }
 
-    public static CharacterProto.Character toEnemyProto(Enemy enemy) {
-        CharacterProto.Character.Builder builder = Character.toCharacterProto(enemy);
-        Array<CharacterProto.Character> enemyProtos = new Array<>();
-//		for (Character e : enemy.childs) {
-//			enemyProtos.add(Bullet.toBulletProto(bullet));
-//		}
+    public  CharacterProto.Character.Builder toCharacterProto() {
+        CharacterProto.Character.Builder builder = super.toCharacterProto();
+
         return builder.setType(CharacterType.enemy)
-                .setDeathTimer(enemy.deathTimer)
+                .setDeathTimer(this.deathTimer)
 //				.setMaxVelocityGroundX(enemy.maxVelocityGroundX)
 //				.setJumpDelayTimer(enemy.jumpDelayTimer)
-                .setEnemyType(enemy.enemyType)
-                .setSize(enemy.size)
-                .setBigTimer(enemy.bigTimer)
+                .setEnemyType(this.enemyType)
+                .setSize(this.size)
+                .setBigTimer(this.bigTimer)
 //				.setSpawnSmallsTimer(enemy.spawnSmallsTimer)
 //				.setMove(enemy.move)
 //				.setForceJump(enemy.forceJump)
 //				.setCollisions(enemy.collisions)
 //				.setKnockbackX(enemy.knockbackX)
 //				.setKnockbackY(enemy.knockbackY)
-                .build();
+                ;
     }
 
 

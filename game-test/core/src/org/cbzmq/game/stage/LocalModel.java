@@ -68,7 +68,7 @@ public class LocalModel implements Model {
 
     Group<Bullet> bulletGroup;
     Group<Enemy> enemyGroup ;
-    Group<Player> playerGroup ;
+    Group<Character> playerGroup ;
     float gameOverTimer;
     Assets assets;
     Engine2D engine2D;
@@ -106,7 +106,6 @@ public class LocalModel implements Model {
         isGameOver = false;
         playerGroup.clear();
         enemyGroup.clear();
-        playerGroup.clear();
         initPlayer();
 
         gameOverTimer = 0;
@@ -153,8 +152,8 @@ public class LocalModel implements Model {
         addTrigger(246, 220, 23, EnemyType.becomesBig, 3);
         addTrigger(246, 220, 23, EnemyType.becomesBig, 3);
         // Setup triggers to spawn enemies based on the x coordinate of the player.
-        triggers.clear();
-        addTrigger(10, 10, 8, EnemyType.becomesBig, 1);
+//        triggers.clear();
+//        addTrigger(10, 10, 8, EnemyType.becomesBig, 1);
 
     }
 
@@ -169,13 +168,17 @@ public class LocalModel implements Model {
         root.update(delta);
         engine2D.update(delta);
 
-        for (Player p : playerGroup.getChildren()) {
-            if(p.hp>0) break;
-            else  {
-                gameOverTimer += delta / getTimeScale() * timeScale; // Isn't affected by player death time scaling.
-                queue.event(player, new Event(0, new EventData("lose")));
-                isGameOver=true;
+        for (Character p : playerGroup.getChildren()) {
+            if(p instanceof Player){
+                if(p.hp>0) break;
+                else  {
+                    gameOverTimer += delta / getTimeScale() * timeScale; // Isn't affected by player death time scaling.
+                    queue.event(playerGroup, new Event(0, new EventData("lose")));
+                    isGameOver=true;
+                }
             }
+
+
         }
         updateEnemies();
 //        updateBullets();
@@ -221,6 +224,7 @@ public class LocalModel implements Model {
             if (player.hp == 0 && enemy.hp > 0) {
                 enemy.win();
                 gameResult(false);
+                break;
             }
 
             if (enemy.hp > 0 || (enemy.hp <= 0 || enemy.deathTimer>0)) {
@@ -263,9 +267,6 @@ public class LocalModel implements Model {
         root.addCharacter(character);
     }
 
-    public void addBullet(Bullet bullet){
-        bulletGroup.addCharacter(bullet);
-    }
 
     public void addEnemy(Enemy enemy){
         enemyGroup.addCharacter(enemy);

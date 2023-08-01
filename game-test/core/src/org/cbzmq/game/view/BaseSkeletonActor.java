@@ -31,12 +31,17 @@
 package org.cbzmq.game.view;
 
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.esotericsoftware.spine.Animation;
 import com.esotericsoftware.spine.AnimationState.TrackEntry;
 import com.esotericsoftware.spine.SkeletonRenderer;
+import com.esotericsoftware.spine.SkeletonRendererDebug;
 import com.esotericsoftware.spine.utils.SkeletonActor;
 import org.cbzmq.game.Assets;
+import org.cbzmq.game.GameCamera;
 import org.cbzmq.game.StateAnimation;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.model.Character;
@@ -44,17 +49,30 @@ import org.cbzmq.game.model.Character;
 /**
  * The view class for an enemy or player that moves around the map.
  */
-public class BaseSkeletonActor<T extends Character> extends SkeletonActor{
-    public Assets assets;
-    public T model;
+public class BaseSkeletonActor<T extends Character> extends SkeletonActor {
+    private Assets assets;
+    private T model;
 
-    public BaseSkeletonActor(Assets assets,T model) {
+    private Viewport viewport;
+    private GameCamera camera;
+
+
+    public BaseSkeletonActor(T model) {
+        this(null, model);
+    }
+
+
+    public BaseSkeletonActor(Assets assets, T model) {
         this.assets = assets;
         this.model = model;
         SkeletonRenderer skeletonRenderer = new SkeletonRenderer();
         skeletonRenderer.setPremultipliedAlpha(true);
         setRenderer(skeletonRenderer);
 
+    }
+
+    public void loadAssets(Assets assets) {
+        this.assets = assets;
     }
 
 
@@ -97,7 +115,50 @@ public class BaseSkeletonActor<T extends Character> extends SkeletonActor{
         super.draw(batch, parentAlpha);
     }
 
-    public void beHit () {
+    public void beHit() {
     }
 
+    public void drawDebug(SkeletonRendererDebug skeletonRendererDebug) {
+        ShapeRenderer shapeRenderer = skeletonRendererDebug.getShapeRenderer();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.GREEN);
+
+        shapeRenderer.rect(model.rect.x, model.rect.y, model.rect.width, model.rect.height);
+        shapeRenderer.end();
+        if (getSkeleton() != null) {
+            skeletonRendererDebug.draw(getSkeleton());
+        }
+    }
+
+    public Assets getAssets() {
+        return assets;
+    }
+
+    public void setAssets(Assets assets) {
+        this.assets = assets;
+    }
+
+    public T getModel() {
+        return model;
+    }
+
+    public void setModel(T model) {
+        this.model = model;
+    }
+
+    public Viewport getViewport() {
+        return viewport;
+    }
+
+    public void setViewport(Viewport viewport) {
+        this.viewport = viewport;
+    }
+
+    public GameCamera getCamera() {
+        return camera;
+    }
+
+    public void setCamera(GameCamera camera) {
+        this.camera = camera;
+    }
 }
