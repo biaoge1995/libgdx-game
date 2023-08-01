@@ -34,6 +34,7 @@ package org.cbzmq.game.model;
 import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.Map;
 import org.cbzmq.game.Constants;
+import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.proto.CharacterProto;
 
@@ -96,6 +97,12 @@ public class Player extends Character<Player>{
 	}
 
 
+	public void beCollide(){
+		collisionTimer = Player.collisionDelay;
+		if (hp > 0){
+			state = CharacterState.fall;
+		}
+	}
 
 	public void shoot(float startX, float startY, float vx, float vy) {
 		bullets.add(new Bullet(this,map,startX,startY,vx,vy));

@@ -88,7 +88,10 @@ public class Character<T extends Character>{
 
     public Array<Character> childs = new Array<>();
 
+    //是否可以被碰撞
+    public boolean isCanBeCollision;
 
+    public float resilience=0.8f;
 
 
     public Character() {
@@ -144,9 +147,7 @@ public class Character<T extends Character>{
         position.add(velocity);
         velocity.scl(1 / delta); // Change velocity back.
 
-//        if(isCanBeRemove()){
-//            remove();
-//        }
+
     }
 
     //是否可以被从parent中清除掉
@@ -189,6 +190,9 @@ public class Character<T extends Character>{
 
     public void setGrounded(boolean grounded) {
         airTime = grounded ? 0 : groundedTime;
+    }
+
+    public void beCollide(){
     }
 
     public boolean collideX() {

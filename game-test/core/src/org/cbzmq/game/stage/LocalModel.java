@@ -68,6 +68,7 @@ public class LocalModel implements Model {
     Group<Player> playerGroup ;
     float gameOverTimer;
     Assets assets;
+    Engine2D engine2D;
 
     boolean isGameOver;
 
@@ -80,7 +81,7 @@ public class LocalModel implements Model {
         this.root = new Group<>();
         root.setModel(this);
         root.setQueue(queue);
-
+        this.engine2D = new Engine2D(root,map);
         //初始化
         init();
     }

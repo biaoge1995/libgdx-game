@@ -198,6 +198,14 @@ public class Enemy extends Character<Enemy> {
 		}
 	}
 
+	public void beCollide(){
+		collisionTimer = Enemy.collisionDelay;
+		if (hp > 0){
+			state = CharacterState.fall;
+			jumpDelayTimer = MathUtils.random(0, jumpDelay);
+		}
+	}
+
 	@Override
 	public boolean isCanBeRemove() {
 		if(state==CharacterState.death && this.deathTimer < 0){

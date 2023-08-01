@@ -20,6 +20,8 @@ public class Group<T extends Character> extends Character {
         this.name = name;
     }
 
+
+
     public Group() {
         this.name = "root";
     }
@@ -77,16 +79,22 @@ public class Group<T extends Character> extends Character {
      * @param group
      * @param container
      */
-    private void split(Group group, Array<T> container) {
+    private  void flat(Group<T> group,Array<T> container) {
         if (group.children != null) {
-            container.addAll(children);
-            for (T child : children) {
+            container.addAll(group.children);
+            for (T child : group.children) {
                 if (child instanceof Group) {
-                    split((Group) child, container);
+                    flat((Group) child, container);
                 }
             }
         }
     }
+
+    public void flat(Array<T> container){
+         flat(this,container);
+    }
+
+
 
     public void clear(){
         this.children.clear();
