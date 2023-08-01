@@ -52,7 +52,6 @@ public class Player extends Character<Player>{
 	public static float knockbackX = 14, knockbackY = 5, collisionDelay = 2.5f, flashTime = 0.07f;
 	public static float headBounceX = 12, headBounceY = 20;
 
-	public float damage=2;
 	//计时器
 	//通过timer控制射击的时间间隔
 	public float shootTimer;
@@ -60,20 +59,20 @@ public class Player extends Character<Player>{
 	//控制回血时间
 	public float hpTimer;
 
-	Array<Bullet> bullets = new Array<>();
 
 
 	// This is here for convenience, the model should never touch the view.
 	// 这是为了方便起见，模型永远不应该接触到视图。
 
-	public Player (Map map) {
-		super(map,"spine boy");
+	public Player () {
+		super("spine boy");
 		rect.width = width;
 		rect.height = height;
 		hp = hpStart;
 		jumpVelocity = playerJumpVelocity;
 		//控制碰撞时的无敌时间和闪烁
 		collisionTimer=0.07f;
+		damage=1;
 		this.characterType = CharacterType.player;
 	}
 
@@ -101,23 +100,24 @@ public class Player extends Character<Player>{
 		collisionTimer = Player.collisionDelay;
 		if (hp > 0){
 			state = CharacterState.fall;
+		}else {
+			setState(CharacterState.death);
+			velocity.y *= 0.5f;
 		}
 	}
 
 	public void shoot(float startX, float startY, float vx, float vy) {
-		bullets.add(new Bullet(this,map,startX,startY,vx,vy));
+
+		parent.addCharacter(new Bullet(this,startX,startY,vx,vy));
 
 		if(getQueue()!=null){
 			getQueue().attack(this);
 		}
 	}
 
-	public Array<Bullet> getBullets() {
-		return bullets;
-	}
 
 	public static Player parserProto(CharacterProto.Character proto) {
-		Player player = new Player(null);
+		Player player = new Player();
 		Character father = Character.parserProto(proto);
 		Character.copyToSon(father,player);
 		player.shootTimer = proto.getShootTimer();
@@ -138,7 +138,6 @@ public class Player extends Character<Player>{
 		this.damage = father.damage;
 		this.shootTimer = father.shootTimer;
 		this.hpTimer = father.hpTimer;
-		this.bullets = father.bullets;
 	}
 
 

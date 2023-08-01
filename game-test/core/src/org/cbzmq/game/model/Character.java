@@ -26,12 +26,13 @@ public class Character<T extends Character>{
     public static float dampingGroundX = 36, dampingAirX = 15, collideDampingX = 0.7f;
     //地板上的 控制的x奔跑速度
     public static float runGroundX = 80, runAirSame = 45, runAirOpposite = 45;
-    //游戏主逻辑引用
-    public Map map;
+//    //游戏主逻辑引用
+//    public Map map;
 
     public CharacterType characterType=CharacterType.unknown;
     //事件
-    public CharacterListener listener = new CharacterAdapter();
+    public CharacterListener listener ;
+//            = new CharacterAdapter();
 
     @Null
     Group<Character> parent;
@@ -89,7 +90,7 @@ public class Character<T extends Character>{
     public Array<Character> childs = new Array<>();
 
     //是否可以被碰撞
-    public boolean isCanBeCollision;
+    public boolean isCanBeCollision=true;
 
     public float resilience=0.8f;
 
@@ -97,8 +98,7 @@ public class Character<T extends Character>{
     public Character() {
     }
 
-    public Character(Map map, String name) {
-        this.map = map;
+    public Character(String name) {
         this.name = name;
 
     }
@@ -106,47 +106,10 @@ public class Character<T extends Character>{
 
 
     public void update(float delta) {
-        stateTime += delta;
 
         if(hp<=0){
             beDeath();
         }
-
-
-        // If moving downward, change state to fall.
-        //如果角色在往下移动则设置该角色的状态为fll
-        if (velocity.y < 0 && state != CharacterState.jump && state != CharacterState.fall) {
-            setState(CharacterState.fall);
-            setGrounded(false);
-        }
-
-        // Apply gravity.
-        //设置重力加速度
-        velocity.y -= Constants.gravity * delta;
-        //如果速度超过了最大值则给他赋予默认的最大速度
-        if (velocity.y < 0 && -velocity.y > maxVelocityY) velocity.y = Math.signum(velocity.y) * maxVelocityY;
-
-        boolean grounded = isGrounded();
-
-        // Damping reduces velocity so the character eventually comes to a complete stop.
-        //空中的阻尼和地板的阻尼
-        float damping = (grounded ? dampingGroundX : dampingAirX) * delta;
-
-        if (velocity.x > 0)
-            velocity.x = Math.max(0, velocity.x - damping);
-        else
-            velocity.x = Math.min(0, velocity.x + damping);
-        if (Math.abs(velocity.x) < minVelocityX && grounded) {
-            velocity.x = 0;
-            setState(CharacterState.idle);
-        }
-        //s=v * delta 该段时间内位移的距离
-        velocity.scl(delta); // Change velocity from units/sec to units since last frame.
-        collideX();
-        collideY();
-        position.add(velocity);
-        velocity.scl(1 / delta); // Change velocity back.
-
 
     }
 
@@ -195,61 +158,11 @@ public class Character<T extends Character>{
     public void beCollide(){
     }
 
-    public boolean collideX() {
-        rect.x = position.x + velocity.x;
-        rect.y = position.y + collisionOffsetY;
-
-        int x;
-        if (velocity.x >= 0)
-            x = (int) (rect.x + rect.width);
-        else
-            x = (int) rect.x;
-        int startY = (int) rect.y;
-        int endY = (int) (rect.y + rect.height);
-        for (Rectangle tile : map.getCollisionTiles(x, startY, x, endY)) {
-            if (!rect.overlaps(tile)) continue;
-            if (queue != null) {
-                queue.collisionMap(this, tile);
-            }
-            if (velocity.x >= 0)
-                position.x = tile.x - rect.width;
-            else
-                position.x = tile.x + tile.width;
-            velocity.x *= collideDampingX;
-            return true;
-        }
-        return false;
+    public void collideMapX() {
     }
 
-    public boolean collideY() {
-        rect.x = position.x;
-        rect.y = position.y + velocity.y + collisionOffsetY;
+    public void collideMapY() {
 
-        int y;
-        if (velocity.y > 0)
-            y = (int) (rect.y + rect.height);
-        else
-            y = (int) rect.y;
-        int startX = (int) rect.x;
-        int endX = (int) (rect.x + rect.width);
-        Array<Rectangle> collisionTiles = map.getCollisionTiles(startX, y, endX, y);
-        for (Rectangle tile : collisionTiles) {
-            if (!rect.overlaps(tile)) continue;
-            if (queue != null) {
-                queue.collisionMap(this, tile);
-            }
-
-            if (velocity.y > 0)
-                position.y = tile.y - rect.height;
-            else {
-                position.y = tile.y + tile.height;
-                if (state == CharacterState.jump) setState(CharacterState.idle);
-                setGrounded(true);
-            }
-            velocity.y = 0;
-            return true;
-        }
-        return false;
     }
 
     public void moveLeft(float delta) {
@@ -290,7 +203,7 @@ public class Character<T extends Character>{
 
     public static <T extends Character> void copyToSon(Character father,T son){
         son.id = father.id;
-        son.map = father.map;
+//        son.map = father.map;
         son.listener = father.listener;
         son.name = father.name;
         son.position = father.position;
@@ -315,7 +228,7 @@ public class Character<T extends Character>{
     }
 
     public static  Character parserProto(CharacterProto.Character proto) {
-        Character character = new Character(null, null);
+        Character character = new Character("unknown");
         character.setId(proto.getId());
         character.position.set(proto.getPosition().getX(), proto.getPosition().getY());
         character.velocity.set(proto.getVelocity().getX(), proto.getVelocity().getY());
@@ -373,7 +286,7 @@ public class Character<T extends Character>{
     public void updateByCharacter(T character) {
 
         this.id = character.id;
-        this.map = character.map;
+//        this.map = character.map;
         this.listener = character.listener;
         this.name = character.name;
         this.position = character.position;

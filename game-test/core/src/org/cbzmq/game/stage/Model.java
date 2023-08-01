@@ -5,10 +5,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Map;
-import org.cbzmq.game.model.Bullet;
-import org.cbzmq.game.model.CharacterListener;
-import org.cbzmq.game.model.Enemy;
-import org.cbzmq.game.model.Player;
+import org.cbzmq.game.model.*;
+import org.cbzmq.game.model.Character;
 
 /**
  * @ClassName Model
@@ -35,6 +33,7 @@ public interface Model {
     boolean isPlayerWin();
 
     boolean isGameOver();
-    int generalId();
+
+    Array<Character> getAll();
 
 }

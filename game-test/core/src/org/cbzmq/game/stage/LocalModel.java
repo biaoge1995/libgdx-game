@@ -37,8 +37,9 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.spine.Event;
 import com.esotericsoftware.spine.EventData;
-import org.cbzmq.game.*;
-import org.cbzmq.game.enums.CharacterState;
+import org.cbzmq.game.Assets;
+import org.cbzmq.game.Constants;
+import org.cbzmq.game.Map;
 import org.cbzmq.game.enums.EnemyType;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.model.*;
@@ -63,6 +64,8 @@ public class LocalModel implements Model {
 //    Array<Bullet> bullets = new Array<>();
 //    Array<Enemy> enemies = new Array();
 
+    final Array<Character> container = new Array<>();
+
     Group<Bullet> bulletGroup;
     Group<Enemy> enemyGroup ;
     Group<Player> playerGroup ;
@@ -74,6 +77,8 @@ public class LocalModel implements Model {
 
     boolean isPlayerWin;
 
+
+
     public LocalModel() {
         this.assets = new Assets();
         this.map = new Map(assets.tiledMap);
@@ -82,6 +87,7 @@ public class LocalModel implements Model {
         root.setModel(this);
         root.setQueue(queue);
         this.engine2D = new Engine2D(root,map);
+        this.engine2D.setQueue(queue);
         //初始化
         init();
     }
@@ -92,7 +98,7 @@ public class LocalModel implements Model {
         playerGroup = new Group<>("playerGroup");
         addCharacter(playerGroup);
         addCharacter(bulletGroup);
-        addCharacter((enemyGroup));
+        addCharacter(enemyGroup);
         restart();
     }
 
@@ -147,17 +153,21 @@ public class LocalModel implements Model {
         addTrigger(246, 220, 23, EnemyType.becomesBig, 3);
         addTrigger(246, 220, 23, EnemyType.becomesBig, 3);
         // Setup triggers to spawn enemies based on the x coordinate of the player.
-//        triggers.clear();
-//        addTrigger(10, 10, 8, EnemyType.becomesBig, 2);
+        triggers.clear();
+        addTrigger(10, 10, 8, EnemyType.becomesBig, 1);
 
     }
 
 
-
-
+    public Array<Character> getAll() {
+        container.clear();
+        root.flat(container);
+        return container;
+    }
 
     public void update(float delta) {
         root.update(delta);
+        engine2D.update(delta);
 
         for (Player p : playerGroup.getChildren()) {
             if(p.hp>0) break;
@@ -168,7 +178,7 @@ public class LocalModel implements Model {
             }
         }
         updateEnemies();
-        updateBullets();
+//        updateBullets();
         updateTriggers();
         //将事件队列处理掉
         queue.drain();
@@ -207,83 +217,21 @@ public class LocalModel implements Model {
         int alive = 0;
         for (int i = enemyGroup.getChildren().size - 1; i >= 0; i--) {
             Enemy enemy = enemyGroup.getChildren().get(i);
-
-
             //怪物胜利
             if (player.hp == 0 && enemy.hp > 0) {
                 enemy.win();
                 gameResult(false);
             }
 
-            if (enemy.hp > 0) {
+            if (enemy.hp > 0 || (enemy.hp <= 0 || enemy.deathTimer>0)) {
                 alive++;
             }
             if (enemy.hp > 0 && player.hp > 0) {
                 enemy.setTargetPosition(player.position);
-                if (enemy.collisionTimer < 0 && enemy.rect.overlaps(player.rect)) {
-                    if (enemy.rect.y + enemy.rect.height * 0.6f < player.rect.y) {
-                        // Enemy head bounce.
-                        //碰撞到怪物头部时弹起
-                        float bounceX = Player.headBounceX
-                                * (enemy.position.x + enemy.rect.width / 2 < player.position.x + player.rect.width / 2 ? 1 : -1);
-
-                        enemy.collisionTimer = Enemy.collisionDelay;
-                        enemy.velocity.x -= bounceX;
-                        enemy.velocity.y -= 10f;
-                        enemy.setGrounded(false);
-                        enemy.hp -= player.damage;
-                        if (enemy.hp > 0){
-                            enemy.state = CharacterState.fall;
-                        }
-
-                        player.velocity.x = bounceX;
-                        player.velocity.y = Player.headBounceY;
-                        player.setGrounded(false);
-                        player.setState(CharacterState.fall);
-
-
-
-                        //TODO 把这快给分离开
-                        queue.collisionCharacter(enemy,player);
-                        queue.hit(enemy,player);
-//                        enemy.view.beHit();
-
-                    } else if (player.collisionTimer < 0) {
-                        // Player gets hit.
-                        //玩家收到撞击
-                        player.dir = enemy.position.x + enemy.rect.width / 2 < player.position.x + player.rect.width / 2 ? -1 : 1;
-                        //判断击退的量
-                        float amount = Player.knockbackX * player.dir;
-                        player.velocity.x = -amount;
-                        player.velocity.y += Player.knockbackY;
-                        player.setGrounded(false);
-                        player.hp--;
-                        if (player.hp > 0) {
-                            player.setState(CharacterState.fall);
-                            player.collisionTimer = Player.collisionDelay;
-
-                            enemy.velocity.x = amount * 1.6f;
-                            enemy.velocity.y += 5f;
-                            enemy.setState(CharacterState.fall);
-                            enemy.jumpDelayTimer = MathUtils.random(0, enemy.jumpDelay);
-                        } else {
-                            player.setState(CharacterState.death);
-                            player.velocity.y *= 0.5f;
-                        }
-                        enemy.setGrounded(false);
-                        enemy.collisionTimer = Enemy.collisionDelay;
-
-                        //这块也改下
-//                        player.view.beHit(enemy);
-//                        player.beHit(enemy);
-                        queue.hit(player,enemy);
-                        queue.collisionCharacter(player,enemy);
-                    }
-                }
             }
 
         }
-        // End the game when all enemies are dead and all triggers have occurred.
+
         if (alive == 0 && triggers.size == 0) {
             if(!isGameOver){
                 gameResult(true);
@@ -293,49 +241,7 @@ public class LocalModel implements Model {
         }
     }
 
-    public void updateBullets() {
-        while(player.getBullets().size>0){
-//            bullets.add();
-            addBullet( player.getBullets().pop());
-        }
-        Array.ArrayIterator<Bullet> iterator = bulletGroup.getChildren().iterator();
-        outer:
-        while (iterator.hasNext()) {
-            Bullet bullet = iterator.next();
 
-            if (bullet.hp == 0) {
-                continue;
-            }
-
-            for (Enemy enemy : enemyGroup.getChildren()) {
-                if (enemy.state == CharacterState.death) continue;
-                if (enemy.bigTimer <= 0 && enemy.rect.contains(bullet.position)) {
-                    // Bullet hit enemy.
-                    //子弹击中怪物
-                    bullet.hp = 0;
-                    bullet.beDeath();
-                    //TODO 这块要改掉
-//                    enemy.view.beHit();
-                    //怪物被击中事件
-                    queue.hit(enemy,player);
-                    enemy.collisionTimer = Enemy.collisionDelay;
-                    enemy.hp -= bullet.damage;
-                    if (enemy.hp <= 0) {
-                        enemy.state = CharacterState.death;
-                        enemy.velocity.y *= 0.5f;
-                    } else
-                        enemy.state = CharacterState.fall;
-                    //击退
-                    enemy.velocity.x = MathUtils.random(enemy.knockbackX / 2, enemy.knockbackX)
-                            * (player.position.x < enemy.position.x + enemy.rect.width / 2 ? 1 : -1);
-                    enemy.velocity.y += MathUtils.random(enemy.knockbackY / 2, enemy.knockbackY);
-                    continue outer;
-                }
-            }
-//            bullet.update(delta);
-
-        }
-    }
 
     public void addTrigger(float triggerX, float spawnX, float spawnY, EnemyType enemyType, int count) {
         Trigger trigger = new Trigger();
@@ -343,7 +249,7 @@ public class LocalModel implements Model {
         triggers.add(trigger);
         int offset = spawnX > triggerX ? 2 : -2;
         for (int i = 0; i < count; i++) {
-            Enemy enemy = new Enemy(this.map, enemyType);
+            Enemy enemy = new Enemy(enemyType);
 
             enemy.position.set(spawnX, spawnY);
             trigger.enemies.add(enemy);
@@ -365,16 +271,13 @@ public class LocalModel implements Model {
         enemyGroup.addCharacter(enemy);
     }
     public void initPlayer(){
-        player = new Player(this.map);
+        player = new Player();
 
         //TODO 诞生了一个玩家
         player.position.set(4, 8);
         playerGroup.addCharacter(player);
     }
 
-    public int generalId(){
-        return id++;
-    }
 
 
     public float getTimeScale() {
@@ -427,7 +330,7 @@ public class LocalModel implements Model {
     }
 
     public void addListener(CharacterListener listener) {
-        this.listeners.add(listener);
+        this.queue.listeners.add(listener);
     }
 
     @Override
@@ -444,4 +347,6 @@ public class LocalModel implements Model {
     public boolean isGameOver() {
         return isGameOver;
     }
+
+
 }

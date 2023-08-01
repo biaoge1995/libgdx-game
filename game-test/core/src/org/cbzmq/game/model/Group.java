@@ -46,7 +46,7 @@ public class Group<T extends Character> extends Character {
         children.add(character);
         character.setParent(this);
         character.setModel(getModel());
-        character.setId(getModel().generalId());
+        character.setId(No.getNo());
         getQueue().born(character);
         character.setQueue(getQueue());
 
@@ -81,10 +81,12 @@ public class Group<T extends Character> extends Character {
      */
     private  void flat(Group<T> group,Array<T> container) {
         if (group.children != null) {
-            container.addAll(group.children);
+
             for (T child : group.children) {
                 if (child instanceof Group) {
                     flat((Group) child, container);
+                }else {
+                    container.addAll(child);
                 }
             }
         }
@@ -102,5 +104,13 @@ public class Group<T extends Character> extends Character {
 
     public Array<T> getChildren() {
         return children;
+    }
+
+    static class No{
+        private static int no;
+
+        synchronized public static int getNo() {
+            return no++;
+        }
     }
 }

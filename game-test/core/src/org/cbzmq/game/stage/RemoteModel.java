@@ -58,7 +58,7 @@ public class RemoteModel implements Model {
     public RemoteModel() throws InterruptedException {
         this.assets = new Assets();
         map = new Map(assets.tiledMap);
-        player = new Player(map);
+        player = new Player();
         player.position.set(4, 8);
 
         EventLoopGroup group = new NioEventLoopGroup();
@@ -212,9 +212,10 @@ public class RemoteModel implements Model {
     }
 
     @Override
-    public int generalId() {
-        return 0;
+    public Array<Character> getAll() {
+        return null;
     }
+
 
     public void setPlayer(Player player) {
         this.player = player;

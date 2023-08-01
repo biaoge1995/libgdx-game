@@ -16,8 +16,8 @@ public class Bullet extends Character<Bullet> {
     public Player player;
 
 
-    public Bullet(Player player, Map map, float startX, float startY, float vx, float vy) {
-        super(map, "bullet");
+    public Bullet(Player player,float startX, float startY, float vx, float vy) {
+        super( "bullet");
         position.set(startX, startY);
         velocity.set(vx, vy);
         damage = 1;
@@ -29,6 +29,23 @@ public class Bullet extends Character<Bullet> {
 
     }
 
+
+    public void collideMapX() {
+        beCollide();
+    }
+
+    public void collideMapY() {
+        beCollide();
+    }
+
+
+    @Override
+    public void beCollide() {
+        hp = 0;
+        beDeath();
+        state = CharacterState.death;
+    }
+
     @Override
     public void update(float delta) {
 
@@ -36,29 +53,9 @@ public class Bullet extends Character<Bullet> {
 
     }
 
-    @Override
-    public boolean collideX() {
-        if (super.collideX()) {
-            hp = 0;
-            beDeath();
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean collideY() {
-        if (super.collideY()) {
-            hp = 0;
-            beDeath();
-            return true;
-        }
-        return false;
-    }
 
     public static Bullet parserProto(CharacterProto.Character proto) {
         Bullet bullet = new Bullet(
-                null,
                 null
                 , proto.getPosition().getX()
                 , proto.getPosition().getY()

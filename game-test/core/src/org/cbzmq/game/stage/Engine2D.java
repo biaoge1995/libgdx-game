@@ -32,14 +32,14 @@ package org.cbzmq.game.stage;
 
 
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Map;
 import org.cbzmq.game.enums.CharacterState;
+import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
-import org.cbzmq.game.model.CharacterListener;
-import org.cbzmq.game.model.Group;
 
 /**
  * The core of the game logic. The model manages all game information but knows nothing about the view, ie it knows nothing about
@@ -54,10 +54,10 @@ public class Engine2D {
     private Map map;
     private TiledMapTileLayer collisionLayer;
     private Array<CharacterListener> listeners = new Array();
-    private final EventQueue queue = new EventQueue(listeners);
+    private EventQueue queue = new EventQueue(listeners);
     private float timeScale = 1;
     //是否开启同组内不检测碰撞
-    private boolean isGroupNoCollision;
+    private boolean isGroupNoCollision=true;
     Array<Character> container = new Array<>();
 
     //物理参数
@@ -65,15 +65,15 @@ public class Engine2D {
     private float gravity = 32;
 
     public Engine2D() {
-        this(new Group<>(),new Assets());
+        this(new Group<>(), new Assets());
     }
 
     public Engine2D(Assets assets) {
-        this(new Group<>(),assets);
+        this(new Group<>(), assets);
         this.map = new Map(this.assets.tiledMap);
     }
 
-    public Engine2D(Group<Character> root,Assets assets) {
+    public Engine2D(Group<Character> root, Assets assets) {
         this.root = root;
         this.assets = assets;
         this.map = new Map(assets.tiledMap);
@@ -81,7 +81,7 @@ public class Engine2D {
         this.root.setQueue(queue);
     }
 
-    public Engine2D(Group<Character> root,Map map) {
+    public Engine2D(Group<Character> root, Map map) {
         this.root = root;
         this.map = map;
         this.collisionLayer = map.collisionLayer;
@@ -91,7 +91,7 @@ public class Engine2D {
     public void update(float delta) {
         container.clear();
         //角色本身更新动作
-        root.update(delta);
+//        root.update(delta);
         root.flat(container);
         //在2d世界运动
         move(delta);
@@ -101,27 +101,24 @@ public class Engine2D {
         queue.drain();
     }
 
-    public void addCharacter(Character character){
+    public void addCharacter(Character character) {
         root.addCharacter(character);
     }
 
     /**
      * 角色运动
+     *
      * @param delta
      */
-    private void move( float delta){
+    private void move(float delta) {
         for (Character character : container) {
-            move(character,delta);
+            move(character, delta);
         }
     }
 
     private void move(Character character, float delta) {
 
         character.stateTime += delta;
-
-//            if(character.hp<=0){
-//                beDeath();
-//            }
 
 
         // If moving downward, change state to fall.
@@ -135,7 +132,8 @@ public class Engine2D {
         //设置重力加速度
         character.velocity.y -= gravity * delta;
         //如果速度超过了最大值则给他赋予默认的最大速度
-        if (character.velocity.y < 0 && -character.velocity.y > Character.maxVelocityY) character.velocity.y = Math.signum(character.velocity.y) * Character.maxVelocityY;
+        if (character.velocity.y < 0 && -character.velocity.y > Character.maxVelocityY)
+            character.velocity.y = Math.signum(character.velocity.y) * Character.maxVelocityY;
 
         boolean grounded = character.isGrounded();
 
@@ -153,8 +151,14 @@ public class Engine2D {
         }
         //s=v * delta 该段时间内位移的距离
         character.velocity.scl(delta); // Change velocity from units/sec to units since last frame.
-        collideMapX(character);
-        collideMapY(character);
+        boolean isCollideMapX = collideMapX(character);
+        boolean isCollideMapY = collideMapY(character);
+        if (isCollideMapX) {
+            character.collideMapX();
+        }
+        if (isCollideMapY) {
+            character.collideMapY();
+        }
         character.position.add(character.velocity);
         character.velocity.scl(1 / delta); // Change velocity back.
 
@@ -162,6 +166,7 @@ public class Engine2D {
 
     /**
      * 碰撞地图x轴检测
+     *
      * @param character
      * @return
      */
@@ -193,6 +198,7 @@ public class Engine2D {
 
     /**
      * 碰撞地图Y轴检测
+     *
      * @param character
      * @return
      */
@@ -232,76 +238,40 @@ public class Engine2D {
      * 与其他运动物体的碰撞检测
      */
     public void collision() {
-        root.flat(container);
+//        root.flat(container);
         //进行角色之间的碰撞检测
-        for (Character a : container) {
-            for (Character b : container) {
-
-                if ((a instanceof Group || b instanceof Group) ||
+        for (int i = 0; i < container.size; i++) {
+            Character a = container.get(i);
+            if (a instanceof Group) continue;
+            for (int j = 0; j < container.size; j++) {
+                Character b = container.get(j);
+                if ((b instanceof Group) ||
+                        (a == b) ||
                         //1、开启了同组不碰撞设置 2、任意一个角色为不可碰撞状态则不检测
                         (a.state == CharacterState.death || b.state == CharacterState.death) ||
                         (isGroupNoCollision && a.getParent() == b.getParent()) || !(a.isCanBeCollision && a.isCanBeCollision))
                     continue;
                 else {
+                    // 撞击
                     if (a.rect.overlaps(b.rect)) {
                         queue.collisionCharacter(a, b);
                         queue.hit(a, b);
-                        //b相当于玩家
-                        if (a.rect.y + a.rect.height * 0.6f < b.rect.y) {
-                            //a 碰到b弹起
-                            //TODO
-                            float bounceX = b.resilience * b.velocity.x
-                                    * (a.position.x + a.rect.width / 2 < b.position.x + b.rect.width / 2 ? 1 : -1);
-
-
-                            a.velocity.x -= bounceX;
-                            a.velocity.y -= 10f;
-                            a.setGrounded(false);
-                            a.hp -= b.damage;
+                        //TODO 扣血 这块可以放到游戏主逻辑中做 不参与物理引擎运行
+                        float dirX = a.position.x + a.rect.width / 2 < b.position.x + b.rect.width / 2 ? -1 : 1;
+                        if (a.collisionTimer < 0) {
                             a.beCollide();
-//                            a.collisionTimer = Enemy.collisionDelay;
-//                            if (a.hp > 0){
-//                                a.state = CharacterState.fall;
-//                            }
-
-                            b.velocity.x = bounceX;
-                            b.velocity.y = b.resilience * b.velocity.y;
-                            b.setGrounded(false);
-                            b.setState(CharacterState.fall);
-
+                            a.hp -= b.damage;
                         }
-//                        else if (b.collisionTimer < 0) {
-//                            // Player gets hit.
-//                            //玩家收到撞击
-//                            b.dir = b.position.x + b.rect.width / 2 < b.position.x + b.rect.width / 2 ? -1 : 1;
-//                            //判断击退的量
-//                            float amount = Player.knockbackX * b.dir;
-//                            b.velocity.x = -amount;
-//                            b.velocity.y += Player.knockbackY;
-//                            b.setGrounded(false);
-//                            b.hp--;
-//                            if (b.hp > 0) {
-//                                player.setState(CharacterState.fall);
-//                                player.collisionTimer = Player.collisionDelay;
-//
-//                                a.velocity.x = amount * 1.6f;
-//                                a.velocity.y += 5f;
-//                                a.setState(CharacterState.fall);
-//                                enemy.jumpDelayTimer = MathUtils.random(0, enemy.jumpDelay);
-//                            } else {
-//                                player.setState(CharacterState.death);
-//                                player.velocity.y *= 0.5f;
-//                            }
-//                            enemy.setGrounded(false);
-//                            enemy.collisionTimer = Enemy.collisionDelay;
-//
-//                            //这块也改下
-////                        player.view.beHit(enemy);
-////                        player.beHit(enemy);
-//                            queue.hit(player,enemy);
-//                            queue.collisionCharacter(player,enemy);
-//                        }
 
+                        //判断x轴击退的量
+                        float amount = Player.knockbackX * dirX;
+                        a.velocity.x = amount;
+                        a.setGrounded(false);
+                        //判断y轴击退量
+                        float dirY = a.rect.y > b.rect.y + b.rect.height * 0.8f ? 1 : -1;
+                        if(dirY==1){
+                            a.velocity.y = Player.headBounceY*dirY;
+                        }
                     }
                 }
             }
@@ -336,13 +306,15 @@ public class Engine2D {
         return listeners;
     }
 
-    public void setListeners(Array<CharacterListener> listeners) {
-        this.listeners = listeners;
+    public void addListener(CharacterListener listener) {
+        this.queue.listeners.add(listener);
     }
 
     public EventQueue getQueue() {
         return queue;
     }
+
+
 
     public boolean isGroupNoCollision() {
         return isGroupNoCollision;
@@ -369,62 +341,6 @@ public class Engine2D {
     }
 
 
-    //    public void updateBullets() {
-//
-//        Array.ArrayIterator<Bullet> iterator = bulletGroup.getChildren().iterator();
-//        outer:
-//        while (iterator.hasNext()) {
-//            Bullet bullet = iterator.next();
-//
-////            if (bullet.hp == 0) {
-////                continue;
-////            }
-//
-//            for (Enemy enemy : enemyGroup.getChildren()) {
-//                if (enemy.state == CharacterState.death) continue;
-//                if (enemy.bigTimer <= 0 && enemy.rect.contains(bullet.position)) {
-//                    // Bullet hit enemy.
-//                    //子弹击中怪物
-//                    bullet.hp = 0;
-//                    bullet.beDeath();
-//                    //TODO 这块要改掉
-////                    enemy.view.beHit();
-//                    //怪物被击中事件
-//                    queue.hit(enemy, player);
-//                    enemy.collisionTimer = Enemy.collisionDelay;
-//                    enemy.hp -= bullet.damage;
-//                    if (enemy.hp <= 0) {
-//                        enemy.state = CharacterState.death;
-//                        enemy.velocity.y *= 0.5f;
-//                    } else
-//                        enemy.state = CharacterState.fall;
-//                    //击退
-//                    enemy.velocity.x = MathUtils.random(enemy.knockbackX / 2, enemy.knockbackX)
-//                            * (player.position.x < enemy.position.x + enemy.rect.width / 2 ? 1 : -1);
-//                    enemy.velocity.y += MathUtils.random(enemy.knockbackY / 2, enemy.knockbackY);
-//                    continue outer;
-//                }
-//            }
-////            bullet.update(delta);
-//
-//        }
-//    }
-
-
-    public int generalId() {
-        return id++;
-    }
-
-
-//    public float getTimeScale() {
-//        if (player.hp == 0)
-//            return timeScale * Interpolation.pow2In.apply(0, 1, MathUtils.clamp(gameOverTimer / Constants.gameOverSlowdown, 0.01f, 1));
-//        return timeScale;
-//    }
-
-    public void setTimeScale(float timeScale) {
-        this.timeScale = timeScale;
-    }
 
     public int getId() {
         return id;
@@ -440,5 +356,9 @@ public class Engine2D {
 
     public void setGravity(float gravity) {
         this.gravity = gravity;
+    }
+
+    public void setQueue(EventQueue queue) {
+        this.queue = queue;
     }
 }
