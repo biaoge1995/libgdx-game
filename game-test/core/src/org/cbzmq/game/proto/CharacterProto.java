@@ -365,7 +365,7 @@ public final class CharacterProto {
     /**
      * <code>repeated .Character bullets = 20;</code>
      */
-    java.util.List<org.cbzmq.game.proto.CharacterProto.Character> 
+    java.util.List<org.cbzmq.game.proto.CharacterProto.Character>
         getBulletsList();
     /**
      * <code>repeated .Character bullets = 20;</code>
@@ -378,7 +378,7 @@ public final class CharacterProto {
     /**
      * <code>repeated .Character bullets = 20;</code>
      */
-    java.util.List<? extends org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder> 
+    java.util.List<? extends org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder>
         getBulletsOrBuilderList();
     /**
      * <code>repeated .Character bullets = 20;</code>
@@ -1331,7 +1331,7 @@ public final class CharacterProto {
     /**
      * <code>repeated .Character bullets = 20;</code>
      */
-    public java.util.List<? extends org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder> 
+    public java.util.List<? extends org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder>
         getBulletsOrBuilderList() {
       return bullets_;
     }
@@ -2725,7 +2725,7 @@ public final class CharacterProto {
        * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          org.cbzmq.game.proto.CharacterProto.Vector2, org.cbzmq.game.proto.CharacterProto.Vector2.Builder, org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder> 
+          org.cbzmq.game.proto.CharacterProto.Vector2, org.cbzmq.game.proto.CharacterProto.Vector2.Builder, org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder>
           getPositionFieldBuilder() {
         if (positionBuilder_ == null) {
           positionBuilder_ = new com.google.protobuf.SingleFieldBuilder<
@@ -2878,7 +2878,7 @@ public final class CharacterProto {
        * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          org.cbzmq.game.proto.CharacterProto.Vector2, org.cbzmq.game.proto.CharacterProto.Vector2.Builder, org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder> 
+          org.cbzmq.game.proto.CharacterProto.Vector2, org.cbzmq.game.proto.CharacterProto.Vector2.Builder, org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder>
           getTargetPositionFieldBuilder() {
         if (targetPositionBuilder_ == null) {
           targetPositionBuilder_ = new com.google.protobuf.SingleFieldBuilder<
@@ -3031,7 +3031,7 @@ public final class CharacterProto {
        * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          org.cbzmq.game.proto.CharacterProto.Vector2, org.cbzmq.game.proto.CharacterProto.Vector2.Builder, org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder> 
+          org.cbzmq.game.proto.CharacterProto.Vector2, org.cbzmq.game.proto.CharacterProto.Vector2.Builder, org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder>
           getVelocityFieldBuilder() {
         if (velocityBuilder_ == null) {
           velocityBuilder_ = new com.google.protobuf.SingleFieldBuilder<
@@ -3383,7 +3383,7 @@ public final class CharacterProto {
        * </pre>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          org.cbzmq.game.proto.CharacterProto.Rectangle, org.cbzmq.game.proto.CharacterProto.Rectangle.Builder, org.cbzmq.game.proto.CharacterProto.RectangleOrBuilder> 
+          org.cbzmq.game.proto.CharacterProto.Rectangle, org.cbzmq.game.proto.CharacterProto.Rectangle.Builder, org.cbzmq.game.proto.CharacterProto.RectangleOrBuilder>
           getRectFieldBuilder() {
         if (rectBuilder_ == null) {
           rectBuilder_ = new com.google.protobuf.SingleFieldBuilder<
@@ -4036,7 +4036,7 @@ public final class CharacterProto {
       /**
        * <code>repeated .Character bullets = 20;</code>
        */
-      public java.util.List<? extends org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder> 
+      public java.util.List<? extends org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder>
            getBulletsOrBuilderList() {
         if (bulletsBuilder_ != null) {
           return bulletsBuilder_.getMessageOrBuilderList();
@@ -4062,12 +4062,12 @@ public final class CharacterProto {
       /**
        * <code>repeated .Character bullets = 20;</code>
        */
-      public java.util.List<org.cbzmq.game.proto.CharacterProto.Character.Builder> 
+      public java.util.List<org.cbzmq.game.proto.CharacterProto.Character.Builder>
            getBulletsBuilderList() {
         return getBulletsFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
-          org.cbzmq.game.proto.CharacterProto.Character, org.cbzmq.game.proto.CharacterProto.Character.Builder, org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder> 
+          org.cbzmq.game.proto.CharacterProto.Character, org.cbzmq.game.proto.CharacterProto.Character.Builder, org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder>
           getBulletsFieldBuilder() {
         if (bulletsBuilder_ == null) {
           bulletsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<

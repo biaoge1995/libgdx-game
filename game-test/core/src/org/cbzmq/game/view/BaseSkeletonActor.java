@@ -43,7 +43,6 @@ import com.esotericsoftware.spine.utils.SkeletonActor;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.GameCamera;
 import org.cbzmq.game.StateAnimation;
-import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.model.Character;
 
 /**

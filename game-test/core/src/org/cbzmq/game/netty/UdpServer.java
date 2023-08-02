@@ -13,10 +13,7 @@ import io.netty.util.internal.SocketUtils;
 import org.cbzmq.game.CompressUtils;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.MsgHeader;
-import org.cbzmq.game.model.Bullet;
 import org.cbzmq.game.model.Character;
-import org.cbzmq.game.model.Enemy;
-import org.cbzmq.game.model.Player;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.proto.MsgProto;
 import org.cbzmq.game.stage.Model;
@@ -74,13 +71,12 @@ public final class UdpServer {
 
     }
 
-    public void update(float delta) throws InterruptedException {
-        model.update(delta);
+    public void update() throws InterruptedException {
         Array<Character> all = model.getAll();
 
         Array<CharacterProto.Character> characterProtos = new Array<>();
         for (Character character : all) {
-            if(character.state ==CharacterState.death) continue;
+            if(character.state == CharacterState.death) continue;
             CharacterProto.Character proto = character.toCharacterProto().build();
             characterProtos.add(proto);
         }

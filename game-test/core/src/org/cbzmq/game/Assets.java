@@ -1,4 +1,5 @@
 package org.cbzmq.game;
+
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.1
@@ -30,10 +31,14 @@ package org.cbzmq.game;
  *****************************************************************************/
 
 
-
+import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.StandaloneFileSystem;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.FileHandleResolver;
+import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -45,9 +50,11 @@ import com.esotericsoftware.spine.Animation;
 import com.esotericsoftware.spine.AnimationStateData;
 import com.esotericsoftware.spine.SkeletonData;
 import com.esotericsoftware.spine.SkeletonJson;
-import org.cbzmq.game.enums.CharacterState;
+import org.cbzmq.game.enums.*;
 import org.cbzmq.game.model.Enemy;
 import org.cbzmq.game.model.Player;
+
+import java.io.File;
 
 
 /** Centralized place to load and store assets. */
@@ -57,7 +64,7 @@ public class Assets {
 	public TextureRegion titleRegion, gameOverRegion, youLoseRegion, youWinRegion, startRegion;
 	public SkeletonData playerSkeletonData, enemySkeletonData;
 	public AnimationStateData playerAnimationData, enemyAnimationData;
-	public ObjectMap<CharacterState, StateAnimation> playerStates = new ObjectMap(), enemyStates = new ObjectMap();
+	public ObjectMap<CharacterState, StateAnimation> playerStates = new ObjectMap<>(), enemyStates = new ObjectMap<>();
 	public final AssetManager assetManager;
 	public TiledMap tiledMap;
 

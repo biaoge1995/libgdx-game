@@ -31,8 +31,6 @@ package org.cbzmq.game.model;
 
 
 
-import com.badlogic.gdx.utils.Array;
-import org.cbzmq.game.Map;
 import org.cbzmq.game.Constants;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;

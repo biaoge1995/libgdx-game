@@ -4,6 +4,11 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import org.cbzmq.game.GameServer;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
+
 /**
  * @ClassName SpineBoyDesktop
  * @Description TODO
@@ -17,6 +22,11 @@ public class SpineBoyDesktop {
         config.setTitle("Super Spineboy");
         config.setWindowedMode(800,450);
         Thread.sleep(5000);
+        int[] ints = new int[2];
+        List<Integer> a = new ArrayList<>(100);
+        a.add(1,1);
+        List<Integer> b = new LinkedList<>();
+        Stack<Integer> c = new Stack<>();
         new Lwjgl3Application(new GameServer(), config);
     }
 }

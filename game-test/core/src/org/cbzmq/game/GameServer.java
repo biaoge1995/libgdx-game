@@ -103,7 +103,7 @@ public class GameServer extends Game {
 //		}
 		if(delta>0){
 			try {
-				udpServer.update(delta);
+				udpServer.update();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 				System.exit(-1);

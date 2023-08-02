@@ -53,7 +53,7 @@ public final class MsgProto {
     /**
      * <code>repeated .Character characterData = 4;</code>
      */
-    java.util.List<org.cbzmq.game.proto.CharacterProto.Character> 
+    java.util.List<org.cbzmq.game.proto.CharacterProto.Character>
         getCharacterDataList();
     /**
      * <code>repeated .Character characterData = 4;</code>
@@ -66,7 +66,7 @@ public final class MsgProto {
     /**
      * <code>repeated .Character characterData = 4;</code>
      */
-    java.util.List<? extends org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder> 
+    java.util.List<? extends org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder>
         getCharacterDataOrBuilderList();
     /**
      * <code>repeated .Character characterData = 4;</code>
@@ -292,7 +292,7 @@ public final class MsgProto {
     /**
      * <code>repeated .Character characterData = 4;</code>
      */
-    public java.util.List<? extends org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder> 
+    public java.util.List<? extends org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder>
         getCharacterDataOrBuilderList() {
       return characterData_;
     }
@@ -1004,7 +1004,7 @@ public final class MsgProto {
       /**
        * <code>repeated .Character characterData = 4;</code>
        */
-      public java.util.List<? extends org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder> 
+      public java.util.List<? extends org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder>
            getCharacterDataOrBuilderList() {
         if (characterDataBuilder_ != null) {
           return characterDataBuilder_.getMessageOrBuilderList();
@@ -1030,12 +1030,12 @@ public final class MsgProto {
       /**
        * <code>repeated .Character characterData = 4;</code>
        */
-      public java.util.List<org.cbzmq.game.proto.CharacterProto.Character.Builder> 
+      public java.util.List<org.cbzmq.game.proto.CharacterProto.Character.Builder>
            getCharacterDataBuilderList() {
         return getCharacterDataFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
-          org.cbzmq.game.proto.CharacterProto.Character, org.cbzmq.game.proto.CharacterProto.Character.Builder, org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder> 
+          org.cbzmq.game.proto.CharacterProto.Character, org.cbzmq.game.proto.CharacterProto.Character.Builder, org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder>
           getCharacterDataFieldBuilder() {
         if (characterDataBuilder_ == null) {
           characterDataBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<

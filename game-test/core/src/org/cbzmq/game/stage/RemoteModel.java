@@ -10,7 +10,6 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Map;
 import org.cbzmq.game.CompressUtils;
-import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.model.Bullet;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.model.CharacterListener;
