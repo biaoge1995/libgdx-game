@@ -134,8 +134,6 @@ public class View extends Stage {
         modelAndViewMap.clear();
         player = model.getPlayer();
         playerView = new PlayerActor(player);
-
-        modelAndViewMap.put(player.getId(), playerView);
         addActor(playerView);
         camera.lookahead = 0;
         playerView.setTouched(false);
@@ -160,10 +158,17 @@ public class View extends Stage {
 
 
     public void addActor(BaseSkeletonActor actor) {
-        super.addActor(actor);
-        actor.loadAssets(assets);
-        actor.setViewport(viewport);
-        actor.setCamera(camera);
+        if (modelAndViewMap.containsKey(actor.getModel().getId())) {
+            return;
+        }else {
+            modelAndViewMap.put(actor.getModel().getId(),actor);
+            super.addActor(actor);
+            actor.loadAssets(assets);
+            actor.setViewport(viewport);
+            actor.setCamera(camera);
+        }
+
+
 
     }
 
@@ -177,35 +182,35 @@ public class View extends Stage {
         for (int i = 0; i < all.size; i++) {
             Character character = all.get(i);
             BaseSkeletonActor actor = null;
-            boolean exists = false;
             if (modelAndViewMap.containsKey(character.getId())) {
                 actor = modelAndViewMap.get(character.getId());
-                exists = true;
             }
             switch (character.characterType) {
 
                 case player:
                     if (player != character) {
                         this.player = (Player) character;
+                        this.playerView = new PlayerActor(this.player);
                     }
-                    if(this.playerView!=actor){
-                        this.playerView = (PlayerActor) actor;
+                    if(actor!=null && this.playerView!=actor){
+                        PlayerActor actor1 = (PlayerActor) actor;
+                        actor1.setModel(this.player);
+                        this.playerView = actor1;
                     }
                     break;
                 case enemy:
-                    if (!exists) {
+                    if (actor==null) {
                         actor = new EnemyActor((Enemy) character);
                     }
                     break;
                 case bullet:
-                    if (!exists) {
+                    if (actor==null) {
                         actor = new BulletActor((Bullet) character);
                     }
                     break;
             }
-            if (!exists) {
+            if (actor!=null) {
                 addActor(actor);
-                modelAndViewMap.put(character.getId(), actor);
             }
         }
         if (model.isGameOver()) eventGameOver(model.isPlayerWin());

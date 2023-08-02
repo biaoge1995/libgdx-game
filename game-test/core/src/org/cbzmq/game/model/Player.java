@@ -105,8 +105,7 @@ public class Player extends Character<Player>{
 	}
 
 	public void shoot(float startX, float startY, float vx, float vy) {
-
-		parent.addCharacter(new Bullet(this,startX,startY,vx,vy));
+		if(parent!=null) parent.addCharacter(new Bullet(this,startX,startY,vx,vy));
 
 		if(getQueue()!=null){
 			getQueue().attack(this);
