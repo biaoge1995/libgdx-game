@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.spine.Event;
 import org.cbzmq.game.model.Character;
-import org.cbzmq.game.model.CharacterListener;
+import org.cbzmq.game.model.Group;
 
 public class EventQueue {
     private final Array<ObjectsAndEventType> objects = new Array<>();
@@ -90,6 +90,14 @@ public class EventQueue {
         objects.add(objectsAndEventType);
     }
 
+    public void frameEnd(Group root,float delta) {
+        ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
+        objectsAndEventType.objects.add(root);
+        objectsAndEventType.objects.add(delta);
+        objectsAndEventType.eventType = EventType.frameEnd;
+        objects.add(objectsAndEventType);
+    }
+
     public void drain() {
         if (drainDisabled) return; // Not reentrant.
         drainDisabled = true;
@@ -98,7 +106,11 @@ public class EventQueue {
         Array<CharacterListener> listeners = this.listeners;
         for (ObjectsAndEventType objectAndEvent : objects) {
             EventType enemyType = objectAndEvent.eventType;
-            Character character = (Character) objectAndEvent.objects.get(0);
+            Object obj = objectAndEvent.objects.get(0);
+            Character character =null;
+            if(obj instanceof Character){
+                character = (Character) obj;
+            }
             switch (enemyType) {
                 case born:
                     if (character.listener != null) character.listener.born(character);
@@ -150,6 +162,12 @@ public class EventQueue {
                     for (int ii = 0; ii < listeners.size; ii++)
                         listeners.get(ii).event(character, event);
                     break;
+                case frameEnd:
+                    float delta = (float) objectAndEvent.objects.get(1);
+                    if (character.listener != null) character.listener.frameEnd((Group) obj,delta);
+                    for (int ii = 0; ii < listeners.size; ii++)
+                        listeners.get(ii).frameEnd((Group)obj,delta);
+                    break;
             }
         }
         clear();
@@ -162,7 +180,7 @@ public class EventQueue {
     }
 
     public enum EventType {
-        born, hit, death, dispose, beRemove, attack, collisionCharacter, collisionMap, event
+        born, hit, death, dispose, beRemove, attack, collisionCharacter, collisionMap, event,frameEnd
     }
 
     public static class ObjectsAndEventType {

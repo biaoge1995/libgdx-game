@@ -1,7 +1,9 @@
-package org.cbzmq.game.model;
+package org.cbzmq.game.stage;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.esotericsoftware.spine.Event;
+import org.cbzmq.game.model.Character;
+import org.cbzmq.game.model.Group;
 
 /**
  * @ClassName ModelListener
@@ -39,6 +41,8 @@ public interface CharacterListener {
 
     /** 事件 **/
     public void event (Character character, Event event);
+    /** 一帧结束 **/
+    public void frameEnd (Group root, float time);
 
 
 }

@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Null;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.proto.CharacterProto;
+import org.cbzmq.game.stage.CharacterListener;
 import org.cbzmq.game.stage.EventQueue;
 import org.cbzmq.game.stage.Model;
 

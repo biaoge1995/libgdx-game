@@ -14,6 +14,8 @@ import org.cbzmq.game.CompressUtils;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.MsgHeader;
 import org.cbzmq.game.model.Character;
+import org.cbzmq.game.model.CharacterAdapter;
+import org.cbzmq.game.model.Group;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.proto.MsgProto;
 import org.cbzmq.game.stage.Model;
@@ -33,30 +35,14 @@ import java.util.Date;
  **/
 
 
-public final class UdpServer {
+public final class UdpServer extends CharacterAdapter {
 
     private static final int PORT = Integer.parseInt(System.getProperty("port", "7686"));
-
+    private final Array<Character> all = new Array<>();
     private Channel ch;
-    public Model model;
 
-//    public static void main(String[] args) {
-//        final UdpServer udpServer = new UdpServer(new LocalModel());
-//        Timer timer = new Timer();
-//        final long[] delta = {0};
-//        timer.schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                long start = System.currentTimeMillis();
-//                udpServer.update(delta[0]);
-//                long end = System.currentTimeMillis();
-//                delta[0] = end-start;
-//            }
-//        },1000,20);
-//    }
 
-    public UdpServer(Model model) throws InterruptedException {
-        this.model = model;
+    public UdpServer() throws InterruptedException {
         EventLoopGroup group = new NioEventLoopGroup();
 
         Bootstrap b = new Bootstrap();
@@ -71,9 +57,10 @@ public final class UdpServer {
 
     }
 
-    public void update() throws InterruptedException {
-        Array<Character> all = model.getAll();
-
+    @Override
+    public void frameEnd(Group root, float time) {
+        all.clear();
+        root.flat(all);
         Array<CharacterProto.Character> characterProtos = new Array<>();
         for (Character character : all) {
             if(character.state == CharacterState.death) continue;
@@ -90,10 +77,11 @@ public final class UdpServer {
                 .build();
 
         byte[] bytes = msg.toByteArray();
+        //二次压缩
         CompressUtils.CompressData compress = CompressUtils.compress(bytes);
         ByteBuf byteBuf = Unpooled.copiedBuffer(compress.getOutput());
 //        System.out.println(msg);
-//        System.out.println("元素数量" + msg.getCharacterDataList().size());
+        System.out.println("元素数量" + msg.getCharacterDataList().size());
 //        System.out.println("protobuf消息长度" + bytes.length + "byte");
 //        System.out.println("string消息长度" + msg.toString().getBytes(StandardCharsets.UTF_8).length + "byte\n");
 
@@ -105,11 +93,15 @@ public final class UdpServer {
 //                        SocketUtils.socketAddress("127.0.0.1", 8088))).sync();
 //            }
 
-        ch.writeAndFlush(new DatagramPacket(
-                byteBuf,
-//                SocketUtils.socketAddress("127.0.0.1", 8088)
-                SocketUtils.socketAddress("192.168.2.145", 8088)
-        )).sync();
+        try {
+            ch.writeAndFlush(new DatagramPacket(
+                    byteBuf,
+                    SocketUtils.socketAddress("127.0.0.1", 8088)
+//                    SocketUtils.socketAddress("192.168.2.145", 8088)
+            )).sync();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 }

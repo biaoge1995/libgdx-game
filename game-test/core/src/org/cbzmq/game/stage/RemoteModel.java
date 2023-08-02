@@ -12,12 +12,12 @@ import org.cbzmq.game.Map;
 import org.cbzmq.game.CompressUtils;
 import org.cbzmq.game.model.Bullet;
 import org.cbzmq.game.model.Character;
-import org.cbzmq.game.model.CharacterListener;
 import org.cbzmq.game.model.Enemy;
 import org.cbzmq.game.model.Player;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.proto.MsgProto;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,12 +34,15 @@ public class RemoteModel implements Model {
     Player player;
     Map map;
 
-    Array<Bullet> bullets = new Array<>();
-    Array<Enemy> enemies = new Array<>();
 
     Set<Integer> existsId = new HashSet<>();
 
-    java.util.Map<Integer, Character> characterMap = new HashMap<>();
+
+    final Array<Character> orderCharacterList = new Array<>();
+
+    final java.util.Map<Integer,Character> characterMap = new HashMap<>();
+
+    final Array<Enemy> enemies = new Array<>();
 
     Array<CharacterListener> listeners = new Array<>();
     EventQueue queue = new EventQueue(listeners);
@@ -90,6 +93,7 @@ public class RemoteModel implements Model {
 
         isStartSynced = false;
         existsId.clear();
+
         for (CharacterProto.Character proto : msgProto.getCharacterDataList()) {
             existsId.add(proto.getId());
 
@@ -109,15 +113,19 @@ public class RemoteModel implements Model {
 //                    getEnemies().add(enemy);
                     break;
             }
-            if (character != null && !characterMap.containsKey(proto.getId())) {
+            int index = proto.getId() - 1;
+            if (character != null && !characterMap.containsKey(character.getId())) {
                 characterMap.put(proto.getId(), character);
+                orderCharacterList.add(character);
             } else if (character != null) {
-                characterMap.get(proto.getId()).updateByCharacter(character);
+                characterMap.get(character.getId()).updateByCharacter(character);
                 ;
 
             }
         }
-        for (Character value : characterMap.values()) {
+
+
+        for (Character value : orderCharacterList) {
             if (!existsId.contains(value.getId())) {
                 value.beDeath();
             }
@@ -125,15 +133,16 @@ public class RemoteModel implements Model {
                 case player:
                     player = (Player) value;
                     break;
-                case bullet:
-                    getBullets().add((Bullet) value);
-                    break;
+//                case bullet:
+//                    getBullets().add((Bullet) value);
+//                    break;
                 case enemy:
                     getEnemies().add((Enemy) value);
                     break;
             }
 
         }
+
 
     }
 
@@ -166,7 +175,7 @@ public class RemoteModel implements Model {
 
     @Override
     public Array<Bullet> getBullets() {
-        return bullets;
+        return null;
     }
 
     @Override
@@ -212,7 +221,7 @@ public class RemoteModel implements Model {
 
     @Override
     public Array<Character> getAll() {
-        return null;
+        return orderCharacterList;
     }
 
 

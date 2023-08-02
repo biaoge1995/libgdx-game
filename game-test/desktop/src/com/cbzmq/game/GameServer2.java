@@ -21,28 +21,28 @@ import java.util.TimerTask;
 public class GameServer2 {
 
 
-    public static void main(String[] args) throws InterruptedException {
-        Gdx.files = new Lwjgl3Files();
-        final LocalModel localModel = new LocalModel();
-        final UdpServer udpServer = new UdpServer(localModel);
-
-        Timer timer = new Timer();
-        final long[] delta = {0};
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                long start = System.currentTimeMillis();
-                try {
-                    localModel.update(delta[0]);
-                    udpServer.update();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                long end = System.currentTimeMillis();
-                delta[0] = end-start;
-            }
-        },1000,20);
-    }
+//    public static void main(String[] args) throws InterruptedException {
+//        Gdx.files = new Lwjgl3Files();
+//        final LocalModel localModel = new LocalModel();
+//        final UdpServer udpServer = new UdpServer(localModel);
+//
+//        Timer timer = new Timer();
+//        final long[] delta = {0};
+//        timer.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                long start = System.currentTimeMillis();
+//                try {
+//                    localModel.update(delta[0]);
+//                    udpServer.update();
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                long end = System.currentTimeMillis();
+//                delta[0] = end-start;
+//            }
+//        },1000,20);
+//    }
 
 
 }

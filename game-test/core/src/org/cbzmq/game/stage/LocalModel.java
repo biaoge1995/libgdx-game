@@ -183,6 +183,7 @@ public class LocalModel implements Model {
         updateEnemies();
 //        updateBullets();
         updateTriggers();
+        queue.frameEnd(root,delta);
         //将事件队列处理掉
         queue.drain();
     }

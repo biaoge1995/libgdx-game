@@ -1,7 +1,5 @@
 package org.cbzmq.game.stage;
 
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Map;

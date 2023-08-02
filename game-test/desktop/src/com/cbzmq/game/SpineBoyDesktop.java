@@ -22,11 +22,6 @@ public class SpineBoyDesktop {
         config.setTitle("Super Spineboy");
         config.setWindowedMode(800,450);
         Thread.sleep(5000);
-        int[] ints = new int[2];
-        List<Integer> a = new ArrayList<>(100);
-        a.add(1,1);
-        List<Integer> b = new LinkedList<>();
-        Stack<Integer> c = new Stack<>();
         new Lwjgl3Application(new GameServer(), config);
     }
 }

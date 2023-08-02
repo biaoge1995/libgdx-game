@@ -81,7 +81,8 @@ public class GameServer extends Game {
 	public void create () {
 		model = new LocalModel();
 		try {
-			udpServer = new UdpServer(model);
+			udpServer = new UdpServer();
+			model.addListener(udpServer);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			System.exit(-1);
@@ -102,12 +103,13 @@ public class GameServer extends Game {
 //			model.update(delta);0
 //		}
 		if(delta>0){
-			try {
-				udpServer.update();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				System.exit(-1);
-			}
+			model.update(delta);
+//			try {
+//
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//				System.exit(-1);
+//			}
 		}
 		super.render();
 	}
