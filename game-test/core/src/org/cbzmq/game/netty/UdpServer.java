@@ -10,7 +10,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.SocketUtils;
-import org.cbzmq.game.CompressUtils;
+import org.cbzmq.game.MathUtils;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.MsgHeader;
 import org.cbzmq.game.model.Character;
@@ -18,7 +18,6 @@ import org.cbzmq.game.model.CharacterAdapter;
 import org.cbzmq.game.model.Group;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.proto.MsgProto;
-import org.cbzmq.game.stage.Model;
 
 import java.net.InetSocketAddress;
 import java.util.Date;
@@ -62,10 +61,12 @@ public final class UdpServer extends CharacterAdapter {
         all.clear();
         root.flat(all);
         Array<CharacterProto.Character> characterProtos = new Array<>();
+        Array<Byte> bytes = new Array<>();
         for (Character character : all) {
             if(character.state == CharacterState.death) continue;
             CharacterProto.Character proto = character.toCharacterProto().build();
             characterProtos.add(proto);
+            bytes.addAll(character.toCharacterBytes());
         }
 
 
@@ -76,9 +77,17 @@ public final class UdpServer extends CharacterAdapter {
                 .setTimeStamp(new Date().getTime())
                 .build();
 
-        byte[] bytes = msg.toByteArray();
+//        byte[] bytes = msg.toByteArray();
+
+
+
+        byte[] bytes2 = new byte[bytes.size];
+        for (int i = 0; i < bytes.size; i++) {
+            bytes2[i] = bytes.get(i).byteValue();
+        }
+
         //二次压缩
-        CompressUtils.CompressData compress = CompressUtils.compress(bytes);
+        MathUtils.CompressData compress = MathUtils.compress( bytes2);
         ByteBuf byteBuf = Unpooled.copiedBuffer(compress.getOutput());
 //        System.out.println(msg);
         System.out.println("元素数量" + msg.getCharacterDataList().size());

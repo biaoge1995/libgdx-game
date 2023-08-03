@@ -1,0 +1,20 @@
+//使用 proto3 语法 ,未指定则使用proto2
+syntax = "proto2";
+
+//生成 proto 文件所在包路径
+
+//引入外部proto文件，并让引入了该文件的proto文件也能访问被引入类型。需要在IDEA的settings-ProtocolBuffers中设置proto文件路径
+
+
+//生成 proto 文件所在包路径
+option java_package = "org.cbzmq.game.proto";
+
+//生成 proto 文件名
+option java_outer_classname = "TestProto";
+
+message Test {
+    optional float x = 1;
+    optional int32  y = 2;
+    optional bytes z = 3;
+}
+

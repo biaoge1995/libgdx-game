@@ -31,7 +31,10 @@ package org.cbzmq.game.model;
 
 
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.Constants;
+import org.cbzmq.game.MathUtils;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.proto.CharacterProto;
@@ -91,6 +94,7 @@ public class Player extends Character<Player>{
 		rect.height = height - collisionOffsetY;
 		maxVelocityX = isGrounded() ? maxVelocityGroundX : maxVelocityAirX;
 		super.update(delta);
+		Gdx.app.log("move","position"+position.x+","+position.y);
 	}
 
 
@@ -121,6 +125,16 @@ public class Player extends Character<Player>{
 		return player;
 	}
 
+	public static Player parseFromBytes(byte[] bytes) {
+		Character father = Character.parseFromBytes(bytes);
+		Player player = new Player();
+		byte[] shoot = {bytes[23],bytes[24]};
+		player.shootTimer = MathUtils.byteArrayToInt(shoot)/100f;
+		Character.copyToSon(father, player);
+		return player;
+	}
+
+
 	public  CharacterProto.Character.Builder toCharacterProto() {
 		CharacterProto.Character.Builder builder = super.toCharacterProto();
 
@@ -129,6 +143,14 @@ public class Player extends Character<Player>{
 //				.setHpTimer(player.hpTimer)
 				;
 	}
+
+	public Array<Byte> toCharacterBytes() {
+		Array<Byte> bytes = super.toCharacterBytes();
+		byte[] shootTimer = org.cbzmq.game.MathUtils.shortToByteArray((short) (this.shootTimer*100));
+		bytes.add(shootTimer[0],shootTimer[1]);
+		return bytes;
+	}
+
 
 	public void updateByCharacter(Player father) {
 		super.updateByCharacter(father);

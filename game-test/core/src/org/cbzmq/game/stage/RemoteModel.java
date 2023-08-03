@@ -9,7 +9,7 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Map;
-import org.cbzmq.game.CompressUtils;
+import org.cbzmq.game.MathUtils;
 import org.cbzmq.game.model.Bullet;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.model.Enemy;
@@ -17,7 +17,6 @@ import org.cbzmq.game.model.Player;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.proto.MsgProto;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -245,7 +244,7 @@ class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
     public void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
         byte[] bytes = ByteBufUtil.getBytes(msg.content());
 
-        byte[] decompress = CompressUtils.decompress(bytes);
+        byte[] decompress = MathUtils.decompress(bytes);
 
         System.out.println("msg byte length :" + bytes.length + "byte");
         MsgProto.Msg msgProto = MsgProto.Msg.parseFrom(decompress);

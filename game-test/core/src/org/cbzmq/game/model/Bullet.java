@@ -1,5 +1,6 @@
 package org.cbzmq.game.model;
 
+import org.cbzmq.game.MathUtils;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.proto.CharacterProto;
@@ -64,6 +65,18 @@ public class Bullet extends Character<Bullet> {
         return bullet;
     }
 
+    public static Bullet parseFromBytes(byte[] bytes) {
+        Character father = Character.parseFromBytes(bytes);
+        Bullet bullet = new Bullet(
+                null
+                , father.position.x
+                , father.position.y
+                , father.velocity.x
+                , father.velocity.y);
+        Character.copyToSon(father, bullet);
+        return bullet;
+    }
+
 
     public  CharacterProto.Character.Builder toCharacterProto() {
         CharacterProto.Character.Builder builder = super.toCharacterProto();
@@ -76,4 +89,6 @@ public class Bullet extends Character<Bullet> {
         super.updateByCharacter(father);
         this.player = father.player;
     }
+
+
 }
