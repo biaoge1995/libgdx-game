@@ -1,10 +1,10 @@
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.1
- * 
+ *
  * Copyright (c) 2013, Esoteric Software
  * All rights reserved.
- * 
+ *
  * You are granted a perpetual, non-exclusive, non-sublicensable and
  * non-transferable license to install, execute and perform the Spine Runtimes
  * Software (the "Software") solely for internal use. Without the written
@@ -15,7 +15,7 @@
  * trademark, patent or other intellectual property or proprietary rights notices
  * on or in the Software, including any copy thereof. Redistributions in binary
  * or source form must include this license and terms.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -68,225 +68,228 @@ import static com.badlogic.gdx.math.Interpolation.*;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
 import static org.cbzmq.game.Constants.scale;
 
-/** The user interface displayed on top of the game (menu, health bar, splash screens). */
+/**
+ * The user interface displayed on top of the game (menu, health bar, splash screens).
+ */
 public class UI extends Stage {
-	static final Color gray = new Color(0.15f, 0.15f, 0.15f, 1);
-	View view;
-	Model model;
-	ShapeRenderer shapes;
-	SkeletonRendererDebug skeletonRendererDebug;
-	Skin skin;
-	Label fpsLabel, bindsLabel;
-	TextButton debugButton, zoomButton, bgButton;
-	TextButton speed200Button, speed150Button, speed100Button, speed33Button, speed15Button, speed3Button, pauseButton;
-	public Table splashTable;
-	Image splashImage, splashTextImage;
-	ProgressBar healthBar;
-	TextButton fullscreenButton, restartButton, menuButton;
-	Table menu;
-	Vector2 temp = new Vector2();
+    static final Color gray = new Color(0.15f, 0.15f, 0.15f, 1);
+    View view;
+    Model model;
+    ShapeRenderer shapes;
+    SkeletonRendererDebug skeletonRendererDebug;
+    Skin skin;
+    Label fpsLabel, bindsLabel;
+    TextButton debugButton, zoomButton, bgButton;
+    TextButton speed200Button, speed150Button, speed100Button, speed33Button, speed15Button, speed3Button, pauseButton;
+    public Table splashTable;
+    Image splashImage, splashTextImage;
+    ProgressBar healthBar;
+    TextButton fullscreenButton, restartButton, menuButton;
+    Table menu;
+    Vector2 temp = new Vector2();
 
-	int windowWidth, windowHeight;
-	public float inputTimer;
-	public boolean hasSplash;
+    int windowWidth, windowHeight;
+    public float inputTimer;
+    public boolean hasSplash;
 
-	UI(final View view) {
-		super(new ScreenViewport());
-		this.view = view;
-		this.model = view.model;
+    private float cameraZoom = 1;
 
-		shapes = new ShapeRenderer();
+    UI(final View view) {
+        super(new ScreenViewport());
+        this.view = view;
+        this.model = view.model;
 
-		skeletonRendererDebug = new SkeletonRendererDebug(shapes);
-		skeletonRendererDebug.setScale(Constants.scale);
-		// skeletonRendererDebug.setPremultipliedAlpha(true);
+        shapes = new ShapeRenderer();
 
-		loadSkin();
-		create();
-		layout();
-		events();
+        skeletonRendererDebug = new SkeletonRendererDebug(shapes);
+        skeletonRendererDebug.setScale(Constants.scale);
+        // skeletonRendererDebug.setPremultipliedAlpha(true);
 
-		showSplash(view.assets.titleRegion, view.assets.startRegion);
-	}
+        loadSkin();
+        create();
+        layout();
+        events();
+
+        showSplash(view.assets.titleRegion, view.assets.startRegion);
+    }
 
 
+    public void create() {
+        speed200Button = speedButton(2f);
+        speed150Button = speedButton(1.5f);
+        speed100Button = speedButton(1);
+        speed33Button = speedButton(0.33f);
+        speed15Button = speedButton(0.15f);
+        speed3Button = speedButton(0.03f);
+        pauseButton = speedButton(0);
+        pauseButton.setText("Pause");
+        new ButtonGroup(speed200Button, speed150Button, speed100Button, speed33Button, speed15Button, speed3Button, pauseButton);
+        speed100Button.setChecked(true);
 
-	public void create () {
-		speed200Button = speedButton(2f);
-		speed150Button = speedButton(1.5f);
-		speed100Button = speedButton(1);
-		speed33Button = speedButton(0.33f);
-		speed15Button = speedButton(0.15f);
-		speed3Button = speedButton(0.03f);
-		pauseButton = speedButton(0);
-		pauseButton.setText("Pause");
-		new ButtonGroup(speed200Button, speed150Button, speed100Button, speed33Button, speed15Button, speed3Button, pauseButton);
-		speed100Button.setChecked(true);
+        healthBar = new ProgressBar(0, Player.hpStart, 1, false, skin);
+        healthBar.setAnimateDuration(0.3f);
+        healthBar.setAnimateInterpolation(fade);
+        fpsLabel = new Label("", skin);
+        bindsLabel = new Label("", skin);
+        debugButton = button("Debug", true);
+        zoomButton = button("Zoom", true);
+        bgButton = button("Background", true);
+        bgButton.setChecked(true);
 
-		healthBar = new ProgressBar(0, Player.hpStart, 1, false, skin);
-		healthBar.setAnimateDuration(0.3f);
-		healthBar.setAnimateInterpolation(fade);
-		fpsLabel = new Label("", skin);
-		bindsLabel = new Label("", skin);
-		debugButton = button("Debug", true);
-		zoomButton = button("Zoom", true);
-		bgButton = button("Background", true);
-		bgButton.setChecked(true);
+        fullscreenButton = button("Fullscreen", true);
 
-		fullscreenButton = button("Fullscreen", true);
+        menuButton = button("Menu", true);
+        menuButton.getColor().a = 0.3f;
 
-		menuButton = button("Menu", true);
-		menuButton.getColor().a = 0.3f;
+        splashImage = new Image();
+        splashImage.setScaling(Scaling.fit);
 
-		splashImage = new Image();
-		splashImage.setScaling(Scaling.fit);
+        splashTextImage = new Image();
+        splashTextImage.addAction(forever(sequence(fadeOut(0.4f, pow2In), fadeIn(0.4f, pow2Out))));
+    }
 
-		splashTextImage = new Image();
-		splashTextImage.addAction(forever(sequence(fadeOut(0.4f, pow2In), fadeIn(0.4f, pow2Out))));
-	}
+    private void layout() {
+        Table buttons = new Table();
+        buttons.defaults().uniformX().fillX();
+        buttons.add(speed200Button).row();
+        buttons.add(speed150Button).row();
+        buttons.add(speed100Button).row();
+        buttons.add(speed33Button).row();
+        buttons.add(speed15Button).row();
+        buttons.add(speed3Button).row();
+        buttons.add(pauseButton).row();
+        buttons.defaults().padTop(5);
+        buttons.add(debugButton).row();
+        buttons.add(zoomButton).row();
+        buttons.add(bgButton).row();
+        buttons.add(fullscreenButton).row();
+        buttons.add(restartButton).row();
 
-	private void layout () {
-		Table buttons = new Table();
-		buttons.defaults().uniformX().fillX();
-		buttons.add(speed200Button).row();
-		buttons.add(speed150Button).row();
-		buttons.add(speed100Button).row();
-		buttons.add(speed33Button).row();
-		buttons.add(speed15Button).row();
-		buttons.add(speed3Button).row();
-		buttons.add(pauseButton).row();
-		buttons.defaults().padTop(5);
-		buttons.add(debugButton).row();
-		buttons.add(zoomButton).row();
-		buttons.add(bgButton).row();
-		buttons.add(fullscreenButton).row();
-		buttons.add(restartButton).row();
+        menu = new Table(skin);
+        menu.defaults().space(5);
+        menu.add("FPS:");
+        menu.add(fpsLabel).expandX().left().row();
+        menu.add("Binds:");
+        menu.add(bindsLabel).left().row();
+        menu.add(buttons).colspan(2).left();
+        menu.setVisible(false);
 
-		menu = new Table(skin);
-		menu.defaults().space(5);
-		menu.add("FPS:");
-		menu.add(fpsLabel).expandX().left().row();
-		menu.add("Binds:");
-		menu.add(bindsLabel).left().row();
-		menu.add(buttons).colspan(2).left();
-		menu.setVisible(false);
+        Table root = new Table(skin);
+        this.addActor(root);
+        root.top().left().pad(5).defaults().space(5);
+        root.setFillParent(true);
+        root.add(menuButton).fillX();
+        root.add(healthBar).height(10).fillY().expandX().right().top().row();
+        root.add(menu);
 
-		Table root = new Table(skin);
-		this.addActor(root);
-		root.top().left().pad(5).defaults().space(5);
-		root.setFillParent(true);
-		root.add(menuButton).fillX();
-		root.add(healthBar).height(10).fillY().expandX().right().top().row();
-		root.add(menu);
+        splashTable = new Table(skin);
+        splashTable.setFillParent(true);
+        splashTable.add(splashImage).fillX().row();
+        splashTable.add(splashTextImage);
+        splashTable.setTouchable(Touchable.enabled);
+    }
 
-		splashTable = new Table(skin);
-		splashTable.setFillParent(true);
-		splashTable.add(splashImage).fillX().row();
-		splashTable.add(splashTextImage);
-		splashTable.setTouchable(Touchable.enabled);
-	}
+    private void events() {
+        menuButton.addListener(new ChangeListener() {
+            public void changed(ChangeEvent event, Actor actor) {
+                menu.clearActions();
+                menu.getColor().a = menu.isVisible() ? 1 : 0;
+                if (menu.isVisible())
+                    menu.addAction(sequence(alpha(0, 0.5f, fade), hide()));
+                else
+                    menu.addAction(sequence(show(), alpha(1, 0.5f, fade)));
+                menuButton.getColor().a = menu.isVisible() ? 0.3f : 1;
+            }
+        });
 
-	private void events () {
-		menuButton.addListener(new ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				menu.clearActions();
-				menu.getColor().a = menu.isVisible() ? 1 : 0;
-				if (menu.isVisible())
-					menu.addAction(sequence(alpha(0, 0.5f, fade), hide()));
-				else
-					menu.addAction(sequence(show(), alpha(1, 0.5f, fade)));
-				menuButton.getColor().a = menu.isVisible() ? 0.3f : 1;
-			}
-		});
+        fullscreenButton.addListener(new ChangeListener() {
+            public void changed(ChangeEvent event, Actor actor) {
+                toggleFullscreen();
+            }
+        });
 
-		fullscreenButton.addListener(new ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				toggleFullscreen();
-			}
-		});
+        restartButton = button("Restart", false);
+        restartButton.addListener(new ChangeListener() {
+            public void changed(ChangeEvent event, Actor actor) {
+                view.gameRestart();
+            }
+        });
 
-		restartButton = button("Restart", false);
-		restartButton.addListener(new ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				view.gameRestart();
-			}
-		});
+        splashTable.addListener(new InputListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                if (hasSplash && inputTimer < 0) {
+                    view.gameRestart();
+                    splashTable.clearActions();
+                    splashTable.getColor().a = 1;
+                    splashTable.addAction(sequence(fadeOut(1, fade), removeActor()));
+                    hasSplash = false;
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
 
-		splashTable.addListener(new InputListener() {
-			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				if (hasSplash && inputTimer < 0) {
-					view.gameRestart();
-					splashTable.clearActions();
-					splashTable.getColor().a = 1;
-					splashTable.addAction(sequence(fadeOut(1, fade), removeActor()));
-					hasSplash = false;
-					return true;
-				}
-				return false;
-			}
-		});
-	}
+    public void loadSkin() {
+        skin = new Skin();
+        skin.add("default", new BitmapFont());
 
-	public void loadSkin () {
-		skin = new Skin();
-		skin.add("default", new BitmapFont());
+        Pixmap pixmap = new Pixmap(1, 1, Format.RGBA8888);
+        pixmap.setColor(Color.WHITE);
+        pixmap.fill();
+        skin.add("white", new Texture(pixmap));
 
-		Pixmap pixmap = new Pixmap(1, 1, Format.RGBA8888);
-		pixmap.setColor(Color.WHITE);
-		pixmap.fill();
-		skin.add("white", new Texture(pixmap));
+        TextButtonStyle textButtonStyle = new TextButtonStyle();
+        textButtonStyle.up = skin.newDrawable("white", Color.DARK_GRAY);
+        textButtonStyle.down = skin.newDrawable("white", new Color(0x416ba1ff));
+        textButtonStyle.over = skin.newDrawable("white", Color.GRAY);
+        textButtonStyle.font = skin.getFont("default");
+        skin.add("default", textButtonStyle);
 
-		TextButtonStyle textButtonStyle = new TextButtonStyle();
-		textButtonStyle.up = skin.newDrawable("white", Color.DARK_GRAY);
-		textButtonStyle.down = skin.newDrawable("white", new Color(0x416ba1ff));
-		textButtonStyle.over = skin.newDrawable("white", Color.GRAY);
-		textButtonStyle.font = skin.getFont("default");
-		skin.add("default", textButtonStyle);
+        textButtonStyle = new TextButtonStyle(textButtonStyle);
+        textButtonStyle.checked = skin.newDrawable("white", new Color(0x5287ccff));
+        skin.add("toggle", textButtonStyle);
 
-		textButtonStyle = new TextButtonStyle(textButtonStyle);
-		textButtonStyle.checked = skin.newDrawable("white", new Color(0x5287ccff));
-		skin.add("toggle", textButtonStyle);
+        LabelStyle labelStyle = new LabelStyle();
+        labelStyle.font = skin.getFont("default");
+        skin.add("default", labelStyle);
 
-		LabelStyle labelStyle = new LabelStyle();
-		labelStyle.font = skin.getFont("default");
-		skin.add("default", labelStyle);
+        ProgressBarStyle progressBarStyle = new ProgressBarStyle();
+        progressBarStyle.background = skin.newDrawable("white", new Color(0.25f, 0.25f, 0.25f, 0.66f));
+        progressBarStyle.background.setMinHeight(15);
+        progressBarStyle.knobBefore = skin.newDrawable("white", Color.CLEAR);
+        progressBarStyle.knobBefore.setMinHeight(15);
+        progressBarStyle.knobAfter = skin.newDrawable("white", new Color(1, 0, 0, 0.66f));
+        progressBarStyle.knobAfter.setMinHeight(15);
+        skin.add("default-horizontal", progressBarStyle);
+    }
 
-		ProgressBarStyle progressBarStyle = new ProgressBarStyle();
-		progressBarStyle.background = skin.newDrawable("white", new Color(0.25f, 0.25f, 0.25f, 0.66f));
-		progressBarStyle.background.setMinHeight(15);
-		progressBarStyle.knobBefore = skin.newDrawable("white", Color.CLEAR);
-		progressBarStyle.knobBefore.setMinHeight(15);
-		progressBarStyle.knobAfter = skin.newDrawable("white", new Color(1, 0, 0, 0.66f));
-		progressBarStyle.knobAfter.setMinHeight(15);
-		skin.add("default-horizontal", progressBarStyle);
-	}
+    public TextButton speedButton(final float speed) {
+        final TextButton button = button((int) (speed * 100) + "%", true);
+        button.addListener(new ChangeListener() {
+            public void changed(ChangeEvent event, Actor actor) {
+                if (button.isChecked()) model.setTimeScale(speed);
+            }
+        });
+        return button;
+    }
 
-	public TextButton speedButton (final float speed) {
-		final TextButton button = button((int)(speed * 100) + "%", true);
-		button.addListener(new ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				if (button.isChecked()) model.setTimeScale(speed);
-			}
-		});
-		return button;
-	}
+    public TextButton button(String text, boolean toggle) {
+        TextButton button = new TextButton(text, skin, toggle ? "toggle" : "default");
+        button.pad(2, 12, 2, 12);
+        return button;
+    }
 
-	public TextButton button (String text, boolean toggle) {
-		TextButton button = new TextButton(text, skin, toggle ? "toggle" : "default");
-		button.pad(2, 12, 2, 12);
-		return button;
-	}
+    @Override
+    public void draw() {
+        //如果开启debug模式
+        if (!hasSplash && debugButton.isChecked()) {
+            shapes.setTransformMatrix(view.batch.getTransformMatrix());
+            shapes.setProjectionMatrix(view.batch.getProjectionMatrix());
 
-	@Override
-	public void draw() {
-		//如果开启debug模式
-		if (!hasSplash && debugButton.isChecked()) {
-			shapes.setTransformMatrix(view.batch.getTransformMatrix());
-			shapes.setProjectionMatrix(view.batch.getProjectionMatrix());
-
-			for (BaseSkeletonActor value : view.modelAndViewMap.values()) {
-				value.drawDebug(skeletonRendererDebug);
-			}
+            for (BaseSkeletonActor value : view.modelAndViewMap.values()) {
+                value.drawDebug(skeletonRendererDebug);
+            }
 
 //			shapes.begin(ShapeType.Line);
 //			shapes.setColor(Color.GREEN);
@@ -312,144 +315,161 @@ public class UI extends Stage {
 //				BaseSkeletonActor view = this.view.modelAndViewMap.get(enemy);
 //				skeletonRendererDebug.draw(view.getSkeleton());
 //			}
-		}
-		//正常模式
-		this.getViewport().apply(true);
-		super.draw();
-		Batch batch = getBatch();
-		batch.setColor(Color.WHITE);
-		batch.begin();
-		Vector2 cursor = this.screenToStageCoordinates(temp.set(Gdx.input.getX(), Gdx.input.getY()));
-		TextureRegion crosshair = view.assets.crosshair;
-		batch.draw(crosshair, cursor.x - crosshair.getRegionWidth() / 2, cursor.y - crosshair.getRegionHeight() / 2 + 2);
-		batch.end();
-	}
+        }
+        //正常模式
+        this.getViewport().apply(true);
+        super.draw();
+        Batch batch = getBatch();
+        batch.setColor(Color.WHITE);
+        batch.begin();
+        Vector2 cursor = this.screenToStageCoordinates(temp.set(Gdx.input.getX(), Gdx.input.getY()));
+        TextureRegion crosshair = view.assets.crosshair;
+        batch.draw(crosshair, cursor.x - crosshair.getRegionWidth() / 2, cursor.y - crosshair.getRegionHeight() / 2 + 2);
+        batch.end();
+    }
 
-	@Override
-	public void act(float delta) {
-		render ();
-		super.act(delta);
-	}
+    @Override
+    public void act(float delta) {
+        render();
+        super.act(delta);
+    }
 
-	 void render () {
-		float delta = Gdx.graphics.getDeltaTime();
-		inputTimer -= delta;
+    void render() {
+        float delta = Gdx.graphics.getDeltaTime();
+        inputTimer -= delta;
 
-		float zoom = zoomButton.isChecked() ? GameCamera.cameraZoom : 1;
-		if (view.camera.zoom != zoom) {
-			if (view.camera.zoom < zoom)
-				view.camera.zoom = Math.min(zoom, view.camera.zoom + GameCamera.cameraZoomSpeed * delta);
-			else
-				view.camera.zoom = Math.max(zoom, view.camera.zoom - GameCamera.cameraZoomSpeed * delta);
-			view.viewport.setMinWorldWidth(GameCamera.cameraMinWidth * view.camera.zoom);
-			view.viewport.setMinWorldHeight(GameCamera.cameraHeight * view.camera.zoom);
-			view.viewport.setMaxWorldWidth(GameCamera.cameraMaxWidth * view.camera.zoom);
-			view.viewport.setMaxWorldHeight(GameCamera.cameraHeight * view.camera.zoom);
-			view.viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		}
+//		 cameraZoom = zoomButton.isChecked() ? GameCamera.cameraZoom : 1;
+        if (view.camera.zoom != cameraZoom) {
+            if (view.camera.zoom < cameraZoom)
+                view.camera.zoom = Math.min(cameraZoom, view.camera.zoom + GameCamera.cameraZoomSpeed * delta);
+            else
+                view.camera.zoom = Math.max(cameraZoom, view.camera.zoom - GameCamera.cameraZoomSpeed * delta);
+            view.viewport.setMinWorldWidth(GameCamera.cameraMinWidth * view.camera.zoom);
+            view.viewport.setMinWorldHeight(GameCamera.cameraHeight * view.camera.zoom);
+            view.viewport.setMaxWorldWidth(GameCamera.cameraMaxWidth * view.camera.zoom);
+            view.viewport.setMaxWorldHeight(GameCamera.cameraHeight * view.camera.zoom);
+            view.viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        }
 
-		if (!bgButton.isChecked()) {
-			shapes.setTransformMatrix(view.batch.getTransformMatrix());
-			shapes.setProjectionMatrix(view.batch.getProjectionMatrix());
-			shapes.setColor(gray);
-			shapes.begin(ShapeType.Filled);
-			float w = view.viewport.getWorldWidth(), h = view.viewport.getWorldHeight();
-			int x = (int)(view.camera.position.x - w / 2), y = (int)(view.camera.position.y - h / 2);
-			for (Rectangle rect : model.getMap().getCollisionTiles(x, y, x + (int)(w + 0.5f), y + (int)(h + 0.5f))) {
-				shapes.rect(rect.x, rect.y, rect.width, rect.height);
-			}
-			shapes.end();
-		}
+        if (!bgButton.isChecked()) {
+            shapes.setTransformMatrix(view.batch.getTransformMatrix());
+            shapes.setProjectionMatrix(view.batch.getProjectionMatrix());
+            shapes.setColor(gray);
+            shapes.begin(ShapeType.Filled);
+            float w = view.viewport.getWorldWidth(), h = view.viewport.getWorldHeight();
+            int x = (int) (view.camera.position.x - w / 2), y = (int) (view.camera.position.y - h / 2);
+            for (Rectangle rect : model.getMap().getCollisionTiles(x, y, x + (int) (w + 0.5f), y + (int) (h + 0.5f))) {
+                shapes.rect(rect.x, rect.y, rect.width, rect.height);
+            }
+            shapes.end();
+        }
 
-		healthBar.setValue(Player.hpStart - model.getPlayer().hp);
+        healthBar.setValue(Player.hpStart - model.getPlayer().hp);
 
-		SpriteCache spriteCache = view.mapRenderer.getSpriteCache();
-		int renderCalls = view.batch.totalRenderCalls + spriteCache.totalRenderCalls;
-		view.batch.totalRenderCalls = 0;
-		spriteCache.totalRenderCalls = 0;
-		fpsLabel.setText(Integer.toString(Gdx.graphics.getFramesPerSecond()));
-		bindsLabel.setText(Integer.toString(renderCalls));
-	}
+        SpriteCache spriteCache = view.mapRenderer.getSpriteCache();
+        int renderCalls = view.batch.totalRenderCalls + spriteCache.totalRenderCalls;
+        view.batch.totalRenderCalls = 0;
+        spriteCache.totalRenderCalls = 0;
+        fpsLabel.setText(Integer.toString(Gdx.graphics.getFramesPerSecond()));
+        bindsLabel.setText(Integer.toString(renderCalls));
+    }
 
-	public void resize (int width, int height) {
-		this.getViewport().update(width, height, true);
-	}
+    public void resize(int width, int height) {
+        this.getViewport().update(width, height, true);
+    }
 
-	public void toggleFullscreen () {
-		if (Gdx.graphics.isFullscreen())
-			Gdx.graphics.setWindowedMode(windowWidth, windowHeight);
-		else {
-			windowWidth = Gdx.graphics.getWidth();
-			windowHeight = Gdx.graphics.getHeight();
-			Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-		}
-	}
+    public void toggleFullscreen() {
+        if (Gdx.graphics.isFullscreen())
+            Gdx.graphics.setWindowedMode(windowWidth, windowHeight);
+        else {
+            windowWidth = Gdx.graphics.getWidth();
+            windowHeight = Gdx.graphics.getHeight();
+            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+        }
+    }
 
-	public void showSplash (TextureRegion splash, TextureRegion text) {
-		splashImage.setDrawable(new TextureRegionDrawable(splash));
-		splashTextImage.setDrawable(new TextureRegionDrawable(text));
-		this.addActor(splashTable);
-		splashTable.clearActions();
-		splashTable.getColor().a = 0;
-		splashTable.addAction(fadeIn(1));
-		hasSplash = true;
-	}
+    public void showSplash(TextureRegion splash, TextureRegion text) {
+        splashImage.setDrawable(new TextureRegionDrawable(splash));
+        splashTextImage.setDrawable(new TextureRegionDrawable(text));
+        this.addActor(splashTable);
+        splashTable.clearActions();
+        splashTable.getColor().a = 0;
+        splashTable.addAction(fadeIn(1));
+        hasSplash = true;
+    }
 
-	public boolean keyDown (int keycode) {
-		switch (keycode) {
-		case Keys.NUM_6:
-			speed200Button.toggle();
-			return true;
-		case Keys.NUM_5:
-			speed150Button.toggle();
-			return true;
-		case Keys.NUM_4:
-			speed100Button.toggle();
-			return true;
-		case Keys.NUM_3:
-			speed33Button.toggle();
-			return true;
-		case Keys.NUM_2:
-			speed15Button.toggle();
-			return true;
-		case Keys.NUM_1:
-			speed3Button.toggle();
-			return true;
-		case Keys.P:
-		case Keys.GRAVE:
-			pauseButton.toggle();
-			return true;
-		case Keys.B:
-			bgButton.toggle();
-			return true;
-		case Keys.Z:
-			zoomButton.toggle();
-			return true;
-		case Keys.I:
-			debugButton.toggle();
-			return true;
-		case Keys.T:
-			view.assets.dispose();
-			Texture.invalidateAllTextures(Gdx.app);
-			view.assets = new Assets();
-			return true;
-		case Keys.ESCAPE:
-			if (Gdx.graphics.isFullscreen())
-				Gdx.graphics.setWindowedMode(windowWidth, windowHeight);
-			else
-				System.exit(0);
-			return true;
-		case Keys.ENTER:
-			if (UIUtils.alt()) toggleFullscreen();
-			return true;
-		case Keys.O:
-			showSplash(view.assets.titleRegion, view.assets.startRegion);
-			return true;
-		}
-		return hasSplash;
-	}
+    public boolean keyDown(int keycode) {
+        switch (keycode) {
+            case Keys.NUM_6:
+                speed200Button.toggle();
+                return true;
+            case Keys.NUM_5:
+                speed150Button.toggle();
+                return true;
+            case Keys.NUM_4:
+                speed100Button.toggle();
+                return true;
+            case Keys.NUM_3:
+                speed33Button.toggle();
+                return true;
+            case Keys.NUM_2:
+                speed15Button.toggle();
+                return true;
+            case Keys.NUM_1:
+                speed3Button.toggle();
+                return true;
+            case Keys.P:
+            case Keys.GRAVE:
+                pauseButton.toggle();
+                return true;
+            case Keys.B:
+                bgButton.toggle();
+                return true;
+            case Keys.Z:
+                zoomButton.toggle();
+                return true;
+            case Keys.I:
+                debugButton.toggle();
+                return true;
+            case Keys.T:
+                view.assets.dispose();
+                Texture.invalidateAllTextures(Gdx.app);
+                view.assets = new Assets();
+                return true;
+            case Keys.ESCAPE:
+                if (Gdx.graphics.isFullscreen())
+                    Gdx.graphics.setWindowedMode(windowWidth, windowHeight);
+                else
+                    System.exit(0);
+                return true;
+            case Keys.ENTER:
+                if (UIUtils.alt()) toggleFullscreen();
+                return true;
+            case Keys.O:
+                showSplash(view.assets.titleRegion, view.assets.startRegion);
+                return true;
+        }
+        return hasSplash;
+    }
 
-	public boolean keyUp (int keycode) {
-		return hasSplash;
-	}
+    public boolean keyUp(int keycode) {
+        return hasSplash;
+    }
+
+    @Override
+    public boolean scrolled(float amountX, float amountY) {
+        Gdx.app.log("scrolled", "scrolled " + amountX + "," + amountY);
+
+        if (amountY == 1.0f && cameraZoom<=2) {
+            cameraZoom *= 1.1f;
+            Gdx.app.log("scrolled", "拉远视角" + cameraZoom);
+
+        } else if(amountY == -1.0f && cameraZoom>=0.4f){
+            cameraZoom *= 0.9f;
+            Gdx.app.log("scrolled", "拉近视角" + cameraZoom);
+
+        }
+
+        return super.scrolled(amountX, amountY);
+    }
 }

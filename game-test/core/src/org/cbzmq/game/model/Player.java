@@ -94,7 +94,7 @@ public class Player extends Character<Player>{
 		rect.height = height - collisionOffsetY;
 		maxVelocityX = isGrounded() ? maxVelocityGroundX : maxVelocityAirX;
 		super.update(delta);
-		Gdx.app.log("move","position"+position.x+","+position.y);
+
 	}
 
 
