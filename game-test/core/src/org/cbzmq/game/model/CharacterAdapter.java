@@ -3,7 +3,6 @@ package org.cbzmq.game.model;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
 import com.esotericsoftware.spine.Event;
-import org.cbzmq.game.stage.CharacterListener;
 
 /**
  * @ClassName CharacterAdapter
@@ -12,7 +11,12 @@ import org.cbzmq.game.stage.CharacterListener;
  * @Date 2023/7/27 4:30 下午
  * @Version 1.0
  **/
-public  class CharacterAdapter implements CharacterListener {
+public  class CharacterAdapter extends Observer<Character> {
+    @Override
+    public void update(float delta) {
+
+    }
+
     @Override
     public void born(Character character) {
         Gdx.app.log("Character",character+" born");
@@ -25,7 +29,7 @@ public  class CharacterAdapter implements CharacterListener {
     }
 
     @Override
-    public void death(Character character) {
+    public void death(Character character,Character killer) {
         Gdx.app.log("Character",character+" death");
     }
 
@@ -44,8 +48,10 @@ public  class CharacterAdapter implements CharacterListener {
 //        Gdx.app.log("Character","碰撞到了地图");
     }
 
+
+
     @Override
-    public void collisionCharacter(Character character, Character other) {
+    public void collisionObserver(Character character, Character other) {
         Gdx.app.log("Character",character+" collision character "+other);
     }
 
@@ -60,7 +66,7 @@ public  class CharacterAdapter implements CharacterListener {
     }
 
     @Override
-    public void frameEnd(Group root,float time) {
+    public  void frameEnd(Character root,float time) {
 //        Gdx.app.log("Group",root+" frame end "+time+"s"+" "+1/time+"fps");
     }
 

@@ -56,15 +56,16 @@ public class LocalModel implements Model {
     Player player;
     Map map;
     TiledMapTileLayer collisionLayer;
-    Array<CharacterListener> listeners = new Array();
-    private final EventQueue queue = new EventQueue(listeners);
+    final Array<Character> container = new Array<>();
+    final Array<Observer> listener = new Array<>();
+    private final EventQueue queue = new EventQueue(listener);
 
     float timeScale = 1;
     Array<Trigger> triggers = new Array();
 //    Array<Bullet> bullets = new Array<>();
 //    Array<Enemy> enemies = new Array();
 
-    final Array<Character> container = new Array<>();
+
 
     Group<Bullet> bulletGroup;
     Group<Enemy> enemyGroup ;
@@ -312,9 +313,15 @@ public class LocalModel implements Model {
         return map;
     }
 
-    public Array<CharacterListener> getListeners() {
-        return listeners;
+    public Array<Observer> getListeners() {
+        return listener;
     }
+
+    @Override
+    public void addListener(Observer listener) {
+        this.listener.add(listener);
+    }
+
 
     @Override
     public Array<Bullet> getBullets() {
@@ -331,9 +338,6 @@ public class LocalModel implements Model {
         return assets;
     }
 
-    public void addListener(CharacterListener listener) {
-        this.queue.listeners.add(listener);
-    }
 
     @Override
     public EventQueue queue() {

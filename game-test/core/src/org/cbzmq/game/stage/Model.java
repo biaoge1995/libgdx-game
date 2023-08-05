@@ -16,8 +16,8 @@ import org.cbzmq.game.model.Character;
 public interface Model {
     Player getPlayer();
     Map getMap();
-    Array<CharacterListener> getListeners();
-    void addListener(CharacterListener listener);
+    Array<Observer> getListeners();
+    void addListener(Observer listener);
     Array<Bullet> getBullets();
     Array<Enemy> getEnemies();
     Assets getAssets();

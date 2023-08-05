@@ -57,9 +57,9 @@ public final class UdpServer extends CharacterAdapter {
     }
 
     @Override
-    public void frameEnd(Group root, float time) {
+    public void frameEnd(Character root, float time) {
         all.clear();
-        root.flat(all);
+        ((Group)root).flat(all);
         Array<CharacterProto.Character> characterProtos = new Array<>();
         Array<Byte> bytes = new Array<>();
         for (Character character : all) {

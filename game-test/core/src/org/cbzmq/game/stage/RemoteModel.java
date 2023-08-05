@@ -10,10 +10,8 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Map;
 import org.cbzmq.game.MathUtils;
-import org.cbzmq.game.model.Bullet;
+import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
-import org.cbzmq.game.model.Enemy;
-import org.cbzmq.game.model.Player;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.proto.MsgProto;
 
@@ -43,7 +41,7 @@ public class RemoteModel implements Model {
 
     final Array<Enemy> enemies = new Array<>();
 
-    Array<CharacterListener> listeners = new Array<>();
+    Array<Character> listeners = new Array<>();
     EventQueue queue = new EventQueue(listeners);
     Assets assets;
     boolean isPlayerWin = false;
@@ -163,14 +161,18 @@ public class RemoteModel implements Model {
     }
 
     @Override
-    public Array<CharacterListener> getListeners() {
-        return listeners;
+    public Array<Observer> getListeners() {
+        return null;
     }
+
 
     @Override
-    public void addListener(CharacterListener listener) {
+    public void addListener(Observer listener) {
 
     }
+
+
+
 
     @Override
     public Array<Bullet> getBullets() {

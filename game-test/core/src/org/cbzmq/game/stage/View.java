@@ -273,7 +273,8 @@ public class View extends Stage {
             float enemyBehindDistance = 0;
             for (int i = 0; i < model.getEnemies().size; i++) {
 
-                Enemy enemy = model.getEnemies().get(i);
+                Array<Enemy> enemies = model.getEnemies();
+                Enemy enemy = enemies.get(i);
                 float dist = enemy.position.x - player.position.x;
                 if (enemy.hp > 0 && Math.signum(dist) == -player.dir) {
                     dist = Math.abs(dist);

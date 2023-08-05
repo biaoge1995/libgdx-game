@@ -4,20 +4,21 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Null;
+import com.esotericsoftware.spine.Event;
 import org.cbzmq.game.MathUtils;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.proto.CharacterIntProto;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.stage.CharacterListener;
-import org.cbzmq.game.stage.EventQueue;
+import org.cbzmq.game.model.EventQueue;
 import org.cbzmq.game.stage.Model;
 
 
 /**
  * The model class for an enemy or player that moves around the map.
  */
-public class Character<T extends Character>{
+public class Character<T extends Character> extends Observer<T>{
 
 
     public static float minVelocityX = 0.001f, maxVelocityY = 20f;
@@ -99,6 +100,56 @@ public class Character<T extends Character>{
     public Character() {
     }
 
+    @Override
+    public void born(T observer) {
+    }
+
+    @Override
+    public void hit(T Observer, T hitObserver) {
+
+    }
+
+    @Override
+    public void death(T Observer, T killer) {
+
+    }
+
+    @Override
+    public void beRemove(T Observer) {
+
+    }
+
+    @Override
+    public void dispose(T Observer) {
+
+    }
+
+    @Override
+    public void collisionMap(T Observer, Rectangle tile) {
+
+    }
+
+    @Override
+    public void collisionObserver(T Observer, T other) {
+
+    }
+
+    @Override
+    public void attack(T Observer) {
+
+    }
+
+    @Override
+    public void event(T Observer, Event event) {
+
+    }
+
+    @Override
+    public void frameEnd(T root, float time) {
+
+    }
+
+
     public Character(String name) {
         this.name = name;
 
@@ -135,7 +186,7 @@ public class Character<T extends Character>{
         if(this.state!=CharacterState.death){
             this.hp = 0;
             this.state = CharacterState.death;
-            if(queue!=null) queue.death(this);
+            if(queue!=null) queue.death(this,null);
         }
     }
 
@@ -410,7 +461,7 @@ public class Character<T extends Character>{
 
 
 
-    public void updateByCharacter(T character) {
+    public <T extends Character> void updateByCharacter(T character) {
 
         this.id = character.id;
 //        this.map = character.map;
@@ -487,6 +538,9 @@ public class Character<T extends Character>{
     public void setQueue(EventQueue queue) {
         this.queue = queue;
     }
+
+
+
 }
 
 

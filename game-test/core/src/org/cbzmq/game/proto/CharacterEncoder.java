@@ -1,7 +1,5 @@
 package org.cbzmq.game.proto;
 
-import org.cbzmq.game.MathUtils;
-import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.model.Character;
 
 /**

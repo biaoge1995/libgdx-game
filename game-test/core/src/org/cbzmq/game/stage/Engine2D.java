@@ -52,12 +52,12 @@ public class Engine2D {
     private Assets assets;
     private Map map;
     private TiledMapTileLayer collisionLayer;
-    private Array<CharacterListener> listeners = new Array();
-    private EventQueue queue = new EventQueue(listeners);
+    Array<Character> container = new Array<>();
+    private EventQueue queue = new EventQueue(container);
     private float timeScale = 1;
     //是否开启同组内不检测碰撞
     private boolean isGroupNoCollision=true;
-    Array<Character> container = new Array<>();
+
 
     //物理参数
     //重力参数
@@ -301,12 +301,12 @@ public class Engine2D {
         this.collisionLayer = collisionLayer;
     }
 
-    public Array<CharacterListener> getListeners() {
-        return listeners;
+    public Array<? extends Observer> getListeners() {
+        return container;
     }
 
-    public void addListener(CharacterListener listener) {
-        this.queue.listeners.add(listener);
+    public void addListener( Character listener) {
+        this.container.add(listener);
     }
 
     public EventQueue getQueue() {
