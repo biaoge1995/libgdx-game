@@ -1,9 +1,9 @@
-package org.cbzmq.game.test;
+package org.cbzmq.game.proto;
 
+import com.google.protobuf.ByteString;
+import org.cbzmq.game.MathUtils;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.model.Player;
-import org.cbzmq.game.proto.CharacterIntProto;
-import org.cbzmq.game.proto.CharacterProto;
 
 /**
  * @ClassName TestMain
@@ -23,13 +23,6 @@ public class TestMain {
         System.out.println(intBuild.toByteArray().length);
         System.out.println(floatbuild1.toByteArray().length);
 //        System.out.println(bytes.length);
-
-
-        TestModel chenbiao = TestModel.newBuild()
-                .setAge(11)
-                .setName("chenbiao")
-                .setId(11)
-                .build();
 
     }
 }
