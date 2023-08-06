@@ -2,6 +2,7 @@ package org.cbzmq.game.model;
 
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
+import org.cbzmq.game.proto.CharacterIntProto;
 import org.cbzmq.game.proto.CharacterProto;
 
 public class Bullet extends Character<Bullet> {
@@ -64,6 +65,18 @@ public class Bullet extends Character<Bullet> {
         return bullet;
     }
 
+    public static Bullet parserProto(CharacterIntProto.Character proto) {
+        Bullet bullet = new Bullet(
+                null
+                , proto.getPosition().getX()
+                , proto.getPosition().getY()
+                , proto.getVelocity().getX()
+                , proto.getVelocity().getY());
+        Character father = Character.parserProto(proto);
+        Character.copyToSon(father, bullet);
+        return bullet;
+    }
+
     public static Bullet parseFromBytes(byte[] bytes) throws Exception {
         Character father = Character.parseFromBytes(bytes);
         Bullet bullet = new Bullet(
@@ -79,6 +92,12 @@ public class Bullet extends Character<Bullet> {
 
     public  CharacterProto.Character.Builder toCharacterProto() {
         CharacterProto.Character.Builder builder = super.toCharacterProto();
+        return builder.setType(CharacterType.bullet);
+
+    }
+
+    public CharacterIntProto.Character.Builder toCharacterIntProto() {
+        CharacterIntProto.Character.Builder builder = super.toCharacterIntProto();
         return builder.setType(CharacterType.bullet);
 
     }

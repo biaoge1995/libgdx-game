@@ -9,6 +9,7 @@ import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.enums.EnemyType;
 import org.cbzmq.game.proto.ByteArray;
+import org.cbzmq.game.proto.CharacterIntProto;
 import org.cbzmq.game.proto.CharacterProto;
 
 
@@ -253,6 +254,16 @@ public class Enemy extends Character<Enemy> {
         return enemy;
     }
 
+    public static Enemy parserProto(CharacterIntProto.Character proto) {
+        Enemy enemy = new Enemy(proto.getEnemyType());
+        Character father = Character.parserProto(proto);
+        Character.copyToSon(father, enemy);
+        enemy.deathTimer = proto.getDeathTimer()/100f;
+        enemy.size = proto.getSize()/100f;
+        enemy.bigTimer = proto.getBigTimer()/100f;
+        return enemy;
+    }
+
     public static Enemy parseFromBytes(byte[] bytes) throws Exception {
         Character father = Character.parseFromBytes(bytes);
         Enemy enemy = new Enemy( EnemyType.valueOf(bytes[27]));
@@ -265,6 +276,25 @@ public class Enemy extends Character<Enemy> {
         return enemy;
     }
 
+
+    public  CharacterIntProto.Character.Builder toCharacterIntProto() {
+        CharacterIntProto.Character.Builder builder = super.toCharacterIntProto();
+
+        return builder.setType(CharacterType.enemy)
+                .setDeathTimer((int)(this.deathTimer*100f))
+//				.setMaxVelocityGroundX(enemy.maxVelocityGroundX)
+//				.setJumpDelayTimer(enemy.jumpDelayTimer)
+                .setEnemyType(this.enemyType)
+                .setSize((int)(this.size*100f))
+                .setBigTimer((int)(this.bigTimer*100f))
+//				.setSpawnSmallsTimer(enemy.spawnSmallsTimer)
+//				.setMove(enemy.move)
+//				.setForceJump(enemy.forceJump)
+//				.setCollisions(enemy.collisions)
+//				.setKnockbackX(enemy.knockbackX)
+//				.setKnockbackY(enemy.knockbackY)
+                ;
+    }
 
 
     public  CharacterProto.Character.Builder toCharacterProto() {

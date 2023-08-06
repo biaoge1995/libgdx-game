@@ -93,7 +93,7 @@ public class RemoteModel implements Model {
         isStartSynced = false;
         existsId.clear();
 
-        for (CharacterIntProto.Character proto : msgProto.getCharacterDataList()) {
+        for (CharacterProto.Character proto : msgProto.getCharacterDataList()) {
             existsId.add(proto.getId());
             Character character = null;
 
