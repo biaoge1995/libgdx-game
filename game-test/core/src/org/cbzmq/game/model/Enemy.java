@@ -8,6 +8,7 @@ import org.cbzmq.game.Constants;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.enums.EnemyType;
+import org.cbzmq.game.proto.ByteArray;
 import org.cbzmq.game.proto.CharacterProto;
 
 
@@ -252,14 +253,14 @@ public class Enemy extends Character<Enemy> {
         return enemy;
     }
 
-    public static Enemy parseFromBytes(byte[] bytes) {
+    public static Enemy parseFromBytes(byte[] bytes) throws Exception {
         Character father = Character.parseFromBytes(bytes);
         Enemy enemy = new Enemy( EnemyType.valueOf(bytes[27]));
         Character.copyToSon(father, enemy);
         byte[] deathTimer = {bytes[23],bytes[24]};
-        enemy.deathTimer =  org.cbzmq.game.MathUtils.byteArrayToInt(deathTimer)/100f;
+        enemy.deathTimer =  org.cbzmq.game.MathUtils.byteArrayToShort(deathTimer)/100f;
         byte[] bigTimer = {bytes[25],bytes[26]};
-        enemy.bigTimer = org.cbzmq.game.MathUtils.byteArrayToInt(bigTimer)/100f;
+        enemy.bigTimer = org.cbzmq.game.MathUtils.byteArrayToShort(bigTimer)/100f;
         enemy.size = bytes[28]/100f;
         return enemy;
     }
@@ -285,19 +286,25 @@ public class Enemy extends Character<Enemy> {
                 ;
     }
 
-    public Array<Byte> toCharacterBytes() {
-        Array<Byte> bytes = super.toCharacterBytes();
+    //29
+    public ByteArray toCharacterBytes() {
+        ByteArray byteArray = super.toCharacterBytes();
 
-        byte[] deathTimer = org.cbzmq.game.MathUtils.shortToByteArray((short) (this.deathTimer*100));
-        byte[] bigTimer = org.cbzmq.game.MathUtils.shortToByteArray((short) (this.bigTimer*100));
-        byte enemyType = (byte) this.enemyType.getNumber();
-        byte size = (byte) (this.size*100);
-        bytes.add(deathTimer[0],deathTimer[1]);
-        bytes.add(bigTimer[0],bigTimer[1]);
-        bytes.add(enemyType);
-        bytes.add(size);
+        byteArray.addShort((short) (this.deathTimer*100));
+        byteArray.addShort((short) (this.bigTimer*100));
+        byteArray.addByte((byte) this.enemyType.getNumber());
+        byteArray.addByte((byte) (this.size*100));
 
-        return bytes;
+//        byte[] deathTimer = org.cbzmq.game.MathUtils.shortToByteArray((short) (this.deathTimer*100));
+//        byte[] bigTimer = org.cbzmq.game.MathUtils.shortToByteArray((short) (this.bigTimer*100));
+//        byte enemyType = (byte) this.enemyType.getNumber();
+//        byte size = (byte) (this.size*100);
+//        bytes.add(deathTimer[0],deathTimer[1]);
+//        bytes.add(bigTimer[0],bigTimer[1]);
+//        bytes.add(enemyType);
+//        bytes.add(size);
+
+        return byteArray;
 
     }
 

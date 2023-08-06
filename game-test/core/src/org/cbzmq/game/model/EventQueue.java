@@ -166,7 +166,7 @@ public class EventQueue {
                     float delta = (float) objectAndEvent.objects.get(1);
 //                    if (character.listener != null) character.listener.frameEnd((Group) obj,delta);
                     for (int ii = 0; ii < listeners.size; ii++)
-//                        listeners.get(ii).frameEnd((Group)obj,delta);
+                        listeners.get(ii).frameEnd((Group)obj,delta);
                     break;
             }
         }

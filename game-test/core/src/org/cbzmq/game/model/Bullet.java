@@ -64,7 +64,7 @@ public class Bullet extends Character<Bullet> {
         return bullet;
     }
 
-    public static Bullet parseFromBytes(byte[] bytes) {
+    public static Bullet parseFromBytes(byte[] bytes) throws Exception {
         Character father = Character.parseFromBytes(bytes);
         Bullet bullet = new Bullet(
                 null

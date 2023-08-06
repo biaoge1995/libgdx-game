@@ -8,6 +8,7 @@ import com.esotericsoftware.spine.Event;
 import org.cbzmq.game.MathUtils;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
+import org.cbzmq.game.proto.ByteArray;
 import org.cbzmq.game.proto.CharacterIntProto;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.stage.CharacterListener;
@@ -18,7 +19,7 @@ import org.cbzmq.game.stage.Model;
 /**
  * The model class for an enemy or player that moves around the map.
  */
-public class Character<T extends Character> extends Observer<T>{
+public class Character<T extends Character> extends Observer<T> {
 
 
     public static float minVelocityX = 0.001f, maxVelocityY = 20f;
@@ -28,12 +29,14 @@ public class Character<T extends Character> extends Observer<T>{
     public static float dampingGroundX = 36, dampingAirX = 15, collideDampingX = 0.7f;
     //地板上的 控制的x奔跑速度
     public static float runGroundX = 80, runAirSame = 45, runAirOpposite = 45;
+
+    private static Array<ByteArray.Type> types;
 //    //游戏主逻辑引用
 //    public Map map;
 
-    public CharacterType characterType=CharacterType.unknown;
+    public CharacterType characterType = CharacterType.unknown;
     //事件
-    public CharacterListener listener ;
+    public CharacterListener listener;
 //            = new CharacterAdapter();
 
     @Null
@@ -92,9 +95,9 @@ public class Character<T extends Character> extends Observer<T>{
     public Array<Character> childs = new Array<>();
 
     //是否可以被碰撞
-    public boolean isCanBeCollision=true;
+    public boolean isCanBeCollision = true;
 
-    public float resilience=0.8f;
+    public float resilience = 0.8f;
 
 
     public Character() {
@@ -156,37 +159,35 @@ public class Character<T extends Character> extends Observer<T>{
     }
 
 
-
     public void update(float delta) {
 
-        if(hp<=0){
+        if (hp <= 0) {
             beDeath();
         }
 
     }
 
     //是否可以被从parent中清除掉
-    public boolean isCanBeRemove(){
-        if(state==CharacterState.death){
+    public boolean isCanBeRemove() {
+        if (state == CharacterState.death) {
             return true;
         }
         return false;
     }
 
-    public boolean remove(){
-        if(parent!=null){
-            return parent.removeCharacter(this,true);
+    public boolean remove() {
+        if (parent != null) {
+            return parent.removeCharacter(this, true);
         }
         return false;
     }
 
 
-
-    public void beDeath(){
-        if(this.state!=CharacterState.death){
+    public void beDeath() {
+        if (this.state != CharacterState.death) {
             this.hp = 0;
             this.state = CharacterState.death;
-            if(queue!=null) queue.death(this,null);
+            if (queue != null) queue.death(this, null);
         }
     }
 
@@ -207,7 +208,7 @@ public class Character<T extends Character> extends Observer<T>{
         airTime = grounded ? 0 : groundedTime;
     }
 
-    public void beCollide(){
+    public void beCollide() {
     }
 
     public void collideMapX() {
@@ -250,76 +251,70 @@ public class Character<T extends Character> extends Observer<T>{
     }
 
 
+    public static Character parseFromBytes(byte[] bytes) throws Exception {
 
-    public static Character parseFromBytes(byte[] bytes){
+        Array<Byte> bytes1 = new Array<>();
+        for (byte aByte : bytes) {
+            bytes1.add(aByte);
+        }
+        ByteArray byteArray = new ByteArray(bytes1, types);
         Character character = new Character("unknown");
-        character.characterType = CharacterType.valueOf(bytes[0]);
-        character.state = CharacterState.valueOf(bytes[1]);
-        character.dir = bytes[2];
-        character.hp = bytes[3];
-        byte[] id = {bytes[4],bytes[5]};
-        character.id = MathUtils.byteArrayToInt(id);
-        byte[] x = {bytes[6],bytes[7]};
-        character.position.x = MathUtils.byteArrayToInt(x);
-        byte[] y = {bytes[8],bytes[9]};
-        character.position.y = MathUtils.byteArrayToInt(y);
-        byte[] collisionTimer = {bytes[10],bytes[11]};
-        character.collisionTimer= MathUtils.byteArrayToInt(collisionTimer);
-        byte[] vx = {bytes[12],bytes[13]};
-        character.velocity.x = MathUtils.byteArrayToInt(vx);
-        byte[] vy = {bytes[14],bytes[15]};
-        character.velocity.y = MathUtils.byteArrayToInt(vy);
-        byte[] rx = {bytes[16],bytes[17]};
-        character.rect.x = MathUtils.byteArrayToInt(rx);
-        byte[] ry = {bytes[18],bytes[19]};
-        character.rect.y = MathUtils.byteArrayToInt(ry);
-        character.rect.width = bytes[20];
-        character.rect.height = bytes[21];
-        character.stateChanged = bytes[22] == 1;
-
+        character.characterType = CharacterType.valueOf(byteArray.popByte());
+        character.state = CharacterState.valueOf(byteArray.popByte());
+        character.dir = byteArray.popByte();
+        character.hp = byteArray.popByte();
+        character.id = byteArray.popShort();
+        character.position.set(byteArray.popShort(),byteArray.popShort());
+        character.collisionTimer = byteArray.popShort()/100f;
+        character.velocity.set(byteArray.popShort(),byteArray.popShort());
+        character.rect.set(byteArray.popShort(),byteArray.popShort(),byteArray.popByte(),byteArray.popByte());
+        character.stateChanged = byteArray.popBoolean();
         return character;
     }
 
-    public Array<Byte> toCharacterBytes() {
-        Array<Byte> bytes= new Array<>();
-        byte type = (byte) this.characterType.getNumber();
-        byte state = (byte) this.state.getNumber();
-        byte dir = (byte) this.dir;
-        byte hp = (byte) this.hp;
-        byte[] id = MathUtils.shortToByteArray((short) this.getId());
-        byte[] x = MathUtils.shortToByteArray((short) this.position.x);
-        byte[] y = MathUtils.shortToByteArray((short) this.position.y);
-        byte[] vx = MathUtils.shortToByteArray((short) this.velocity.x);
-        byte[] vy = MathUtils.shortToByteArray((short) this.velocity.y);
+    static {
+        types = Array.with(ByteArray.Type.BYTE,
+                ByteArray.Type.BYTE,
+                ByteArray.Type.BYTE,
+                ByteArray.Type.BYTE,
+                ByteArray.Type.SHORT,
+                ByteArray.Type.SHORT,
+                ByteArray.Type.SHORT,
+                ByteArray.Type.SHORT,
+                ByteArray.Type.SHORT,
+                ByteArray.Type.SHORT,
+                ByteArray.Type.SHORT,
+                ByteArray.Type.SHORT,
+                ByteArray.Type.BYTE,
+                ByteArray.Type.BYTE,
+                ByteArray.Type.BOOLEAN
+        );
+    }
 
-        //TODO 这8个字节可以省
-        byte[] rx = MathUtils.shortToByteArray((short) this.rect.x);
-        byte[] ry = MathUtils.shortToByteArray((short) this.rect.y);
-        byte[] collisionTimer = MathUtils.shortToByteArray((short) (this.collisionTimer*100));
-        byte width = (byte) this.rect.width;
-        byte height = (byte) this.rect.height;
-        byte stateChanged = (byte) (this.stateChanged?1:0);
-        bytes.add(type);
-        bytes.add(state);
-        bytes.add(dir);
-        bytes.add(hp);
-        bytes.add(id[0]); bytes.add(id[1]);
-        bytes.add(x[0]);  bytes.add(x[1]);
-        bytes.add(y[0]);  bytes.add(y[1]);
-        bytes.add(collisionTimer[0]);bytes.add(collisionTimer[1]);
-        bytes.add(vx[0]);bytes.add(vx[1]);
-        bytes.add(vy[0]);bytes.add(vy[1]);
-        bytes.add(rx[0]);bytes.add(rx[1]);
-        bytes.add(ry[0]);bytes.add(ry[1]);
-        bytes.add(width);
-        bytes.add(height);
-        bytes.add(stateChanged);
-        return bytes;
+    //23个字节
+    public ByteArray toCharacterBytes() {
+        ByteArray byteArray = new ByteArray();
+        byteArray.addByte((byte) this.characterType.getNumber());
+        byteArray.addByte((byte) this.state.getNumber());
+        byteArray.addByte((byte) this.dir);
+        byteArray.addByte((byte) this.hp);
+        byteArray.addShort((short) this.getId());
+        byteArray.addShort((short) this.position.x);
+        byteArray.addShort((short) this.position.y);
+        byteArray.addShort((short) (this.collisionTimer * 100));
+        byteArray.addShort((short) this.velocity.x);
+        byteArray.addShort((short) this.velocity.y);
+        byteArray.addShort((short) this.rect.x);
+        byteArray.addShort((short) this.rect.y);
+        byteArray.addByte((byte) this.rect.width);
+        byteArray.addByte((byte) this.rect.height);
+        byteArray.addBool(this.stateChanged);
+        return byteArray;
 
     }
 
 
-    public static <T extends Character> void copyToSon(Character father,T son){
+    public static <T extends Character> void copyToSon(Character father, T son) {
         son.id = father.id;
 //        son.map = father.map;
         son.listener = father.listener;
@@ -345,7 +340,7 @@ public class Character<T extends Character> extends Observer<T>{
         son.parent = father.parent;
     }
 
-    public static  Character parserProto(CharacterProto.Character proto) {
+    public static Character parserProto(CharacterProto.Character proto) {
         Character character = new Character("unknown");
         character.setId(proto.getId());
         character.position.set(proto.getPosition().getX(), proto.getPosition().getY());
@@ -360,26 +355,26 @@ public class Character<T extends Character> extends Observer<T>{
 
     }
 
-    public static  Character parserProto(CharacterIntProto.Character proto) {
+    public static Character parserProto(CharacterIntProto.Character proto) {
         Character character = new Character("unknown");
         character.setId(proto.getId());
-        character.position.set(proto.getPosition().getX()/100f, proto.getPosition().getY()/100f);
-        character.velocity.set(proto.getVelocity().getX()/100f, proto.getVelocity().getY()/100f);
+        character.position.set(proto.getPosition().getX() / 100f, proto.getPosition().getY() / 100f);
+        character.velocity.set(proto.getVelocity().getX() / 100f, proto.getVelocity().getY() / 100f);
         character.state = proto.getState();
         character.dir = proto.getDir();
-        character.rect.set(proto.getRect().getX()/100f
-                , proto.getRect().getY()/100f
-                , proto.getRect().getWidth()/100f
-                , proto.getRect().getHeight()/100f);
+        character.rect.set(proto.getRect().getX() / 100f
+                , proto.getRect().getY() / 100f
+                , proto.getRect().getWidth() / 100f
+                , proto.getRect().getHeight() / 100f);
         character.stateChanged = proto.getStateChanged();
-        character.hp = proto.getHp()/100f;
-        character.collisionTimer = proto.getCollisionTimer()/100f;
+        character.hp = proto.getHp() / 100f;
+        character.collisionTimer = proto.getCollisionTimer() / 100f;
         return character;
 
     }
 
 
-    public  CharacterProto.Character.Builder toCharacterProto() {
+    public CharacterProto.Character.Builder toCharacterProto() {
         CharacterProto.Character.Builder builder = CharacterProto.Character.newBuilder();
         CharacterProto.Vector2.Builder positionProto = CharacterProto.Vector2.newBuilder();
         CharacterProto.Vector2.Builder velocityProto = CharacterProto.Vector2.newBuilder();
@@ -419,8 +414,7 @@ public class Character<T extends Character> extends Observer<T>{
     }
 
 
-
-    public  CharacterIntProto.Character.Builder toCharacterIntProto() {
+    public CharacterIntProto.Character.Builder toCharacterIntProto() {
         CharacterIntProto.Character.Builder builder = CharacterIntProto.Character.newBuilder();
         CharacterIntProto.Vector2.Builder positionProto = CharacterIntProto.Vector2.newBuilder();
         CharacterIntProto.Vector2.Builder velocityProto = CharacterIntProto.Vector2.newBuilder();
@@ -429,36 +423,35 @@ public class Character<T extends Character> extends Observer<T>{
         builder.setType(CharacterType.unknown)
                 .setId(this.getId())
                 .setPosition(positionProto
-                        .setX((int)this.position.x*100)
-                        .setY((int)this.position.y*100)
+                        .setX((int) this.position.x * 100)
+                        .setY((int) this.position.y * 100)
                         .build())
                 .setVelocity(velocityProto
-                        .setX((int)this.velocity.x*100)
-                        .setY((int)this.velocity.y*100)
+                        .setX((int) this.velocity.x * 100)
+                        .setY((int) this.velocity.y * 100)
                         .build())
                 .setState(this.state)
 //                .setStateTime(character.stateTime)
-                .setDir((int)this.dir)
+                .setDir((int) this.dir)
 //                .setAirTime(character.airTime)
                 .setRect(rectProto
-                        .setX((int)this.rect.x*100)
-                        .setY((int)this.rect.y*100)
-                        .setWidth((int)this.rect.width*100)
-                        .setHeight((int)this.rect.height*100))
+                        .setX((int) this.rect.x * 100)
+                        .setY((int) this.rect.y * 100)
+                        .setWidth((int) this.rect.width * 100)
+                        .setHeight((int) this.rect.height * 100))
                 .setStateChanged(this.stateChanged)
-                .setHp((int)this.hp*100)
+                .setHp((int) this.hp * 100)
 //                .setMaxVelocityX(character.maxVelocityX)
 //                .setCollisionOffsetY(character.collisionOffsetY)
 //                .setJumpVelocity(character.jumpVelocity)
 //                .setDamage(character.damage)
-                .setCollisionTimer((int)this.collisionTimer*100);
+                .setCollisionTimer((int) this.collisionTimer * 100);
 //                .setTargetPosition(tartgetPositionProto
 //                        .setX(character.targetPosition.x)
 //                        .setY(character.targetPosition.y)
 //                        .build());
         return builder;
     }
-
 
 
     public <T extends Character> void updateByCharacter(T character) {
@@ -528,7 +521,7 @@ public class Character<T extends Character> extends Observer<T>{
 
     @Override
     public String toString() {
-        return name+getId();
+        return name + getId();
     }
 
     public EventQueue getQueue() {
@@ -538,7 +531,6 @@ public class Character<T extends Character> extends Observer<T>{
     public void setQueue(EventQueue queue) {
         this.queue = queue;
     }
-
 
 
 }

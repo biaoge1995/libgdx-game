@@ -13,6 +13,7 @@ import org.cbzmq.game.MathUtils;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.proto.CharacterProto;
+import org.cbzmq.game.proto.MsgByte;
 import org.cbzmq.game.proto.MsgProto;
 
 import java.util.HashMap;
@@ -86,33 +87,20 @@ public class RemoteModel implements Model {
         isStartSynced = startSynced;
     }
 
-    public void sync(MsgProto.Msg msgProto) {
+    public void sync(MsgByte msgProto) {
 
         isStartSynced = false;
         existsId.clear();
 
-        for (CharacterProto.Character proto : msgProto.getCharacterDataList()) {
-            existsId.add(proto.getId());
-
-            Character character = null;
+        for (Character character : msgProto.getCharacters()) {
+            existsId.add(character.getId());
 
 
-            switch (proto.getType()) {
-                case player:
-                    character = Player.parserProto(proto);
-                    break;
-                case bullet:
-                    character = Bullet.parserProto(proto);
-//                    getBullets().add(bullet);
-                    break;
-                case enemy:
-                    character = Enemy.parserProto(proto);
-//                    getEnemies().add(enemy);
-                    break;
-            }
-            int index = proto.getId() - 1;
+
+
+            int index = character.getId() - 1;
             if (character != null && !characterMap.containsKey(character.getId())) {
-                characterMap.put(proto.getId(), character);
+                characterMap.put(character.getId(), character);
                 orderCharacterList.add(character);
             } else if (character != null) {
                 characterMap.get(character.getId()).updateByCharacter(character);
@@ -249,17 +237,12 @@ class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         byte[] decompress = MathUtils.decompress(bytes);
 
         System.out.println("msg byte length :" + bytes.length + "byte");
-        MsgProto.Msg msgProto = MsgProto.Msg.parseFrom(decompress);
+//        MsgProto.Msg msgProto = MsgProto.Msg.parseFrom(decompress);
+        MsgByte msgByte = MsgByte.parseFromBytes(decompress);
 
 
-        model.sync(msgProto);
-        if (msgProto.getCharacterDataList().size() > 21) {
+        model.sync(msgByte);
 
-//            System.err.println("客户端接收到消息: \nheader:" + msgProto.getHeader() + "\n" + msgProto.getCharacterDataList().toString());
-            System.out.println("element num ：" + msgProto.getCharacterDataList().size());
-
-
-        }
 
 
     }

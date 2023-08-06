@@ -1,5 +1,6 @@
 package org.cbzmq.game.proto;
 
+import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.MathUtils;
 
 import java.util.ArrayList;
@@ -13,8 +14,8 @@ import java.util.List;
  * @Version 1.0
  **/
 public class ByteArray {
-    List<Byte> bytes;
-    List<Type> types;
+    Array<Byte> bytes;
+    Array<Type> types;
 
     private int typeIndex =0;
 
@@ -22,12 +23,16 @@ public class ByteArray {
 
     private Type currentType;
 
-    public ByteArray(List<Byte> bytes, List<Type> types) {
+    public ByteArray(Array<Byte> bytes, Array<Type> types) {
         this.bytes = bytes;
         this.types = types;
     }
+    public ByteArray() {
+        bytes = new Array<>();
+        types = new Array<>();
+    }
 
-    enum Type{
+    public enum Type{
 
         SHORT(2),BOOLEAN(1),INT(4),BYTE(1);
         private final int length;
@@ -41,10 +46,7 @@ public class ByteArray {
         }
     }
 
-    public ByteArray() {
-        bytes = new ArrayList<>();
-        types = new ArrayList<>();
-    }
+
     public void addShort(short num){
         byte[] numBytes = MathUtils.shortToByteArray(num);
         bytes.add(numBytes[0]);
@@ -69,7 +71,7 @@ public class ByteArray {
     }
 
     synchronized private byte[] pop(){
-        if(typeIndex<types.size() && byteIndex<bytes.size()){
+        if(typeIndex<types.size && byteIndex<bytes.size){
             currentType = types.get(typeIndex);
 
             byte[] tmp = new byte[currentType.getLength()];
@@ -98,12 +100,12 @@ public class ByteArray {
     }
 
     public void checkType(Type type) throws Exception {
-        if(typeIndex<types.size()){
+        if(typeIndex<types.size){
             if(types.get(typeIndex)!=type){
                 throw new Exception("存入的源数据非"+type+",而是"+types.get(typeIndex));
             }
         }else {
-            throw new Exception("数据已经清空完毕"+types.size());
+            throw new Exception("数据已经清空完毕"+types.size);
         }
 
     }
@@ -128,6 +130,9 @@ public class ByteArray {
         return currentType;
     }
 
+    public Array<Byte> getBytes() {
+        return bytes;
+    }
 
     public static void main(String[] args) throws Exception {
         ByteArray byteArray = new ByteArray();

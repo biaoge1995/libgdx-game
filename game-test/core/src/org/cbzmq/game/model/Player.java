@@ -37,6 +37,7 @@ import org.cbzmq.game.Constants;
 import org.cbzmq.game.MathUtils;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
+import org.cbzmq.game.proto.ByteArray;
 import org.cbzmq.game.proto.CharacterProto;
 
 
@@ -125,11 +126,11 @@ public class Player extends Character<Player>{
 		return player;
 	}
 
-	public static Player parseFromBytes(byte[] bytes) {
+	public static Player parseFromBytes(byte[] bytes) throws Exception {
 		Character father = Character.parseFromBytes(bytes);
 		Player player = new Player();
 		byte[] shoot = {bytes[23],bytes[24]};
-		player.shootTimer = MathUtils.byteArrayToInt(shoot)/100f;
+		player.shootTimer = MathUtils.byteArrayToShort(shoot)/100f;
 		Character.copyToSon(father, player);
 		return player;
 	}
@@ -144,11 +145,11 @@ public class Player extends Character<Player>{
 				;
 	}
 
-	public Array<Byte> toCharacterBytes() {
-		Array<Byte> bytes = super.toCharacterBytes();
-		byte[] shootTimer = org.cbzmq.game.MathUtils.shortToByteArray((short) (this.shootTimer*100));
-		bytes.add(shootTimer[0],shootTimer[1]);
-		return bytes;
+	//25
+	public ByteArray toCharacterBytes() {
+		ByteArray byteArray = super.toCharacterBytes();
+		byteArray.addShort((short) (this.shootTimer*100));
+		return byteArray;
 	}
 
 
