@@ -53,12 +53,12 @@ public final class MsgProto {
     /**
      * <code>repeated .Character characterData = 4;</code>
      */
-    java.util.List<org.cbzmq.game.proto.CharacterProto.Character>
+    java.util.List<org.cbzmq.game.proto.CharacterIntProto.Character> 
         getCharacterDataList();
     /**
      * <code>repeated .Character characterData = 4;</code>
      */
-    org.cbzmq.game.proto.CharacterProto.Character getCharacterData(int index);
+    org.cbzmq.game.proto.CharacterIntProto.Character getCharacterData(int index);
     /**
      * <code>repeated .Character characterData = 4;</code>
      */
@@ -66,12 +66,12 @@ public final class MsgProto {
     /**
      * <code>repeated .Character characterData = 4;</code>
      */
-    java.util.List<? extends org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder>
+    java.util.List<? extends org.cbzmq.game.proto.CharacterIntProto.CharacterOrBuilder> 
         getCharacterDataOrBuilderList();
     /**
      * <code>repeated .Character characterData = 4;</code>
      */
-    org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder getCharacterDataOrBuilder(
+    org.cbzmq.game.proto.CharacterIntProto.CharacterOrBuilder getCharacterDataOrBuilder(
         int index);
 
     // optional .GameAction gameAction = 5;
@@ -164,10 +164,10 @@ public final class MsgProto {
             }
             case 34: {
               if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-                characterData_ = new java.util.ArrayList<org.cbzmq.game.proto.CharacterProto.Character>();
+                characterData_ = new java.util.ArrayList<org.cbzmq.game.proto.CharacterIntProto.Character>();
                 mutable_bitField0_ |= 0x00000008;
               }
-              characterData_.add(input.readMessage(org.cbzmq.game.proto.CharacterProto.Character.PARSER, extensionRegistry));
+              characterData_.add(input.readMessage(org.cbzmq.game.proto.CharacterIntProto.Character.PARSER, extensionRegistry));
               break;
             }
             case 40: {
@@ -282,17 +282,17 @@ public final class MsgProto {
 
     // repeated .Character characterData = 4;
     public static final int CHARACTERDATA_FIELD_NUMBER = 4;
-    private java.util.List<org.cbzmq.game.proto.CharacterProto.Character> characterData_;
+    private java.util.List<org.cbzmq.game.proto.CharacterIntProto.Character> characterData_;
     /**
      * <code>repeated .Character characterData = 4;</code>
      */
-    public java.util.List<org.cbzmq.game.proto.CharacterProto.Character> getCharacterDataList() {
+    public java.util.List<org.cbzmq.game.proto.CharacterIntProto.Character> getCharacterDataList() {
       return characterData_;
     }
     /**
      * <code>repeated .Character characterData = 4;</code>
      */
-    public java.util.List<? extends org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder>
+    public java.util.List<? extends org.cbzmq.game.proto.CharacterIntProto.CharacterOrBuilder> 
         getCharacterDataOrBuilderList() {
       return characterData_;
     }
@@ -305,13 +305,13 @@ public final class MsgProto {
     /**
      * <code>repeated .Character characterData = 4;</code>
      */
-    public org.cbzmq.game.proto.CharacterProto.Character getCharacterData(int index) {
+    public org.cbzmq.game.proto.CharacterIntProto.Character getCharacterData(int index) {
       return characterData_.get(index);
     }
     /**
      * <code>repeated .Character characterData = 4;</code>
      */
-    public org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder getCharacterDataOrBuilder(
+    public org.cbzmq.game.proto.CharacterIntProto.CharacterOrBuilder getCharacterDataOrBuilder(
         int index) {
       return characterData_.get(index);
     }
@@ -810,22 +810,22 @@ public final class MsgProto {
       }
 
       // repeated .Character characterData = 4;
-      private java.util.List<org.cbzmq.game.proto.CharacterProto.Character> characterData_ =
+      private java.util.List<org.cbzmq.game.proto.CharacterIntProto.Character> characterData_ =
         java.util.Collections.emptyList();
       private void ensureCharacterDataIsMutable() {
         if (!((bitField0_ & 0x00000008) == 0x00000008)) {
-          characterData_ = new java.util.ArrayList<org.cbzmq.game.proto.CharacterProto.Character>(characterData_);
+          characterData_ = new java.util.ArrayList<org.cbzmq.game.proto.CharacterIntProto.Character>(characterData_);
           bitField0_ |= 0x00000008;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          org.cbzmq.game.proto.CharacterProto.Character, org.cbzmq.game.proto.CharacterProto.Character.Builder, org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder> characterDataBuilder_;
+          org.cbzmq.game.proto.CharacterIntProto.Character, org.cbzmq.game.proto.CharacterIntProto.Character.Builder, org.cbzmq.game.proto.CharacterIntProto.CharacterOrBuilder> characterDataBuilder_;
 
       /**
        * <code>repeated .Character characterData = 4;</code>
        */
-      public java.util.List<org.cbzmq.game.proto.CharacterProto.Character> getCharacterDataList() {
+      public java.util.List<org.cbzmq.game.proto.CharacterIntProto.Character> getCharacterDataList() {
         if (characterDataBuilder_ == null) {
           return java.util.Collections.unmodifiableList(characterData_);
         } else {
@@ -845,7 +845,7 @@ public final class MsgProto {
       /**
        * <code>repeated .Character characterData = 4;</code>
        */
-      public org.cbzmq.game.proto.CharacterProto.Character getCharacterData(int index) {
+      public org.cbzmq.game.proto.CharacterIntProto.Character getCharacterData(int index) {
         if (characterDataBuilder_ == null) {
           return characterData_.get(index);
         } else {
@@ -856,7 +856,7 @@ public final class MsgProto {
        * <code>repeated .Character characterData = 4;</code>
        */
       public Builder setCharacterData(
-          int index, org.cbzmq.game.proto.CharacterProto.Character value) {
+          int index, org.cbzmq.game.proto.CharacterIntProto.Character value) {
         if (characterDataBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -873,7 +873,7 @@ public final class MsgProto {
        * <code>repeated .Character characterData = 4;</code>
        */
       public Builder setCharacterData(
-          int index, org.cbzmq.game.proto.CharacterProto.Character.Builder builderForValue) {
+          int index, org.cbzmq.game.proto.CharacterIntProto.Character.Builder builderForValue) {
         if (characterDataBuilder_ == null) {
           ensureCharacterDataIsMutable();
           characterData_.set(index, builderForValue.build());
@@ -886,7 +886,7 @@ public final class MsgProto {
       /**
        * <code>repeated .Character characterData = 4;</code>
        */
-      public Builder addCharacterData(org.cbzmq.game.proto.CharacterProto.Character value) {
+      public Builder addCharacterData(org.cbzmq.game.proto.CharacterIntProto.Character value) {
         if (characterDataBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -903,7 +903,7 @@ public final class MsgProto {
        * <code>repeated .Character characterData = 4;</code>
        */
       public Builder addCharacterData(
-          int index, org.cbzmq.game.proto.CharacterProto.Character value) {
+          int index, org.cbzmq.game.proto.CharacterIntProto.Character value) {
         if (characterDataBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -920,7 +920,7 @@ public final class MsgProto {
        * <code>repeated .Character characterData = 4;</code>
        */
       public Builder addCharacterData(
-          org.cbzmq.game.proto.CharacterProto.Character.Builder builderForValue) {
+          org.cbzmq.game.proto.CharacterIntProto.Character.Builder builderForValue) {
         if (characterDataBuilder_ == null) {
           ensureCharacterDataIsMutable();
           characterData_.add(builderForValue.build());
@@ -934,7 +934,7 @@ public final class MsgProto {
        * <code>repeated .Character characterData = 4;</code>
        */
       public Builder addCharacterData(
-          int index, org.cbzmq.game.proto.CharacterProto.Character.Builder builderForValue) {
+          int index, org.cbzmq.game.proto.CharacterIntProto.Character.Builder builderForValue) {
         if (characterDataBuilder_ == null) {
           ensureCharacterDataIsMutable();
           characterData_.add(index, builderForValue.build());
@@ -948,7 +948,7 @@ public final class MsgProto {
        * <code>repeated .Character characterData = 4;</code>
        */
       public Builder addAllCharacterData(
-          java.lang.Iterable<? extends org.cbzmq.game.proto.CharacterProto.Character> values) {
+          java.lang.Iterable<? extends org.cbzmq.game.proto.CharacterIntProto.Character> values) {
         if (characterDataBuilder_ == null) {
           ensureCharacterDataIsMutable();
           super.addAll(values, characterData_);
@@ -987,14 +987,14 @@ public final class MsgProto {
       /**
        * <code>repeated .Character characterData = 4;</code>
        */
-      public org.cbzmq.game.proto.CharacterProto.Character.Builder getCharacterDataBuilder(
+      public org.cbzmq.game.proto.CharacterIntProto.Character.Builder getCharacterDataBuilder(
           int index) {
         return getCharacterDataFieldBuilder().getBuilder(index);
       }
       /**
        * <code>repeated .Character characterData = 4;</code>
        */
-      public org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder getCharacterDataOrBuilder(
+      public org.cbzmq.game.proto.CharacterIntProto.CharacterOrBuilder getCharacterDataOrBuilder(
           int index) {
         if (characterDataBuilder_ == null) {
           return characterData_.get(index);  } else {
@@ -1004,7 +1004,7 @@ public final class MsgProto {
       /**
        * <code>repeated .Character characterData = 4;</code>
        */
-      public java.util.List<? extends org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder>
+      public java.util.List<? extends org.cbzmq.game.proto.CharacterIntProto.CharacterOrBuilder> 
            getCharacterDataOrBuilderList() {
         if (characterDataBuilder_ != null) {
           return characterDataBuilder_.getMessageOrBuilderList();
@@ -1015,31 +1015,31 @@ public final class MsgProto {
       /**
        * <code>repeated .Character characterData = 4;</code>
        */
-      public org.cbzmq.game.proto.CharacterProto.Character.Builder addCharacterDataBuilder() {
+      public org.cbzmq.game.proto.CharacterIntProto.Character.Builder addCharacterDataBuilder() {
         return getCharacterDataFieldBuilder().addBuilder(
-            org.cbzmq.game.proto.CharacterProto.Character.getDefaultInstance());
+            org.cbzmq.game.proto.CharacterIntProto.Character.getDefaultInstance());
       }
       /**
        * <code>repeated .Character characterData = 4;</code>
        */
-      public org.cbzmq.game.proto.CharacterProto.Character.Builder addCharacterDataBuilder(
+      public org.cbzmq.game.proto.CharacterIntProto.Character.Builder addCharacterDataBuilder(
           int index) {
         return getCharacterDataFieldBuilder().addBuilder(
-            index, org.cbzmq.game.proto.CharacterProto.Character.getDefaultInstance());
+            index, org.cbzmq.game.proto.CharacterIntProto.Character.getDefaultInstance());
       }
       /**
        * <code>repeated .Character characterData = 4;</code>
        */
-      public java.util.List<org.cbzmq.game.proto.CharacterProto.Character.Builder>
+      public java.util.List<org.cbzmq.game.proto.CharacterIntProto.Character.Builder> 
            getCharacterDataBuilderList() {
         return getCharacterDataFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
-          org.cbzmq.game.proto.CharacterProto.Character, org.cbzmq.game.proto.CharacterProto.Character.Builder, org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder>
+          org.cbzmq.game.proto.CharacterIntProto.Character, org.cbzmq.game.proto.CharacterIntProto.Character.Builder, org.cbzmq.game.proto.CharacterIntProto.CharacterOrBuilder> 
           getCharacterDataFieldBuilder() {
         if (characterDataBuilder_ == null) {
           characterDataBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.cbzmq.game.proto.CharacterProto.Character, org.cbzmq.game.proto.CharacterProto.Character.Builder, org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder>(
+              org.cbzmq.game.proto.CharacterIntProto.Character, org.cbzmq.game.proto.CharacterIntProto.Character.Builder, org.cbzmq.game.proto.CharacterIntProto.CharacterOrBuilder>(
                   characterData_,
                   ((bitField0_ & 0x00000008) == 0x00000008),
                   getParentForChildren(),
@@ -1110,12 +1110,12 @@ public final class MsgProto {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\016avro/msg.proto\032\024avro/character.proto\032\020" +
-      "avro/enums.proto\"\215\001\n\003Msg\022\032\n\006header\030\001 \002(\016" +
-      "2\n.MsgHeader\022\021\n\ttimeStamp\030\002 \002(\003\022\023\n\004code\030" +
-      "\003 \001(\0162\005.Code\022!\n\rcharacterData\030\004 \003(\0132\n.Ch" +
-      "aracter\022\037\n\ngameAction\030\005 \001(\0162\013.GameAction" +
-      "B\"\n\024org.cbzmq.game.protoB\010MsgProtoP\000"
+      "\n\016avro/msg.proto\032\027avro/characterInt.prot" +
+      "o\032\020avro/enums.proto\"\215\001\n\003Msg\022\032\n\006header\030\001 " +
+      "\002(\0162\n.MsgHeader\022\021\n\ttimeStamp\030\002 \002(\003\022\023\n\004co" +
+      "de\030\003 \001(\0162\005.Code\022!\n\rcharacterData\030\004 \003(\0132\n" +
+      ".Character\022\037\n\ngameAction\030\005 \001(\0162\013.GameAct" +
+      "ionB\"\n\024org.cbzmq.game.protoB\010MsgProtoP\000"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -1134,7 +1134,7 @@ public final class MsgProto {
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-          org.cbzmq.game.proto.CharacterProto.getDescriptor(),
+          org.cbzmq.game.proto.CharacterIntProto.getDescriptor(),
           org.cbzmq.game.enums.Enums.getDescriptor(),
         }, assigner);
   }
