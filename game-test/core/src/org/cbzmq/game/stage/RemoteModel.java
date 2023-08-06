@@ -12,6 +12,7 @@ import org.cbzmq.game.Map;
 import org.cbzmq.game.MathUtils;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
+import org.cbzmq.game.proto.CharacterIntProto;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.proto.MsgByte;
 import org.cbzmq.game.proto.MsgProto;
@@ -87,20 +88,35 @@ public class RemoteModel implements Model {
         isStartSynced = startSynced;
     }
 
-    public void sync(MsgByte msgProto) {
+    public void sync(MsgProto.Msg msgProto) {
 
         isStartSynced = false;
         existsId.clear();
 
-        for (Character character : msgProto.getCharacters()) {
-            existsId.add(character.getId());
+        for (CharacterIntProto.Character proto : msgProto.getCharacterDataList()) {
+            existsId.add(proto.getId());
+            Character character = null;
+
+
+            switch (proto.getType()) {
+                case player:
+                    character = Player.parserProto(proto);
+                    break;
+                case bullet:
+                    character = Bullet.parserProto(proto);
+//                    getBullets().add(bullet);
+                    break;
+                case enemy:
+                    character = Enemy.parserProto(proto);
+//                    getEnemies().add(enemy);
+                    break;
+            }
 
 
 
-
-            int index = character.getId() - 1;
+            int index = proto.getId() - 1;
             if (character != null && !characterMap.containsKey(character.getId())) {
-                characterMap.put(character.getId(), character);
+                characterMap.put(proto.getId(), character);
                 orderCharacterList.add(character);
             } else if (character != null) {
                 characterMap.get(character.getId()).updateByCharacter(character);
@@ -238,10 +254,10 @@ class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
         System.out.println("msg byte length :" + bytes.length + "byte");
 //        MsgProto.Msg msgProto = MsgProto.Msg.parseFrom(decompress);
-        MsgByte msgByte = MsgByte.parseFromBytes(decompress);
+        MsgProto.Msg msg1 = MsgProto.Msg.parseFrom(decompress);
 
 
-        model.sync(msgByte);
+        model.sync(msg1);
 
 
 

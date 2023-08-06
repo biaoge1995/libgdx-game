@@ -16,6 +16,7 @@ import org.cbzmq.game.enums.MsgHeader;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.model.CharacterAdapter;
 import org.cbzmq.game.model.Group;
+import org.cbzmq.game.proto.CharacterIntProto;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.proto.MsgByte;
 import org.cbzmq.game.proto.MsgProto;
@@ -61,34 +62,34 @@ public final class UdpServer extends CharacterAdapter {
     public void frameEnd(Character root, float time) {
         all.clear();
         ((Group)root).flat(all);
-        MsgByte msgByte = new MsgByte(MsgHeader.SYNC_CHARACTERS_INFO, new Date().getTime());
-        msgByte.setCharacters(all);
-//        Array<CharacterProto.Character> characterProtos = new Array<>();
+//        MsgByte msgByte = new MsgByte(MsgHeader.SYNC_CHARACTERS_INFO, new Date().getTime());
+//        msgByte.setCharacters(all);
+        Array<CharacterIntProto.Character> characterProtos = new Array<>();
 //        Array<Byte> bytes = new Array<>();
-//        for (Character character : all) {
-//            if(character.state == CharacterState.death) continue;
-//            CharacterProto.Character proto = character.toCharacterProto().build();
-////            characterProtos.add(proto);
+        for (Character character : all) {
+            if(character.state == CharacterState.death) continue;
+            CharacterIntProto.Character proto = character.toCharacterIntProto().build();
+            characterProtos.add(proto);
 //            bytes.addAll(character.toCharacterBytes().getBytes());
-//        }
+        }
 
 
-//        MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
-//        MsgProto.Msg msg = builder
-//                .setHeader(MsgHeader.SYNC_CHARACTERS_INFO)
-//                .addAllCharacterData(characterProtos)
-//                .setTimeStamp(new Date().getTime())
-//                .build();
+        MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
+        MsgProto.Msg msg = builder
+                .setHeader(MsgHeader.SYNC_CHARACTERS_INFO)
+                .addAllCharacterData(characterProtos)
+                .setTimeStamp(new Date().getTime())
+                .build();
 
-//        byte[] bytes = msg.toByteArray();
+        byte[] bytes = msg.toByteArray();
 
-        byte[] bytes = msgByte.toByteArray();
+//        byte[] bytes = msgByte.toByteArray();
 
         //二次压缩
         MathUtils.CompressData compress = MathUtils.compress( bytes);
         ByteBuf byteBuf = Unpooled.copiedBuffer(compress.getOutput());
 //        System.out.println(msg);
-        System.out.println("元素数量" + msgByte.getCharacters().size);
+        System.out.println("元素数量" + msg.getCharacterDataList().size());
 //        System.out.println("protobuf消息长度" + bytes.length + "byte");
 //        System.out.println("string消息长度" + msg.toString().getBytes(StandardCharsets.UTF_8).length + "byte\n");
 
@@ -103,8 +104,8 @@ public final class UdpServer extends CharacterAdapter {
         try {
             ch.writeAndFlush(new DatagramPacket(
                     byteBuf,
-                    SocketUtils.socketAddress("127.0.0.1", 8088)
-//                    SocketUtils.socketAddress("192.168.2.145", 8088)
+//                    SocketUtils.socketAddress("127.0.0.1", 8088)
+                    SocketUtils.socketAddress("192.168.2.145", 8088)
             )).sync();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
