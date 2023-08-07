@@ -13,12 +13,9 @@ import io.netty.util.internal.SocketUtils;
 import org.cbzmq.game.MathUtils;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.MsgHeader;
+import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
-import org.cbzmq.game.model.CharacterAdapter;
-import org.cbzmq.game.model.Group;
-import org.cbzmq.game.proto.CharacterIntProto;
 import org.cbzmq.game.proto.CharacterProto;
-import org.cbzmq.game.proto.MsgByte;
 import org.cbzmq.game.proto.MsgProto;
 
 import java.net.InetSocketAddress;
@@ -39,8 +36,9 @@ import java.util.Date;
 public final class UdpServer extends CharacterAdapter {
 
     private static final int PORT = Integer.parseInt(System.getProperty("port", "7686"));
-    private final Array<Character> all = new Array<>();
     private Channel ch;
+
+    private final Array<Character> container = new Array<>();
 
 
     public UdpServer() throws InterruptedException {
@@ -59,37 +57,41 @@ public final class UdpServer extends CharacterAdapter {
     }
 
     @Override
-    public void frameEnd(Character root, float time) {
-        all.clear();
-        ((Group)root).flat(all);
+    public void onOneObserverEvent(Event.OneObserverEvent event) {
+        super.onOneObserverEvent(event);
+        if (event.getEventType() == Event.OneBodyEventType.frameEnd) {
+            Group body2D = (Group) (event.getBody2D());
+            container.clear();
+            body2D.flat(container);
+
 //        MsgByte msgByte = new MsgByte(MsgHeader.SYNC_CHARACTERS_INFO, new Date().getTime());
 //        msgByte.setCharacters(all);
-        Array<CharacterProto.Character> characterProtos = new Array<>();
+            Array<CharacterProto.Character> characterProtos = new Array<>();
 //        Array<Byte> bytes = new Array<>();
-        for (Character character : all) {
-            if(character.state == CharacterState.death) continue;
-            CharacterProto.Character proto = character.toCharacterProto().build();
-            characterProtos.add(proto);
+            for (Character character : container) {
+                if (character.state == CharacterState.death) continue;
+                CharacterProto.Character proto = character.toCharacterProto().build();
+                characterProtos.add(proto);
 //            bytes.addAll(character.toCharacterBytes().getBytes());
-        }
+            }
 
 
-        MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
-        MsgProto.Msg msg = builder
-                .setHeader(MsgHeader.SYNC_CHARACTERS_INFO)
-                .addAllCharacterData(characterProtos)
-                .setTimeStamp(new Date().getTime())
-                .build();
+            MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
+            MsgProto.Msg msg = builder
+                    .setHeader(MsgHeader.SYNC_CHARACTERS_INFO)
+                    .addAllCharacterData(characterProtos)
+                    .setTimeStamp(new Date().getTime())
+                    .build();
 
-        byte[] bytes = msg.toByteArray();
+            byte[] bytes = msg.toByteArray();
 
 //        byte[] bytes = msgByte.toByteArray();
 
-        //二次压缩
-        MathUtils.CompressData compress = MathUtils.compress( bytes);
-        ByteBuf byteBuf = Unpooled.copiedBuffer(compress.getOutput());
+            //二次压缩
+            MathUtils.CompressData compress = MathUtils.compress(bytes);
+            ByteBuf byteBuf = Unpooled.copiedBuffer(compress.getOutput());
 //        System.out.println(msg);
-        System.out.println("元素数量" + msg.getCharacterDataList().size());
+            System.out.println("元素数量" + msg.getCharacterDataList().size());
 //        System.out.println("protobuf消息长度" + bytes.length + "byte");
 //        System.out.println("string消息长度" + msg.toString().getBytes(StandardCharsets.UTF_8).length + "byte\n");
 
@@ -101,16 +103,16 @@ public final class UdpServer extends CharacterAdapter {
 //                        SocketUtils.socketAddress("127.0.0.1", 8088))).sync();
 //            }
 
-        try {
-            ch.writeAndFlush(new DatagramPacket(
-                    byteBuf,
-                    SocketUtils.socketAddress("127.0.0.1", 8088)
+            try {
+                ch.writeAndFlush(new DatagramPacket(
+                        byteBuf,
+                        SocketUtils.socketAddress("127.0.0.1", 8088)
 //                    SocketUtils.socketAddress("192.168.2.145", 8088)
-            )).sync();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+                )).sync();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
-
     }
 }
 

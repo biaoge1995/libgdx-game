@@ -38,7 +38,6 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthoCachedTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.esotericsoftware.spine.Event;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Constants;
 import org.cbzmq.game.GameCamera;
@@ -99,26 +98,34 @@ public class View extends Stage {
         ui = new UI(this);
         model.addListener(new CharacterAdapter() {
             @Override
-            public void hit(Character character, Character hitCharacter) {
-                super.hit(character, hitCharacter);
+            public void onOneObserverEvent(Event.OneObserverEvent event) {
+                super.onOneObserverEvent(event);
+                if (modelAndViewMap.containsKey(((Character)event.getBody2D()).getId())) {
+                    BaseSkeletonActor baseSkeletonActor = modelAndViewMap.get(((Character)event.getBody2D()).getId());
+                    switch (event.getEventType()) {
+                        case hit:
+                            baseSkeletonActor.beHit();
+                    }
 
-                if (modelAndViewMap.containsKey(character.getId())) {
-                    BaseSkeletonActor baseSkeletonActor = modelAndViewMap.get(character.getId());
-                    baseSkeletonActor.beHit();
                 }
-
             }
 
             @Override
-            public void event(Character character, Event event) {
-                super.event(character, event);
-//                if(event.getData().getName().equals("win")){
-//                    eventGameOver(true);
-//                }else if (event.getData().getName().equals("lose")){
-//                    eventGameOver(false);
-//                }
-
+            public void onTwoObserverEvent(Event.TwoObserverEvent event) {
+                super.onTwoObserverEvent(event);
             }
+            //            @Override
+//            public void hit(Character character, Character hitCharacter) {
+//                super.hit(character, hitCharacter);
+//
+//                if (modelAndViewMap.containsKey((character).getId())) {
+//                    BaseSkeletonActor baseSkeletonActor = modelAndViewMap.get((character).getId());
+//                    baseSkeletonActor.beHit();
+//                }
+//
+//            }
+
+
         });
         restart();
     }

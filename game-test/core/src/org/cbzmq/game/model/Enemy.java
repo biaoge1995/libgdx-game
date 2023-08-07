@@ -16,7 +16,7 @@ import org.cbzmq.game.proto.CharacterProto;
 /**
  * The model class for an enemy.
  */
-public class Enemy extends Character<Enemy> {
+public class Enemy extends Character {
     public static float heightSource = 398, width = 105 * Constants.scale, height = 200 * Constants.scale;
     public static float maxVelocityMinX = 4f, maxVelocityMaxX = 8.5f, maxVelocityAirX = 19f;
     public static float hpWeak = 1, hpSmall = 2, hpNormal = 3, hpStrong = 5, hpBecomesBig = 8, hpBig = 20;
@@ -196,18 +196,7 @@ public class Enemy extends Character<Enemy> {
 //			remove();
 //		}
 
-        //怪物孩子出生
-        if (this.childs != null && this.childs.size > 0) {
-            getQueue().event(this, new Event(0, new EventData("explore children")));
-            for (Character child : this.childs) {
-                Enemy c = (Enemy) child;
-//                    enemies.add(c);
-                if (parent != null) {
-                    parent.addCharacter(c);
-                }
-            }
-            this.childs.clear();
-        }
+
     }
 
     public void beCollide() {

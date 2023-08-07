@@ -14,7 +14,7 @@ import org.cbzmq.game.stage.Model;
  * @Version 1.0
  **/
 public class Group<T extends Character> extends Character {
-    final Array<T> children = new Array<>();
+    private final Array<T> children = new Array<>();
 
     public Group(String name) {
         this.name = name;
@@ -49,6 +49,7 @@ public class Group<T extends Character> extends Character {
         character.setId(No.getNo());
         getQueue().born(character);
         character.setQueue(getQueue());
+        getModel().getListeners().add(character);
 
     }
 

@@ -52,13 +52,12 @@ import org.cbzmq.game.model.*;
 public class LocalModel implements Model {
 
     Group<Character> root;
-    int id;
     Player player;
     Map map;
     TiledMapTileLayer collisionLayer;
     final Array<Character> container = new Array<>();
     final Array<Observer> listener = new Array<>();
-    private final EventQueue queue = new EventQueue(listener);
+    private final EventQueue queue = new EventQueue();
 
     float timeScale = 1;
     Array<Trigger> triggers = new Array();
@@ -66,10 +65,9 @@ public class LocalModel implements Model {
 //    Array<Enemy> enemies = new Array();
 
 
-
     Group<Bullet> bulletGroup;
-    Group<Enemy> enemyGroup ;
-    Group<Character> playerGroup ;
+    Group<Enemy> enemyGroup;
+    Group<Character> playerGroup;
     float gameOverTimer;
     Assets assets;
     Engine2D engine2D;
@@ -79,21 +77,29 @@ public class LocalModel implements Model {
     boolean isPlayerWin;
 
 
-
     public LocalModel() {
         this.assets = new Assets();
         this.map = new Map(assets.tiledMap);
         this.collisionLayer = map.collisionLayer;
         this.root = new Group<>();
-        root.setModel(this);
-        root.setQueue(queue);
-        this.engine2D = new Engine2D(root,map);
-        this.engine2D.setQueue(queue);
+        this.root.setModel(this);
+        this.root.setQueue(queue);
+        this.queue.setObservers(listener);
+        this.engine2D = Engine2D
+                .newBuilder()
+                .setAssets(assets)
+                .setMap(map)
+                .setCollisionLayer(collisionLayer)
+                .setQueue(queue)
+                .setRoot(root)
+                .build();
+
+
         //初始化
         init();
     }
 
-    public void init(){
+    public void init() {
         bulletGroup = new Group<>("bulletGroup");
         enemyGroup = new Group<>("enemyGroup");
         playerGroup = new Group<>("playerGroup");
@@ -165,17 +171,22 @@ public class LocalModel implements Model {
         return container;
     }
 
+    @Override
+    public Array<Observer> getListeners() {
+        return listener;
+    }
+
     public void update(float delta) {
         root.update(delta);
         engine2D.update(delta);
 
         for (Character p : playerGroup.getChildren()) {
-            if(p instanceof Player){
-                if(p.hp>0) break;
-                else  {
+            if (p instanceof Player) {
+                if (p.hp > 0) break;
+                else {
                     gameOverTimer += delta / getTimeScale() * timeScale; // Isn't affected by player death time scaling.
-                    queue.event(playerGroup, new Event(0, new EventData("lose")));
-                    isGameOver=true;
+                    queue.lose(playerGroup);
+                    isGameOver = true;
                 }
             }
 
@@ -184,7 +195,7 @@ public class LocalModel implements Model {
         updateEnemies();
 //        updateBullets();
         updateTriggers();
-        queue.frameEnd(root,delta);
+        queue.frameEnd(root);
         //将事件队列处理掉
         queue.drain();
     }
@@ -203,17 +214,17 @@ public class LocalModel implements Model {
         }
     }
 
-    public void gameResult(boolean isPlayerWin){
-        if(isGameOver) return;
+    public void gameResult(boolean isPlayerWin) {
+        if (isGameOver) return;
         this.isPlayerWin = isPlayerWin;
-        if(isPlayerWin){
-            queue.event(playerGroup, new Event(0, new EventData("win")));
-            queue.event(enemyGroup, new Event(0, new EventData("lose")));
-            isGameOver=true;
-        }else {
-            queue.event(playerGroup, new Event(0, new EventData("lose")));
-            queue.event(enemyGroup, new Event(0, new EventData("win")));
-            isGameOver=true;
+        if (isPlayerWin) {
+            queue.win(playerGroup);
+            queue.lose(enemyGroup);
+            isGameOver = true;
+        } else {
+            queue.win(playerGroup);
+            queue.lose(enemyGroup);
+            isGameOver = true;
         }
 
     }
@@ -229,7 +240,7 @@ public class LocalModel implements Model {
                 break;
             }
 
-            if (enemy.hp > 0 || (enemy.hp <= 0 || enemy.deathTimer>0)) {
+            if (enemy.hp > 0 || (enemy.hp <= 0 || enemy.deathTimer > 0)) {
                 alive++;
             }
             if (enemy.hp > 0 && player.hp > 0) {
@@ -239,14 +250,13 @@ public class LocalModel implements Model {
         }
 
         if (alive == 0 && triggers.size == 0) {
-            if(!isGameOver){
+            if (!isGameOver) {
                 gameResult(true);
             }
 
 
         }
     }
-
 
 
     public void addTrigger(float triggerX, float spawnX, float spawnY, EnemyType enemyType, int count) {
@@ -265,22 +275,22 @@ public class LocalModel implements Model {
     }
 
 
-    public void addCharacter(Character character){
+    public void addCharacter(Character character) {
         root.addCharacter(character);
     }
 
 
-    public void addEnemy(Enemy enemy){
+    public void addEnemy(Enemy enemy) {
         enemyGroup.addCharacter(enemy);
     }
-    public void initPlayer(){
+
+    public void initPlayer() {
         player = new Player();
 
         //TODO 诞生了一个玩家
         player.position.set(4, 8);
         playerGroup.addCharacter(player);
     }
-
 
 
     public float getTimeScale() {
@@ -301,8 +311,6 @@ public class LocalModel implements Model {
     }
 
 
-
-
     @Override
     public Player getPlayer() {
         return player;
@@ -313,17 +321,13 @@ public class LocalModel implements Model {
         return map;
     }
 
-    public Array<Observer> getListeners() {
-        return listener;
-    }
 
-    @Override
     public void addListener(Observer listener) {
         this.listener.add(listener);
     }
 
 
-    @Override
+
     public Array<Bullet> getBullets() {
         return bulletGroup.getChildren();
     }
@@ -339,7 +343,6 @@ public class LocalModel implements Model {
     }
 
 
-    @Override
     public EventQueue queue() {
         return queue;
     }

@@ -12,9 +12,7 @@ import org.cbzmq.game.Map;
 import org.cbzmq.game.MathUtils;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
-import org.cbzmq.game.proto.CharacterIntProto;
 import org.cbzmq.game.proto.CharacterProto;
-import org.cbzmq.game.proto.MsgByte;
 import org.cbzmq.game.proto.MsgProto;
 
 import java.util.HashMap;
@@ -39,12 +37,12 @@ public class RemoteModel implements Model {
 
     final Array<Character> orderCharacterList = new Array<>();
 
-    final java.util.Map<Integer,Character> characterMap = new HashMap<>();
+    final java.util.Map<Integer, Character> characterMap = new HashMap<>();
 
     final Array<Enemy> enemies = new Array<>();
 
     Array<Character> listeners = new Array<>();
-    EventQueue queue = new EventQueue(listeners);
+    EventQueue queue = new EventQueue();
     Assets assets;
     boolean isPlayerWin = false;
     boolean isGameOver = false;
@@ -61,6 +59,7 @@ public class RemoteModel implements Model {
         map = new Map(assets.tiledMap);
         player = new Player();
         player.position.set(4, 8);
+        queue.setObservers(listeners);
 
         EventLoopGroup group = new NioEventLoopGroup();
 //        try {
@@ -113,7 +112,6 @@ public class RemoteModel implements Model {
             }
 
 
-
             int index = proto.getId() - 1;
             if (character != null && !characterMap.containsKey(character.getId())) {
                 characterMap.put(proto.getId(), character);
@@ -164,24 +162,12 @@ public class RemoteModel implements Model {
         return map;
     }
 
-    @Override
-    public Array<Observer> getListeners() {
-        return null;
-    }
-
 
     @Override
     public void addListener(Observer listener) {
 
     }
 
-
-
-
-    @Override
-    public Array<Bullet> getBullets() {
-        return null;
-    }
 
     @Override
     public Array<Enemy> getEnemies() {
@@ -209,10 +195,6 @@ public class RemoteModel implements Model {
 
     }
 
-    @Override
-    public EventQueue queue() {
-        return queue;
-    }
 
     @Override
     public boolean isPlayerWin() {
@@ -227,6 +209,11 @@ public class RemoteModel implements Model {
     @Override
     public Array<Character> getAll() {
         return orderCharacterList;
+    }
+
+    @Override
+    public Array<Observer> getListeners() {
+        return null;
     }
 
 
@@ -258,7 +245,6 @@ class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
 
         model.sync(msg1);
-
 
 
     }

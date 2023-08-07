@@ -2,197 +2,187 @@ package org.cbzmq.game.model;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
-import com.esotericsoftware.spine.Event;
 
 public class EventQueue {
-    private final Array<ObjectsAndEventType> objects = new Array<>();
-    boolean drainDisabled=false;
+    private final Array<Object> observerEvents = new Array<>();
+    boolean drainDisabled = false;
 
-    Array<? extends Observer> listeners;
+//    Array<? extends Engine2DObserver> engine2DObservers;
+//
+//    Array<? extends GameLogicObserver> gameLogicObservers;
 
-    public EventQueue(Array<? extends Observer> listeners) {
-        this.listeners = listeners;
-    }
+    Array<? extends Observer> observers;
 
-    public void born(Observer character) {
-
-        ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-        objectsAndEventType.objects.add(character);
-        objectsAndEventType.eventType = EventType.born;
-        objects.add(objectsAndEventType);
+    public EventQueue() {
 
     }
 
-    public void hit(Observer character,Observer hitCharacter) {
-
-        ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-        objectsAndEventType.objects.add(character);
-        objectsAndEventType.objects.add(hitCharacter);
-        objectsAndEventType.eventType = EventType.hit;
-        objects.add(objectsAndEventType);
+    public void setObservers(Array<? extends Observer> observers) {
+        this.observers = observers;
     }
 
-    public void death(Observer character,Observer killer) {
-        ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-        objectsAndEventType.objects.add(character);
-        objectsAndEventType.objects.add(killer);
-        objectsAndEventType.eventType = EventType.death;
-        objects.add(objectsAndEventType);
+//    public void setEngine2DObservers(Array<? extends Engine2DObserver> engine2DObservers) {
+//        this.engine2DObservers = engine2DObservers;
+//
+//    }
+//
+//    public void setGameLogicObservers(Array<? extends GameLogicObserver> gameLogicObservers) {
+//        this.gameLogicObservers = gameLogicObservers;
+//    }
+
+    public void onOneObserverEvent(Event.OneBodyEventType eventType, Body2D body2D) {
+        Event.OneObserverEvent event = Event.OneObserverEvent.createEvent(eventType, body2D);
+        observerEvents.add(event);
     }
 
-    public void beRemove(Observer character) {
-        ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-        objectsAndEventType.objects.add(character);
-        objectsAndEventType.eventType = EventType.beRemove;
-        objects.add(objectsAndEventType);
+
+    public void onTwoObserverEvent(Event.TwoBodyEventType eventType, Body2D body2D, Body2D other) {
+        Event.TwoObserverEvent event = Event.TwoObserverEvent.createEvent(eventType, body2D, other);
+        observerEvents.add(event);
     }
 
-    public void collisionMap(Observer character, Rectangle tile) {
-        //TODO
-        ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-        objectsAndEventType.objects.add(character);
-        objectsAndEventType.objects.add(tile);
-        objectsAndEventType.eventType = EventType.collisionMap;
-        objects.add(objectsAndEventType);
+
+    public void born(Body2D body2D) {
+        onOneObserverEvent(Event.OneBodyEventType.born, body2D);
     }
 
-    public void collisionCharacter(Observer character, Observer other) {
-        //TODO
-        ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-        objectsAndEventType.objects.add(character);
-        objectsAndEventType.objects.add(other);
-        objectsAndEventType.eventType = EventType.collisionCharacter;
-        objects.add(objectsAndEventType);
+    public void hit(Body2D character, Body2D hitCharacter) {
+        onTwoObserverEvent(Event.TwoBodyEventType.hit, character, hitCharacter);
     }
 
-    public void attack(Observer character) {
-        //TODO
-        ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-        objectsAndEventType.objects.add(character);
-        objectsAndEventType.eventType = EventType.attack;
-        objects.add(objectsAndEventType);
+    public void death(Body2D character, Body2D killer) {
+        onTwoObserverEvent(Event.TwoBodyEventType.beKilled, character, killer);
     }
 
-    public void dispose(Observer character) {
-        //TODO
-        ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-        objectsAndEventType.objects.add(character);
-        objectsAndEventType.eventType = EventType.dispose;
-        objects.add(objectsAndEventType);
+    public void beRemove(Body2D body2D) {
+        onOneObserverEvent(Event.OneBodyEventType.beRemove, body2D);
     }
 
-    public void event(Observer character, Event event) {
-        ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-        objectsAndEventType.objects.add(character);
-        objectsAndEventType.objects.add(event);
-        objectsAndEventType.eventType = EventType.event;
-        objects.add(objectsAndEventType);
+    public void collisionMap(Body2D character, Rectangle tile) {
+        onOneObserverEvent(Event.OneBodyEventType.collisionMap, character);
     }
 
-    public void frameEnd(Group root,float delta) {
-        ObjectsAndEventType objectsAndEventType = new ObjectsAndEventType();
-        objectsAndEventType.objects.add(root);
-        objectsAndEventType.objects.add(delta);
-        objectsAndEventType.eventType = EventType.frameEnd;
-        objects.add(objectsAndEventType);
+    public void collisionCharacter(Body2D character, Body2D other) {
+        onTwoObserverEvent(Event.TwoBodyEventType.collisionCharacter, character, other);
+    }
+
+    public void attack(Body2D character) {
+        onOneObserverEvent(Event.OneBodyEventType.attack, character);
+    }
+
+    public void dispose(Body2D character) {
+        onOneObserverEvent(Event.OneBodyEventType.dispose, character);
+    }
+
+    public void lose(Body2D character) {
+        onOneObserverEvent(Event.OneBodyEventType.lose, character);
+    }
+
+    public void win(Body2D character) {
+        onOneObserverEvent(Event.OneBodyEventType.win, character);
+    }
+
+    public void frameEnd(Group root) {
+        onOneObserverEvent(Event.OneBodyEventType.frameEnd, root);
     }
 
     public void drain() {
-        if(this.listeners==null)return;
+//        if (this.engine2DObservers == null) return;
+        if(observers==null) return;
+        if(observerEvents.size==0) return;
         if (drainDisabled) return; // Not reentrant.
         drainDisabled = true;
 
-        Array<ObjectsAndEventType> objects = this.objects;
-        Array<? extends Observer> listeners = this.listeners;
-        for (ObjectsAndEventType objectAndEvent : objects) {
-            EventType enemyType = objectAndEvent.eventType;
-            Object obj = objectAndEvent.objects.get(0);
-            Observer character =null;
-            if(obj instanceof Observer){
-                character = (Observer) obj;
+
+
+        for (int i = 0; i < observerEvents.size; i++) {
+            Object obj = observerEvents.get(i);
+            if(obj instanceof Event.OneObserverEvent){
+                for (Observer observer : observers) {
+                    observer.onOneObserverEvent((Event.OneObserverEvent)obj );
+                }
+            }else if(obj instanceof Event.TwoBodyEventType){
+                for (Observer observer : observers) {
+                    observer.onTwoObserverEvent((Event.TwoObserverEvent)obj );
+                }
             }
-            switch (enemyType) {
-                case born:
-//                    if (character.listener != null) character.listener.born(character);
-                    for (int ii = 0; ii < listeners.size; ii++)
-                        listeners.get(ii).born(character);
-                    break;
-                case death:
-//                    if (character.listener != null) character.listener.death(character);
-                    for (int ii = 0; ii < listeners.size; ii++)
-                        listeners.get(ii).death(character,(Observer)objectAndEvent.objects.get(1));
-                    break;
-                case hit:
-                    Observer hitCharacter = (Observer) objectAndEvent.objects.get(1);
-//                    if (character.listener != null) character.listener.hit(character,hitCharacter);
-                    for (int ii = 0; ii < listeners.size; ii++)
-                        listeners.get(ii).hit(character,hitCharacter);
-                    // Fall through.
-                case dispose:
-//                    if (character.listener != null) character.listener.dispose(character);
-                    for (int ii = 0; ii < listeners.size; ii++)
-                        listeners.get(ii).dispose(character);
-//						trackEntryPool.free(entry);
-                    break;
-                case beRemove:
-//                    if (character.listener != null) character.listener.beRemove(character);
-                    for (int ii = 0; ii < listeners.size; ii++)
-                        listeners.get(ii).beRemove(character);
-                    break;
-                case attack:
-//                    if (character.listener != null) character.listener.attack(character);
-                    for (int ii = 0; ii < listeners.size; ii++)
-                        listeners.get(ii).attack(character);
-                    break;
-                case collisionCharacter:
-                    Observer other = (Observer) objectAndEvent.objects.get(1);
-//                    if (character.listener != null) character.listener.collisionCharacter(character, other);
-                    for (int ii = 0; ii < listeners.size; ii++)
-                        listeners.get(ii).collisionObserver(character, other);
-                    break;
-                case collisionMap:
-                    Rectangle tile = (Rectangle) objectAndEvent.objects.get(1);
-//                    if (character.listener != null) character.listener.collisionMap(character, tile);
-                    for (int ii = 0; ii < listeners.size; ii++)
-                        listeners.get(ii).collisionMap(character, tile);
-                    break;
-                case event:
-                    Event event = (Event) objectAndEvent.objects.get(1);
-//                    if (character.listener != null) character.listener.event(character, event);
-                    for (int ii = 0; ii < listeners.size; ii++)
-                        listeners.get(ii).event(character, event);
-                    break;
-                case frameEnd:
-                    float delta = (float) objectAndEvent.objects.get(1);
-//                    if (character.listener != null) character.listener.frameEnd((Group) obj,delta);
-                    for (int ii = 0; ii < listeners.size; ii++)
-                        listeners.get(ii).frameEnd((Group)obj,delta);
-                    break;
+            for (int i1 = 0; i1 < observers.size; i1++) {
+                Observer observer = observers.get(i1);
             }
         }
+
+//        for (ObjectsAndEventType objectAndEvent : objects) {
+//            Event.EventType enemyType = objectAndEvent.eventType;
+//            Object obj = objectAndEvent.objects.get(0);
+//            Body2D body2D = null;
+//            Character character = null;
+//            if (obj instanceof Character) {
+//                character = (Character) obj;
+//            } else if (obj instanceof Body2D) {
+//                body2D = (Body2D) obj;
+//            }
+//            switch (enemyType) {
+//                case born:
+//                    for (int ii = 0; ii < gameLogicObservers.size; ii++)
+//                        gameLogicObservers.get(ii).born(character);
+//                    break;
+//                case death:
+//                    for (int ii = 0; ii < gameLogicObservers.size; ii++)
+//                        gameLogicObservers.get(ii).death(character, (Character) objectAndEvent.objects.get(1));
+//                    break;
+//                case hit:
+//                    Character hitCharacter = (Character) objectAndEvent.objects.get(1);
+//                    for (int ii = 0; ii < gameLogicObservers.size; ii++)
+//                        gameLogicObservers.get(ii).hit(character, hitCharacter);
+//                case dispose:
+//                    for (int ii = 0; ii < gameLogicObservers.size; ii++)
+//                        gameLogicObservers.get(ii).dispose(character);
+//                    break;
+//                case beRemove:
+//                    for (int ii = 0; ii < gameLogicObservers.size; ii++)
+//                        gameLogicObservers.get(ii).beRemove(character);
+//                    break;
+//                case attack:
+//                    for (int ii = 0; ii < gameLogicObservers.size; ii++)
+//                        gameLogicObservers.get(ii).attack(character);
+//                    break;
+//                case frameEnd:
+//                    float delta = (float) objectAndEvent.objects.get(1);
+//                    Array<Character> all = new Array<>();
+//                    all.clear();
+//                    ((Group) obj).flat(all);
+//                    for (int ii = 0; ii < gameLogicObservers.size; ii++)
+//                        gameLogicObservers.get(ii).frameEnd(all, delta);
+//                    break;
+//                case collisionCharacter:
+//                    Body2D other = (Body2D) objectAndEvent.objects.get(1);
+//                    for (int ii = 0; ii < engine2DObservers.size; ii++)
+//                        engine2DObservers.get(ii).collisionObserver(body2D, other);
+//                    break;
+//                case collisionMap:
+//                    Rectangle tile = (Rectangle) objectAndEvent.objects.get(1);
+//                    for (int ii = 0; ii < engine2DObservers.size; ii++)
+//                        engine2DObservers.get(ii).collisionMap(body2D, tile);
+//                    break;
+//                case event:
+//                    Event.OneObserverEvent event = (Event.OneObserverEvent) objectAndEvent.objects.get(1);
+//                    for (int ii = 0; ii < engine2DObservers.size; ii++)
+//                        engine2DObservers.get(ii).event(body2D, event);
+//                    break;
+//
+//            }
+//        }
         clear();
 
         drainDisabled = false;
     }
 
     public void clear() {
-        objects.clear();
+        observerEvents.clear();
     }
 
-    public enum EventType {
-        born, hit, death, dispose, beRemove, attack, collisionCharacter, collisionMap, event,frameEnd
-    }
-
-    public static class ObjectsAndEventType {
-        Array<Object> objects = new Array<>();
-        EventType eventType;
 
 
-    }
-
-    public Array<? extends Observer> getListeners() {
-        return listeners;
-    }
 }
 
 

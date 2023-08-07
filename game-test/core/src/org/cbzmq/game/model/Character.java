@@ -4,40 +4,22 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Null;
-import com.esotericsoftware.spine.Event;
-import org.cbzmq.game.MathUtils;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.proto.ByteArray;
 import org.cbzmq.game.proto.CharacterIntProto;
 import org.cbzmq.game.proto.CharacterProto;
-import org.cbzmq.game.stage.CharacterListener;
-import org.cbzmq.game.model.EventQueue;
 import org.cbzmq.game.stage.Model;
 
 
 /**
  * The model class for an enemy or player that moves around the map.
  */
-public class Character<T extends Character> extends Observer<T> {
+public class Character extends Body2D{
 
-
-    public static float minVelocityX = 0.001f, maxVelocityY = 20f;
-    //地面时间
-    public static float groundedTime = 0.15f;
-    //x方向 地板阻尼 空气阻尼 碰撞阻尼
-    public static float dampingGroundX = 36, dampingAirX = 15, collideDampingX = 0.7f;
-    //地板上的 控制的x奔跑速度
-    public static float runGroundX = 80, runAirSame = 45, runAirOpposite = 45;
-
-    private static Array<ByteArray.Type> types;
-//    //游戏主逻辑引用
-//    public Map map;
-
+    private static final Array<ByteArray.Type> types;
     public CharacterType characterType = CharacterType.unknown;
-    //事件
-    public CharacterListener listener;
-//            = new CharacterAdapter();
+    public int id;
 
     @Null
     Group<Character> parent;
@@ -45,20 +27,6 @@ public class Character<T extends Character> extends Observer<T> {
     @Null
     Model model;
 
-    public int id;
-
-    public String name;
-
-    //位置向量
-    //TODO view会用到
-    public Vector2 position = new Vector2();
-
-    //目标位置向量
-    public Vector2 targetPosition = new Vector2();
-
-    //速度向量
-    //TODO view会用到
-    public Vector2 velocity = new Vector2();
     //默认的动画状态
     //TODO view会用到
     public CharacterState state = CharacterState.idle;
@@ -84,7 +52,7 @@ public class Character<T extends Character> extends Observer<T> {
     public float collisionOffsetY;
     //跳的速度在Y上
     public float jumpVelocity;
-    //
+
     public boolean isWin = false;
 
     public float damage;
@@ -92,77 +60,29 @@ public class Character<T extends Character> extends Observer<T> {
 
     private EventQueue queue;
 
-    public Array<Character> childs = new Array<>();
+
 
     //是否可以被碰撞
     public boolean isCanBeCollision = true;
 
-    public float resilience = 0.8f;
-
-
     public Character() {
     }
-
-    @Override
-    public void born(T observer) {
-    }
-
-    @Override
-    public void hit(T Observer, T hitObserver) {
-
-    }
-
-    @Override
-    public void death(T Observer, T killer) {
-
-    }
-
-    @Override
-    public void beRemove(T Observer) {
-
-    }
-
-    @Override
-    public void dispose(T Observer) {
-
-    }
-
-    @Override
-    public void collisionMap(T Observer, Rectangle tile) {
-
-    }
-
-    @Override
-    public void collisionObserver(T Observer, T other) {
-
-    }
-
-    @Override
-    public void attack(T Observer) {
-
-    }
-
-    @Override
-    public void event(T Observer, Event event) {
-
-    }
-
-    @Override
-    public void frameEnd(T root, float time) {
-
-    }
-
 
     public Character(String name) {
         this.name = name;
 
     }
 
-
     public void update(float delta) {
 
         if (hp <= 0) {
             beDeath();
+        }
+        // If moving downward, change state to fall.
+        //如果角色在往下移动则设置该角色的状态为fll
+        if (velocity.y < 0 && state != CharacterState.jump && state != CharacterState.fall) {
+            setState(CharacterState.fall);
+            setGrounded(false);
         }
 
     }
@@ -316,8 +236,6 @@ public class Character<T extends Character> extends Observer<T> {
 
     public static <T extends Character> void copyToSon(Character father, T son) {
         son.id = father.id;
-//        son.map = father.map;
-        son.listener = father.listener;
         son.name = father.name;
         son.position = father.position;
         son.targetPosition = father.targetPosition;
@@ -336,7 +254,6 @@ public class Character<T extends Character> extends Observer<T> {
         son.damage = father.damage;
         son.collisionTimer = father.collisionTimer;
         son.setQueue(father.getQueue());
-        son.childs = father.childs;
         son.parent = father.parent;
     }
 
@@ -457,8 +374,6 @@ public class Character<T extends Character> extends Observer<T> {
     public <T extends Character> void updateByCharacter(T character) {
 
         this.id = character.id;
-//        this.map = character.map;
-        this.listener = character.listener;
         this.name = character.name;
         this.position = character.position;
         this.targetPosition = character.targetPosition;
@@ -477,7 +392,6 @@ public class Character<T extends Character> extends Observer<T> {
         this.damage = character.damage;
         this.collisionTimer = character.collisionTimer;
         this.setQueue(character.getQueue());
-        this.childs = character.childs;
         this.parent = character.parent;
     }
 
@@ -510,9 +424,7 @@ public class Character<T extends Character> extends Observer<T> {
         this.model = model;
     }
 
-    public void addChild(Character child) {
-        childs.add(child);
-    }
+
 
     public void win() {
 
@@ -530,8 +442,16 @@ public class Character<T extends Character> extends Observer<T> {
 
     public void setQueue(EventQueue queue) {
         this.queue = queue;
+
     }
 
+    public CharacterType getCharacterType() {
+        return characterType;
+    }
+
+    public void setCharacterType(CharacterType characterType) {
+        this.characterType = characterType;
+    }
 
 }
 

@@ -46,46 +46,86 @@ import org.cbzmq.game.model.Character;
  * 游戏逻辑的核心。模型管理着所有的游戏信息，但对视图一无所知（不用管如何将这些信息绘制到屏幕上）。这种模型视图分离是组织代码的一种干净方法。
  */
 public class Engine2D {
+    //物理参数
+    //重力参数
+    public static float minVelocityX = 0.001f, maxVelocityY = 20f;
+    //x方向 地板阻尼 空气阻尼 碰撞阻尼
+    public static float dampingGroundX = 36, dampingAirX = 15, collideDampingX = 0.7f;
+    //重力参数
+    private static float gravity = 32;
 
     private Group<Character> root;
-    private int id;
     private Assets assets;
     private Map map;
     private TiledMapTileLayer collisionLayer;
-    Array<Character> container = new Array<>();
-    private EventQueue queue = new EventQueue(container);
-    private float timeScale = 1;
+    private Array<Character> container = new Array<>();
+    private EventQueue queue;
     //是否开启同组内不检测碰撞
-    private boolean isGroupNoCollision=true;
+    private boolean isGroupNoCollision = true;
+
+    static class Builder {
+
+        private Group<Character> root;
+        private Assets assets;
+        private Map map;
+        private TiledMapTileLayer collisionLayer;
+        private EventQueue queue;
+        //是否开启同组内不检测碰撞
+        private boolean isGroupNoCollision = true;
+
+        Engine2D build() {
+            return new Engine2D(this);
+        }
+
+        public Builder setRoot(Group<Character> root) {
+            this.root = root;
+            return this;
+        }
+
+        public Builder setAssets(Assets assets) {
+            this.assets = assets;
+            return this;
+        }
+
+        public Builder setMap(Map map) {
+            this.map = map;
+            return this;
+        }
+
+        public Builder setCollisionLayer(TiledMapTileLayer collisionLayer) {
+            this.collisionLayer = collisionLayer;
+            return this;
+        }
 
 
-    //物理参数
-    //重力参数
-    private float gravity = 32;
+        public Builder setQueue(EventQueue queue) {
+            this.queue = queue;
 
-    public Engine2D() {
-        this(new Group<>(), new Assets());
+            return this;
+        }
+
+        public Builder setGroupNoCollision(boolean groupNoCollision) {
+            isGroupNoCollision = groupNoCollision;
+            return this;
+        }
     }
 
-    public Engine2D(Assets assets) {
-        this(new Group<>(), assets);
-        this.map = new Map(this.assets.tiledMap);
+
+    public static Builder newBuilder() {
+        return new Builder();
     }
 
-    public Engine2D(Group<Character> root, Assets assets) {
-        this.root = root;
-        this.assets = assets;
-        this.map = new Map(assets.tiledMap);
-        this.collisionLayer = map.collisionLayer;
+    private Engine2D(Builder builder) {
+        this.root = builder.root;
+        this.assets = builder.assets;
+        this.map = builder.map;
+        this.collisionLayer = builder.collisionLayer;
+        this.queue = builder.queue;
+        this.isGroupNoCollision = builder.isGroupNoCollision;
         this.root.setQueue(queue);
+        this.queue.setObservers(this.container);
     }
 
-    public Engine2D(Group<Character> root, Map map) {
-        this.root = root;
-        this.map = map;
-        this.collisionLayer = map.collisionLayer;
-        this.root.setQueue(queue);
-    }
 
     public void update(float delta) {
         container.clear();
@@ -120,31 +160,24 @@ public class Engine2D {
         character.stateTime += delta;
 
 
-        // If moving downward, change state to fall.
-        //如果角色在往下移动则设置该角色的状态为fll
-        if (character.velocity.y < 0 && character.state != CharacterState.jump && character.state != CharacterState.fall) {
-            character.setState(CharacterState.fall);
-            character.setGrounded(false);
-        }
-
         // Apply gravity.
         //设置重力加速度
         character.velocity.y -= gravity * delta;
         //如果速度超过了最大值则给他赋予默认的最大速度
-        if (character.velocity.y < 0 && -character.velocity.y > Character.maxVelocityY)
-            character.velocity.y = Math.signum(character.velocity.y) * Character.maxVelocityY;
+        if (character.velocity.y < 0 && -character.velocity.y > maxVelocityY)
+            character.velocity.y = Math.signum(character.velocity.y) * maxVelocityY;
 
         boolean grounded = character.isGrounded();
 
         // Damping reduces velocity so the character eventually comes to a complete stop.
         //空中的阻尼和地板的阻尼
-        float damping = (grounded ? Character.dampingGroundX : Character.dampingAirX) * delta;
+        float damping = (grounded ? dampingGroundX : dampingAirX) * delta;
 
         if (character.velocity.x > 0)
             character.velocity.x = Math.max(0, character.velocity.x - damping);
         else
             character.velocity.x = Math.min(0, character.velocity.x + damping);
-        if (Math.abs(character.velocity.x) < Character.minVelocityX && grounded) {
+        if (Math.abs(character.velocity.x) < minVelocityX && grounded) {
             character.velocity.x = 0;
             character.setState(CharacterState.idle);
         }
@@ -189,7 +222,7 @@ public class Engine2D {
                 character.position.x = tile.x - character.rect.width;
             else
                 character.position.x = tile.x + tile.width;
-            character.velocity.x *= Character.collideDampingX;
+            character.velocity.x *= collideDampingX;
             return true;
         }
         return false;
@@ -268,8 +301,8 @@ public class Engine2D {
                         a.setGrounded(false);
                         //判断y轴击退量
                         float dirY = a.rect.y > b.rect.y + b.rect.height * 0.8f ? 1 : -1;
-                        if(dirY==1){
-                            a.velocity.y = Player.headBounceY*dirY;
+                        if (dirY == 1) {
+                            a.velocity.y = Player.headBounceY * dirY;
                         }
                     }
                 }
@@ -281,31 +314,19 @@ public class Engine2D {
         return root;
     }
 
-    public void setRoot(Group<Character> root) {
-        this.root = root;
-    }
-
     public Map getMap() {
         return map;
-    }
-
-    public void setMap(Map map) {
-        this.map = map;
     }
 
     public TiledMapTileLayer getCollisionLayer() {
         return collisionLayer;
     }
 
-    public void setCollisionLayer(TiledMapTileLayer collisionLayer) {
-        this.collisionLayer = collisionLayer;
-    }
-
-    public Array<? extends Observer> getListeners() {
+    public Array<? extends Body2D> getListeners() {
         return container;
     }
 
-    public void addListener( Character listener) {
+    public void addListener(Character listener) {
         this.container.add(listener);
     }
 
@@ -313,51 +334,19 @@ public class Engine2D {
         return queue;
     }
 
-
-
     public boolean isGroupNoCollision() {
         return isGroupNoCollision;
-    }
-
-    public void setGroupNoCollision(boolean groupNoCollision) {
-        isGroupNoCollision = groupNoCollision;
     }
 
     public Assets getAssets() {
         return assets;
     }
 
-    public void setAssets(Assets assets) {
-        this.assets = assets;
-    }
-
     public Array<Character> getContainer() {
         return container;
     }
 
-    public void setContainer(Array<Character> container) {
-        this.container = container;
-    }
-
-
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public float getGravity() {
         return gravity;
-    }
-
-    public void setGravity(float gravity) {
-        this.gravity = gravity;
-    }
-
-    public void setQueue(EventQueue queue) {
-        this.queue = queue;
     }
 }

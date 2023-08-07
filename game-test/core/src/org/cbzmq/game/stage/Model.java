@@ -16,9 +16,7 @@ import org.cbzmq.game.model.Character;
 public interface Model {
     Player getPlayer();
     Map getMap();
-    Array<Observer> getListeners();
     void addListener(Observer listener);
-    Array<Bullet> getBullets();
     Array<Enemy> getEnemies();
     Assets getAssets();
     void update(float delta);
@@ -26,12 +24,12 @@ public interface Model {
     void setTimeScale(float timeScale);
     void restart();
 
-    EventQueue queue();
-
     boolean isPlayerWin();
 
     boolean isGameOver();
 
     Array<Character> getAll();
+
+    Array<Observer> getListeners();
 
 }

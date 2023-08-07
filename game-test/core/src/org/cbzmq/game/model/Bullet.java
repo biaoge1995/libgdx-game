@@ -5,7 +5,7 @@ import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.proto.CharacterIntProto;
 import org.cbzmq.game.proto.CharacterProto;
 
-public class Bullet extends Character<Bullet> {
+public class Bullet extends Character {
 
 
     public final static float width = 1;
