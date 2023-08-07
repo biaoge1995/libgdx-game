@@ -91,7 +91,7 @@ public final class UdpServer extends CharacterAdapter {
             MathUtils.CompressData compress = MathUtils.compress(bytes);
             ByteBuf byteBuf = Unpooled.copiedBuffer(compress.getOutput());
 //        System.out.println(msg);
-            System.out.println("元素数量" + msg.getCharacterDataList().size());
+//            System.out.println("元素数量" + msg.getCharacterDataList().size());
 //        System.out.println("protobuf消息长度" + bytes.length + "byte");
 //        System.out.println("string消息长度" + msg.toString().getBytes(StandardCharsets.UTF_8).length + "byte\n");
 

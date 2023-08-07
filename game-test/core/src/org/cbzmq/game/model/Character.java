@@ -1,5 +1,6 @@
 package org.cbzmq.game.model;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -31,15 +32,12 @@ public class Character extends Body2D{
     //TODO view会用到
     public CharacterState state = CharacterState.idle;
     //开始时间
-    public float stateTime;
+
     //方向
     //TODO view会用到
     public float dir;
-    //空中的时间
-    public float airTime;
-    //角色的矩阵
-    //TODO view会用到
-    public Rectangle rect = new Rectangle();
+
+
     //是否状态改变
     //TODO view会用到
     public boolean stateChanged;
@@ -49,21 +47,20 @@ public class Character extends Body2D{
     //最大x方向上的位移
     public float maxVelocityX;
     //碰撞Y的偏移量
-    public float collisionOffsetY;
+
     //跳的速度在Y上
     public float jumpVelocity;
 
     public boolean isWin = false;
 
     public float damage;
-    public float collisionTimer;
+
 
     private EventQueue queue;
 
 
 
-    //是否可以被碰撞
-    public boolean isCanBeCollision = true;
+
 
     public Character() {
     }
@@ -84,6 +81,10 @@ public class Character extends Body2D{
             setState(CharacterState.fall);
             setGrounded(false);
         }
+        if(velocity.x==0){
+            setState(CharacterState.idle);
+        }
+        if (state == CharacterState.jump) setState(CharacterState.idle);
 
     }
 
@@ -107,7 +108,7 @@ public class Character extends Body2D{
         if (this.state != CharacterState.death) {
             this.hp = 0;
             this.state = CharacterState.death;
-            if (queue != null) queue.death(this, null);
+            if (queue != null) queue.death(this);
         }
     }
 
@@ -118,25 +119,6 @@ public class Character extends Body2D{
         stateChanged = true;
     }
 
-    public boolean isGrounded() {
-        // The character is considered grounded for a short time after leaving the ground, making jumping over gaps easier.
-        //角色离开地面后会被视为短暂停飞，从而更容易跳过空隙
-        return airTime < groundedTime;
-    }
-
-    public void setGrounded(boolean grounded) {
-        airTime = grounded ? 0 : groundedTime;
-    }
-
-    public void beCollide() {
-    }
-
-    public void collideMapX() {
-    }
-
-    public void collideMapY() {
-
-    }
 
     public void moveLeft(float delta) {
         float adjust;
@@ -451,6 +433,28 @@ public class Character extends Body2D{
 
     public void setCharacterType(CharacterType characterType) {
         this.characterType = characterType;
+    }
+
+    @Override
+    public void onOneObserverEvent(Event.OneObserverEvent event) {
+        if(event.getBody2D() instanceof Group) return;
+        switch (event.getEventType()) {
+            case frameEnd:
+            case collisionMap:
+                return;
+            default:
+                Gdx.app.log("监听者"+this+"| 事件"+event.getEventType().toString(),event.getBody2D().toString());
+        }
+    }
+
+    @Override
+    public void onTwoObserverEvent(Event.TwoObserverEvent event) {
+        Gdx.app.log("监听者"+this+"| 事件"+event.getEventType().toString(),event.getA()+"->"+event.getB());
+    }
+
+    public boolean isNeedCheckCollision(){
+        if(state == CharacterState.death)return false;
+        return true;
     }
 
 }

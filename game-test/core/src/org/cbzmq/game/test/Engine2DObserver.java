@@ -1,6 +1,8 @@
-package org.cbzmq.game.model;
+package org.cbzmq.game.test;
 
 import com.badlogic.gdx.math.Rectangle;
+import org.cbzmq.game.model.Body2D;
+import org.cbzmq.game.model.Event;
 
 
 /**

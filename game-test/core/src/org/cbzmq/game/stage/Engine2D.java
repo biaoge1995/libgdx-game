@@ -48,24 +48,26 @@ import org.cbzmq.game.model.Character;
 public class Engine2D {
     //物理参数
     //重力参数
-    public static float minVelocityX = 0.001f, maxVelocityY = 20f;
+    public static final float minVelocityX = 0.001f, maxVelocityY = 20f;
     //x方向 地板阻尼 空气阻尼 碰撞阻尼
-    public static float dampingGroundX = 36, dampingAirX = 15, collideDampingX = 0.7f;
+    public static final float dampingGroundX = 36, dampingAirX = 15, collideDampingX = 0.7f;
     //重力参数
-    private static float gravity = 32;
+    private static final float gravity = 32;
 
-    private Group<Character> root;
-    private Assets assets;
-    private Map map;
-    private TiledMapTileLayer collisionLayer;
-    private Array<Character> container = new Array<>();
-    private EventQueue queue;
+//    private final Group<Character> root;
+    private final Assets assets;
+    private final Map map;
+    private final TiledMapTileLayer collisionLayer;
+    private Array<? extends Body2D> container;
+    private final EventQueue queue;
     //是否开启同组内不检测碰撞
     private boolean isGroupNoCollision = true;
 
     static class Builder {
 
-        private Group<Character> root;
+//        private Group<Character> root;
+
+        private Array<? extends Body2D> container = new Array<>();
         private Assets assets;
         private Map map;
         private TiledMapTileLayer collisionLayer;
@@ -77,8 +79,8 @@ public class Engine2D {
             return new Engine2D(this);
         }
 
-        public Builder setRoot(Group<Character> root) {
-            this.root = root;
+        public Builder setRoot(Array<? extends Body2D> root) {
+            this.container = root;
             return this;
         }
 
@@ -116,22 +118,18 @@ public class Engine2D {
     }
 
     private Engine2D(Builder builder) {
-        this.root = builder.root;
+        this.container = builder.container;
         this.assets = builder.assets;
         this.map = builder.map;
         this.collisionLayer = builder.collisionLayer;
         this.queue = builder.queue;
         this.isGroupNoCollision = builder.isGroupNoCollision;
-        this.root.setQueue(queue);
-        this.queue.setObservers(this.container);
+//        this.queue.setObservers(this.container);
     }
 
 
     public void update(float delta) {
-        container.clear();
-        //角色本身更新动作
-//        root.update(delta);
-        root.flat(container);
+
         //在2d世界运动
         move(delta);
         //检测碰撞
@@ -140,9 +138,7 @@ public class Engine2D {
         queue.drain();
     }
 
-    public void addCharacter(Character character) {
-        root.addCharacter(character);
-    }
+
 
     /**
      * 角色运动
@@ -150,79 +146,79 @@ public class Engine2D {
      * @param delta
      */
     private void move(float delta) {
-        for (Character character : container) {
-            move(character, delta);
+        for (Body2D body2D : container) {
+            move(body2D, delta);
         }
     }
 
-    private void move(Character character, float delta) {
+    private void move(Body2D body2D, float delta) {
 
-        character.stateTime += delta;
+        body2D.stateTime += delta;
 
 
         // Apply gravity.
         //设置重力加速度
-        character.velocity.y -= gravity * delta;
+        body2D.velocity.y -= gravity * delta;
         //如果速度超过了最大值则给他赋予默认的最大速度
-        if (character.velocity.y < 0 && -character.velocity.y > maxVelocityY)
-            character.velocity.y = Math.signum(character.velocity.y) * maxVelocityY;
+        if (body2D.velocity.y < 0 && -body2D.velocity.y > maxVelocityY)
+            body2D.velocity.y = Math.signum(body2D.velocity.y) * maxVelocityY;
 
-        boolean grounded = character.isGrounded();
+        boolean grounded = body2D.isGrounded();
 
-        // Damping reduces velocity so the character eventually comes to a complete stop.
+        // Damping reduces velocity so the body2D eventually comes to a complete stop.
         //空中的阻尼和地板的阻尼
         float damping = (grounded ? dampingGroundX : dampingAirX) * delta;
 
-        if (character.velocity.x > 0)
-            character.velocity.x = Math.max(0, character.velocity.x - damping);
+        if (body2D.velocity.x > 0)
+            body2D.velocity.x = Math.max(0, body2D.velocity.x - damping);
         else
-            character.velocity.x = Math.min(0, character.velocity.x + damping);
-        if (Math.abs(character.velocity.x) < minVelocityX && grounded) {
-            character.velocity.x = 0;
-            character.setState(CharacterState.idle);
+            body2D.velocity.x = Math.min(0, body2D.velocity.x + damping);
+        if (Math.abs(body2D.velocity.x) < minVelocityX && grounded) {
+            body2D.velocity.x = 0;
+
         }
         //s=v * delta 该段时间内位移的距离
-        character.velocity.scl(delta); // Change velocity from units/sec to units since last frame.
-        boolean isCollideMapX = collideMapX(character);
-        boolean isCollideMapY = collideMapY(character);
+        body2D.velocity.scl(delta); // Change velocity from units/sec to units since last frame.
+        boolean isCollideMapX = collideMapX(body2D);
+        boolean isCollideMapY = collideMapY(body2D);
         if (isCollideMapX) {
-            character.collideMapX();
+            body2D.collideMapX();
         }
         if (isCollideMapY) {
-            character.collideMapY();
+            body2D.collideMapY();
         }
-        character.position.add(character.velocity);
-        character.velocity.scl(1 / delta); // Change velocity back.
+        body2D.position.add(body2D.velocity);
+        body2D.velocity.scl(1 / delta); // Change velocity back.
 
     }
 
     /**
      * 碰撞地图x轴检测
      *
-     * @param character
+     * @param body2D
      * @return
      */
-    private boolean collideMapX(Character character) {
-        character.rect.x = character.position.x + character.velocity.x;
-        character.rect.y = character.position.y + character.collisionOffsetY;
+    private boolean collideMapX(Body2D body2D) {
+        body2D.rect.x = body2D.position.x + body2D.velocity.x;
+        body2D.rect.y = body2D.position.y + body2D.collisionOffsetY;
 
         int x;
-        if (character.velocity.x >= 0)
-            x = (int) (character.rect.x + character.rect.width);
+        if (body2D.velocity.x >= 0)
+            x = (int) (body2D.rect.x + body2D.rect.width);
         else
-            x = (int) character.rect.x;
-        int startY = (int) character.rect.y;
-        int endY = (int) (character.rect.y + character.rect.height);
+            x = (int) body2D.rect.x;
+        int startY = (int) body2D.rect.y;
+        int endY = (int) (body2D.rect.y + body2D.rect.height);
         for (Rectangle tile : map.getCollisionTiles(x, startY, x, endY)) {
-            if (!character.rect.overlaps(tile)) continue;
+            if (!body2D.rect.overlaps(tile)) continue;
             if (queue != null) {
-                queue.collisionMap(character, tile);
+                queue.collisionMap(body2D, tile);
             }
-            if (character.velocity.x >= 0)
-                character.position.x = tile.x - character.rect.width;
+            if (body2D.velocity.x >= 0)
+                body2D.position.x = tile.x - body2D.rect.width;
             else
-                character.position.x = tile.x + tile.width;
-            character.velocity.x *= collideDampingX;
+                body2D.position.x = tile.x + tile.width;
+            body2D.velocity.x *= collideDampingX;
             return true;
         }
         return false;
@@ -231,35 +227,35 @@ public class Engine2D {
     /**
      * 碰撞地图Y轴检测
      *
-     * @param character
+     * @param body2D
      * @return
      */
-    private boolean collideMapY(Character character) {
-        character.rect.x = character.position.x;
-        character.rect.y = character.position.y + character.velocity.y + character.collisionOffsetY;
+    private boolean collideMapY(Body2D body2D) {
+        body2D.rect.x = body2D.position.x;
+        body2D.rect.y = body2D.position.y + body2D.velocity.y + body2D.collisionOffsetY;
 
         int y;
-        if (character.velocity.y > 0)
-            y = (int) (character.rect.y + character.rect.height);
+        if (body2D.velocity.y > 0)
+            y = (int) (body2D.rect.y + body2D.rect.height);
         else
-            y = (int) character.rect.y;
-        int startX = (int) character.rect.x;
-        int endX = (int) (character.rect.x + character.rect.width);
+            y = (int) body2D.rect.y;
+        int startX = (int) body2D.rect.x;
+        int endX = (int) (body2D.rect.x + body2D.rect.width);
         Array<Rectangle> collisionTiles = map.getCollisionTiles(startX, y, endX, y);
         for (Rectangle tile : collisionTiles) {
-            if (!character.rect.overlaps(tile)) continue;
-            if (queue != null) {
-                queue.collisionMap(character, tile);
-            }
+            if (!body2D.rect.overlaps(tile)) continue;
+//            if (queue != null) {
+//                queue.collisionMap(body2D, tile);
+//            }
 
-            if (character.velocity.y > 0)
-                character.position.y = tile.y - character.rect.height;
+            if (body2D.velocity.y > 0)
+                body2D.position.y = tile.y - body2D.rect.height;
             else {
-                character.position.y = tile.y + tile.height;
-                if (character.state == CharacterState.jump) character.setState(CharacterState.idle);
-                character.setGrounded(true);
+                body2D.position.y = tile.y + tile.height;
+
+                body2D.setGrounded(true);
             }
-            character.velocity.y = 0;
+            body2D.velocity.y = 0;
             return true;
         }
         return false;
@@ -273,26 +269,26 @@ public class Engine2D {
 //        root.flat(container);
         //进行角色之间的碰撞检测
         for (int i = 0; i < container.size; i++) {
-            Character a = container.get(i);
+            Body2D a = container.get(i);
             if (a instanceof Group) continue;
             for (int j = 0; j < container.size; j++) {
-                Character b = container.get(j);
+                Body2D b = container.get(j);
                 if ((b instanceof Group) ||
                         (a == b) ||
                         //1、开启了同组不碰撞设置 2、任意一个角色为不可碰撞状态则不检测
-                        (a.state == CharacterState.death || b.state == CharacterState.death) ||
-                        (isGroupNoCollision && a.getParent() == b.getParent()) || !(a.isCanBeCollision && a.isCanBeCollision))
-                    continue;
+                        (isGroupNoCollision && (a.getParent()!=null && b.getParent()!=null && a.getParent() == b.getParent())) ||
+                        !(a.isNeedCheckCollision() && b.isNeedCheckCollision())) continue;
                 else {
                     // 撞击
                     if (a.rect.overlaps(b.rect)) {
                         queue.collisionCharacter(a, b);
-                        queue.hit(a, b);
+
                         //TODO 扣血 这块可以放到游戏主逻辑中做 不参与物理引擎运行
                         float dirX = a.position.x + a.rect.width / 2 < b.position.x + b.rect.width / 2 ? -1 : 1;
                         if (a.collisionTimer < 0) {
                             a.beCollide();
-                            a.hp -= b.damage;
+
+                            queue.hit(a, b);
                         }
 
                         //判断x轴击退的量
@@ -310,9 +306,7 @@ public class Engine2D {
         }
     }
 
-    public Group<Character> getRoot() {
-        return root;
-    }
+
 
     public Map getMap() {
         return map;
@@ -322,17 +316,7 @@ public class Engine2D {
         return collisionLayer;
     }
 
-    public Array<? extends Body2D> getListeners() {
-        return container;
-    }
 
-    public void addListener(Character listener) {
-        this.container.add(listener);
-    }
-
-    public EventQueue getQueue() {
-        return queue;
-    }
 
     public boolean isGroupNoCollision() {
         return isGroupNoCollision;
@@ -342,9 +326,7 @@ public class Engine2D {
         return assets;
     }
 
-    public Array<Character> getContainer() {
-        return container;
-    }
+
 
     public float getGravity() {
         return gravity;

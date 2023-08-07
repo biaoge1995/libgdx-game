@@ -47,9 +47,10 @@ public class Group<T extends Character> extends Character {
         character.setParent(this);
         character.setModel(getModel());
         character.setId(No.getNo());
-        getQueue().born(character);
+
         character.setQueue(getQueue());
-        getModel().getListeners().add(character);
+
+        getQueue().born(character);
 
     }
 

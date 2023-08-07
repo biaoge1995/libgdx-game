@@ -35,7 +35,6 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
-import com.esotericsoftware.spine.Event;
 import com.esotericsoftware.spine.EventData;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Constants;
@@ -91,9 +90,35 @@ public class LocalModel implements Model {
                 .setMap(map)
                 .setCollisionLayer(collisionLayer)
                 .setQueue(queue)
-                .setRoot(root)
+                .setRoot(container)
                 .build();
+        addListener(new CharacterAdapter(){
+            @Override
+            public void onOneObserverEvent(Event.OneObserverEvent event) {
+                super.onOneObserverEvent(event);
+            }
 
+            @Override
+            public void onTwoObserverEvent(Event.TwoObserverEvent event) {
+
+                if(event.getA() instanceof Character && event.getB() instanceof Character){
+
+                    Character a = (Character) (event.getA());
+                    Character b = (Character) (event.getB());
+                    switch (event.getEventType()) {
+
+                        case hit:
+                            a.hp -= b.damage;
+                            break;
+                        case attack:
+                        case beKilled:
+                        case collisionCharacter:
+                            break;
+                    }
+                }
+
+            }
+        });
 
         //初始化
         init();
@@ -113,6 +138,7 @@ public class LocalModel implements Model {
         isGameOver = false;
         playerGroup.clear();
         enemyGroup.clear();
+//        listener.clear();
         initPlayer();
 
         gameOverTimer = 0;
@@ -195,7 +221,7 @@ public class LocalModel implements Model {
         updateEnemies();
 //        updateBullets();
         updateTriggers();
-        queue.frameEnd(root);
+//        queue.frameEnd(root);
         //将事件队列处理掉
         queue.drain();
     }
@@ -285,11 +311,17 @@ public class LocalModel implements Model {
     }
 
     public void initPlayer() {
-        player = new Player();
-
+        if(player!=null){
+            player.updateByCharacter(new Player());
+        }else {
+            player = new Player();
+            addListener(player);
+        }
+        playerGroup.addCharacter(player);
+        //给用户添加一个监听
         //TODO 诞生了一个玩家
         player.position.set(4, 8);
-        playerGroup.addCharacter(player);
+
     }
 
 

@@ -1,4 +1,6 @@
-package org.cbzmq.game.model;
+package org.cbzmq.game.test;
+
+import org.cbzmq.game.model.Character;
 
 /**
  * @ClassName GameLogicObserver

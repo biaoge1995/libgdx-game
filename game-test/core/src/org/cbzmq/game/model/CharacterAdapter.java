@@ -14,11 +14,17 @@ public  class CharacterAdapter implements Observer {
 
     @Override
     public void onOneObserverEvent(Event.OneObserverEvent event) {
-        Gdx.app.log(event.getEventType().toString(),event.getBody2D().toString());
+//        switch (event.getEventType()) {
+//            case frameEnd:
+//            case collisionMap:
+//                return;
+//            default:
+//                Gdx.app.log(event.getEventType().toString(),event.getBody2D().toString());
+//        }
     }
 
     @Override
     public void onTwoObserverEvent(Event.TwoObserverEvent event) {
-        Gdx.app.log(event.getEventType().toString(),event.getA().toString()+"->"+event.getB().toString());
+//        Gdx.app.log(event.getEventType().toString(),event.getA().toString()+"->"+event.getB().toString());
     }
 }

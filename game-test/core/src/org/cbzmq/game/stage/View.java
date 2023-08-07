@@ -98,32 +98,25 @@ public class View extends Stage {
         ui = new UI(this);
         model.addListener(new CharacterAdapter() {
             @Override
-            public void onOneObserverEvent(Event.OneObserverEvent event) {
-                super.onOneObserverEvent(event);
-                if (modelAndViewMap.containsKey(((Character)event.getBody2D()).getId())) {
-                    BaseSkeletonActor baseSkeletonActor = modelAndViewMap.get(((Character)event.getBody2D()).getId());
-                    switch (event.getEventType()) {
-                        case hit:
-                            baseSkeletonActor.beHit();
-                    }
-
-                }
-            }
-
-            @Override
             public void onTwoObserverEvent(Event.TwoObserverEvent event) {
-                super.onTwoObserverEvent(event);
+                Body2D a = event.getA();
+                Body2D b = event.getB();
+
+                switch (event.getEventType()) {
+                    case hit:
+                        Character character = (Character) a;
+                        if (a instanceof Character && modelAndViewMap.containsKey(character.getId())) {
+                            BaseSkeletonActor baseSkeletonActor = modelAndViewMap.get(character.getId());
+
+                            baseSkeletonActor.beHit();
+                        }
+                    default:
+                        Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), event.getA().toString());
+                        break;
+                }
+
+
             }
-            //            @Override
-//            public void hit(Character character, Character hitCharacter) {
-//                super.hit(character, hitCharacter);
-//
-//                if (modelAndViewMap.containsKey((character).getId())) {
-//                    BaseSkeletonActor baseSkeletonActor = modelAndViewMap.get((character).getId());
-//                    baseSkeletonActor.beHit();
-//                }
-//
-//            }
 
 
         });
@@ -167,14 +160,13 @@ public class View extends Stage {
     public void addActor(BaseSkeletonActor actor) {
         if (modelAndViewMap.containsKey(actor.getModel().getId())) {
             return;
-        }else {
-            modelAndViewMap.put(actor.getModel().getId(),actor);
+        } else {
+            modelAndViewMap.put(actor.getModel().getId(), actor);
             super.addActor(actor);
             actor.loadAssets(assets);
             actor.setViewport(viewport);
             actor.setCamera(camera);
         }
-
 
 
     }
@@ -199,24 +191,24 @@ public class View extends Stage {
                         this.player = (Player) character;
                         this.playerView = new PlayerActor(this.player);
                     }
-                    if(actor!=null && this.playerView!=actor){
+                    if (actor != null && this.playerView != actor) {
                         PlayerActor actor1 = (PlayerActor) actor;
                         actor1.setModel(this.player);
                         this.playerView = actor1;
                     }
                     break;
                 case enemy:
-                    if (actor==null) {
+                    if (actor == null) {
                         actor = new EnemyActor((Enemy) character);
                     }
                     break;
                 case bullet:
-                    if (actor==null) {
+                    if (actor == null) {
                         actor = new BulletActor((Bullet) character);
                     }
                     break;
             }
-            if (actor!=null) {
+            if (actor != null) {
                 addActor(actor);
             }
         }
@@ -324,7 +316,7 @@ public class View extends Stage {
             camera.position.y += (maxY - camera.position.y) * GameCamera.cameraSpeed / camera.zoom * delta;
             if (Math.abs(camera.position.y - maxY) < 0.1f) camera.position.y = maxY;
         }
-        camera.position.z =0.5f;
+        camera.position.z = 0.5f;
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         mapRenderer.setView(camera);

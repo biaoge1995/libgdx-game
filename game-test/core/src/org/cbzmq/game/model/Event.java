@@ -18,15 +18,12 @@ public class Event {
        death,
        attack,
        frameEnd,
-       hit,
+
        dispose,
        beRemove,
        lose,
        win,
        //
-
-       event,
-       collisionCharacter,
        collisionMap,
 
    }

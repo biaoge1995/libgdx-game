@@ -50,6 +50,10 @@ public class EventQueue {
         onTwoObserverEvent(Event.TwoBodyEventType.hit, character, hitCharacter);
     }
 
+    public void death(Body2D character) {
+        onOneObserverEvent(Event.OneBodyEventType.death, character);
+    }
+
     public void death(Body2D character, Body2D killer) {
         onTwoObserverEvent(Event.TwoBodyEventType.beKilled, character, killer);
     }
@@ -101,14 +105,12 @@ public class EventQueue {
                 for (Observer observer : observers) {
                     observer.onOneObserverEvent((Event.OneObserverEvent)obj );
                 }
-            }else if(obj instanceof Event.TwoBodyEventType){
+            }else if(obj instanceof Event.TwoObserverEvent){
                 for (Observer observer : observers) {
                     observer.onTwoObserverEvent((Event.TwoObserverEvent)obj );
                 }
             }
-            for (int i1 = 0; i1 < observers.size; i1++) {
-                Observer observer = observers.get(i1);
-            }
+
         }
 
 //        for (ObjectsAndEventType objectAndEvent : objects) {

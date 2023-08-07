@@ -1,6 +1,6 @@
 package org.cbzmq.game.model;
 
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.stage.Engine2D;
@@ -25,6 +25,15 @@ public class Body2D implements Observer {
     //地板上的 控制的x奔跑速度
     public static float runGroundX = 80, runAirSame = 45, runAirOpposite = 45;
 
+    //空中的时间
+    public float airTime;
+
+    public float stateTime;
+
+    //角色的矩阵
+    //TODO view会用到
+    public Rectangle rect = new Rectangle();
+
     //TODO view会用到
     public Vector2 position = new Vector2();
 
@@ -35,11 +44,43 @@ public class Body2D implements Observer {
     //TODO view会用到
     public Vector2 velocity = new Vector2();
 
+    public float collisionOffsetY;
+
+
+    public float collisionTimer;
+
     public Body2D() {
+    }
+
+    public Object getParent(){
+        return null;
+    }
+
+    public boolean isNeedCheckCollision(){
+        return true;
     }
 
 
 
+    public boolean isGrounded() {
+        // The character is considered grounded for a short time after leaving the ground, making jumping over gaps easier.
+        //角色离开地面后会被视为短暂停飞，从而更容易跳过空隙
+        return airTime < groundedTime;
+    }
+
+    public void setGrounded(boolean grounded) {
+        airTime = grounded ? 0 : groundedTime;
+    }
+
+    public void beCollide() {
+    }
+
+    public void collideMapX() {
+    }
+
+    public void collideMapY() {
+
+    }
 
 
 
@@ -59,12 +100,12 @@ public class Body2D implements Observer {
 
     @Override
     public void onOneObserverEvent(Event.OneObserverEvent event) {
-        Gdx.app.log(event.getEventType().toString(),event.getBody2D().toString());
+
     }
 
     @Override
     public void onTwoObserverEvent(Event.TwoObserverEvent event) {
-        Gdx.app.log(event.getEventType().toString(),event.getA().toString()+"->"+event.getB().toString());
+
     }
 }
 

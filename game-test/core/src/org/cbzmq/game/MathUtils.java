@@ -46,7 +46,7 @@ public class MathUtils {
         }
 
         compresser.end();
-        System.out.println("压缩前数据量大小"+data.length+",压缩后数据量大小"+compressedDataLength);
+//        System.out.println("压缩前数据量大小"+data.length+",压缩后数据量大小"+compressedDataLength);
         compressData.output = result2;
         return compressData;
     }
@@ -69,7 +69,7 @@ public class MathUtils {
             result2[i] = result[i];
         }
 
-        System.out.println("压缩包数据量大小"+compressData.length+",解压后数据量大小"+resultLength);
+//        System.out.println("压缩包数据量大小"+compressData.length+",解压后数据量大小"+resultLength);
 
         return result2;
     }
