@@ -106,8 +106,8 @@ public final class UdpServer extends CharacterAdapter {
             try {
                 ch.writeAndFlush(new DatagramPacket(
                         byteBuf,
-                        SocketUtils.socketAddress("127.0.0.1", 8088)
-//                    SocketUtils.socketAddress("192.168.2.145", 8088)
+//                        SocketUtils.socketAddress("127.0.0.1", 8088)
+                    SocketUtils.socketAddress("192.168.2.145", 8088)
                 )).sync();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);

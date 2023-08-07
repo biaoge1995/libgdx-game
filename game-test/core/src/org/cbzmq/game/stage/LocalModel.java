@@ -191,16 +191,7 @@ public class LocalModel implements Model {
     }
 
 
-    public Array<Character> getAll() {
-        container.clear();
-        root.flat(container);
-        return container;
-    }
 
-    @Override
-    public Array<Observer> getListeners() {
-        return listener;
-    }
 
     public void update(float delta) {
         root.update(delta);
@@ -221,7 +212,7 @@ public class LocalModel implements Model {
         updateEnemies();
 //        updateBullets();
         updateTriggers();
-//        queue.frameEnd(root);
+        queue.frameEnd(root);
         //将事件队列处理掉
         queue.drain();
     }
@@ -336,7 +327,16 @@ public class LocalModel implements Model {
         this.timeScale = timeScale;
     }
 
+    public Array<Character> getAll() {
+        container.clear();
+        root.flat(container);
+        return container;
+    }
 
+    @Override
+    public Array<Observer> getListeners() {
+        return listener;
+    }
     static class Trigger {
         float x;
         Array<Enemy> enemies = new Array();

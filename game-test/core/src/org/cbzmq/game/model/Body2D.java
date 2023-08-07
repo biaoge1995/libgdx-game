@@ -3,7 +3,6 @@ package org.cbzmq.game.model;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import org.cbzmq.game.enums.CharacterType;
-import org.cbzmq.game.stage.Engine2D;
 
 /**
  * @ClassName Observe
