@@ -58,7 +58,7 @@ public final class UdpServer extends CharacterAdapter {
 
     @Override
     public void onOneObserverEvent(Event.OneObserverEvent event) {
-        super.onOneObserverEvent(event);
+
         if (event.getEventType() == Event.OneBodyEventType.frameEnd) {
             Group body2D = (Group) (event.getBody2D());
             container.clear();
