@@ -13,8 +13,7 @@ import org.cbzmq.game.stage.Engine2D;
  * @Version 1.0
  **/
 public class Body2D implements Observer {
-    //任务中心
-    protected Engine2D engine2D;
+
     private CharacterType characterType;
 
     public String name;
