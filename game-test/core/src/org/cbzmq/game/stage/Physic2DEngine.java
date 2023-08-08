@@ -36,6 +36,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Map;
+import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
 
@@ -145,15 +146,21 @@ public class Physic2DEngine {
      * @param delta
      */
     private void move(float delta) {
-        for (Character character : container) {
-            move(character, delta);
+        for (int i = 0; i < container.size; i++) {
+            move(container.get(i), delta);
         }
+
     }
 
     private void move(Character character, float delta) {
 
 //        body2D.stateTime += delta;
-
+        // If moving downward, change state to fall.
+        //如果角色在往下移动则设置该角色的状态为fll
+//        if (character.velocity.y < 0 && character.state != CharacterState.jumping && character.state != CharacterState.falling) {
+//            character.setState(CharacterState.falling);
+//            character.setGrounded(false);
+//        }
 
         // Apply gravity.
         //设置重力加速度
@@ -251,7 +258,7 @@ public class Physic2DEngine {
                 character.position.y = tile.y - character.rect.height;
             else {
                 character.position.y = tile.y + tile.height;
-
+//                if (character.state == CharacterState.jumping) character.setState(CharacterState.idle);
                 character.setGrounded(true);
             }
             character.velocity.y = 0;

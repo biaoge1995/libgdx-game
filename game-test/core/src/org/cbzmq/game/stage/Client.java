@@ -28,7 +28,7 @@ import java.util.Set;
  **/
 public class Client implements Model {
 
-    final Player player;
+    Player player;
     final Map map;
     final Set<Integer> existsId = new HashSet<>();
     final Array<Character> orderCharacterList = new Array<>();
@@ -42,8 +42,7 @@ public class Client implements Model {
     boolean isGameOver = false;
     Channel ch;
     boolean isStartSynced = false;
-    private int msgMaxId=0;
-
+    private int msgMaxId = 0;
 
 
     public Client() throws InterruptedException {
@@ -51,6 +50,7 @@ public class Client implements Model {
         this.map = new Map(assets.tiledMap);
         this.player = new Player();
         this.player.position.set(4, 8);
+        addCharacter(this.player);
         this.queue.setObservers(listeners);
 
         this.physic2DEngine = Physic2DEngine
@@ -88,9 +88,21 @@ public class Client implements Model {
         isStartSynced = startSynced;
     }
 
+    public void addCharacter(Character character) {
+        if (character != null && !characterMap.containsKey(character.getId())) {
+            characterMap.put(character.getId(), character);
+            orderCharacterList.add(character);
+            character.setModel(this);
+            character.setQueue(queue);
+        } else if (character != null) {
+            characterMap.get(character.getId()).updateByCharacter(character);
+
+        }
+    }
+
     public void sync(MsgProto.Msg msgProto) {
         //如果消息是乱序到达则丢弃掉id小于当前id的消息
-        if(msgProto.getId()<msgMaxId) return;
+        if (msgProto.getId() < msgMaxId) return;
 
         isStartSynced = false;
         existsId.clear();
@@ -103,31 +115,38 @@ public class Client implements Model {
             switch (proto.getType()) {
                 case player:
                     character = Player.parserProto(proto);
+                    player.updateByCharacter((Player) character);
                     break;
                 case bullet:
                     character = Bullet.parserProto(proto);
+                    addCharacter(character);
                     break;
                 case enemy:
                     character = Enemy.parserProto(proto);
+                    addCharacter(character);
                     break;
             }
-            if (character != null && !characterMap.containsKey(character.getId())) {
-                characterMap.put(proto.getId(), character);
-                orderCharacterList.add(character);
-            } else if (character != null) {
-                characterMap.get(character.getId()).updateByCharacter(character);
 
-            }
         }
 
         //默认没有从服务器更新的元素全部置为死亡
         for (Character value : orderCharacterList) {
-            if (!existsId.contains(value.getId())) {
-                value.beDeath();
+            switch (value.characterType) {
+                case enemy:
+                case bullet:
+                    if (!existsId.contains(value.getId())) {
+                        value.beDeath();
+                    }
+                    break;
             }
+
+
 //            switch (value.characterType) {
 //                case player:
-//                    player.updateByCharacter((Player) value);
+//                    if(value.getId()>=player.getId()){
+//                        player = (Player) value;
+//                    }
+//
 //                    break;
 //                case enemy:
 //                    enemies.add((Enemy) value);
@@ -174,7 +193,7 @@ public class Client implements Model {
 
     @Override
     public float getTimeScale() {
-        return 0;
+        return 1;
     }
 
     @Override

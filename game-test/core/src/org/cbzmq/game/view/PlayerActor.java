@@ -40,6 +40,7 @@ import com.esotericsoftware.spine.AnimationState.AnimationStateAdapter;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Assets.SoundEffect;
 import org.cbzmq.game.Constants;
+import org.cbzmq.game.StateAnimation;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.model.Player;
 
@@ -209,7 +210,8 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
     public void jump() {
         if (getModel().isGrounded()) {
             getModel().jump();
-            setAnimation(getAssets().playerStates.get(CharacterState.jumping), true);
+            StateAnimation stateAnimation = getAssets().playerStates.get(CharacterState.jumping);
+            setAnimation(stateAnimation, true);
         }
 
     }

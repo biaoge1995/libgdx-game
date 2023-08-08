@@ -15,8 +15,9 @@ import org.cbzmq.game.GameServer;
 public class SpineBoyClientDesktop {
     public static void main (String[] args) throws Exception {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-        config.setTitle("Super Spineboy");
-        config.setWindowedMode(800,450);
+        config.setTitle("Super Spineboy client");
+        int scale = 3;
+        config.setWindowedMode(800*scale,450*scale);
         new Lwjgl3Application(new GameClient(), config);
     }
 }

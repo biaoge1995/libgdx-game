@@ -104,17 +104,18 @@ public class Character implements Observer {
         if (hp <= 0) {
             beDeath();
         }
-        // If moving downward, change state to fall.
-        //如果角色在往下移动则设置该角色的状态为fll
+
         if (velocity.y < 0 && state != CharacterState.jumping && state != CharacterState.falling) {
             setState(CharacterState.falling);
             setGrounded(false);
         }
-        if(velocity.x==0){
+        if(velocity.x==0 && isGrounded()){
+            setState(CharacterState.idle);
+
+        }
+        if( isGrounded() && state == CharacterState.jumping){
             setState(CharacterState.idle);
         }
-        if (state == CharacterState.jumping) setState(CharacterState.idle);
-
     }
 
     //是否可以被从parent中清除掉
@@ -408,8 +409,8 @@ public class Character implements Observer {
 //        this.isWin = character.isWin;
         this.damage = character.damage;
         this.collisionTimer = character.collisionTimer;
-        this.setQueue(character.getQueue());
-        this.parent = character.parent;
+//        this.setQueue(character.getQueue());
+//        this.parent = character.parent;
     }
 
     public int getId() {
