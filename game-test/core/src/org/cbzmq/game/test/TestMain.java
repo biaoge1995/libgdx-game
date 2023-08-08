@@ -1,5 +1,14 @@
 package org.cbzmq.game.test;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import org.cbzmq.game.enums.MsgHeader;
+import org.cbzmq.game.proto.CharacterProto;
+import org.cbzmq.game.proto.MsgProto;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+
 /**
  * @ClassName TestMain
  * @Description TODO
@@ -114,7 +123,7 @@ public class TestMain {
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InvalidProtocolBufferException {
 //        Container<Lives> livesContainer = new Container<>();
 //        Container<Apple> livesContainer2 = new Container<>();
 //        livesContainer.add(new Apple());
@@ -123,14 +132,28 @@ public class TestMain {
 //        livesContainer.addAll2(livesContainer2);
 //        Lives lives = livesContainer.get(0);
 //        lives.getName();
+//
+//        Apple apple = new Apple();
+//        if(apple instanceof Lives){
+//            System.out.println("Lives");
+//        }
+//        if(apple instanceof Apple){
+//            System.out.println("Apple");
+//        }
+        long time = new Date().getTime();
+        LinkedList<Object> objects = new LinkedList<>();
+        MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
+        MsgProto.Msg msg = builder
+                .setHeader(MsgHeader.SYNC_CHARACTERS_INFO)
+                .addAllCharacterData(new ArrayList<CharacterProto.Character>())
+                .setTimeStamp(time)
+                .build();
+        byte[] bytes = msg.toByteArray();
+        MsgProto.Msg msg1 = MsgProto.Msg.parseFrom(bytes);
+        System.out.println(time);
+        System.out.println(msg1.getTimeStamp());
 
-        Apple apple = new Apple();
-        if(apple instanceof Lives){
-            System.out.println("Lives");
-        }
-        if(apple instanceof Apple){
-            System.out.println("Apple");
-        }
+
     }
 
 

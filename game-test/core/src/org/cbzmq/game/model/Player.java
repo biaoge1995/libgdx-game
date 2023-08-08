@@ -103,7 +103,7 @@ public class Player extends Character{
 	public void beCollide(){
 		collisionTimer = Player.collisionDelay;
 		if (hp > 0){
-			state = CharacterState.fall;
+			state = CharacterState.falling;
 		}else {
 			setState(CharacterState.death);
 			velocity.y *= 0.5f;

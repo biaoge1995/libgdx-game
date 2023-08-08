@@ -1,7 +1,7 @@
 package org.cbzmq.game.test;
 
 import com.badlogic.gdx.math.Rectangle;
-import org.cbzmq.game.model.Body2D;
+import org.cbzmq.game.model.Character;
 import org.cbzmq.game.model.Event;
 
 
@@ -16,13 +16,13 @@ public interface Engine2DObserver{
     /**现在只处理2d引擎的功能**/
 
     /** 碰撞到了地图  */
-    public abstract void collisionMap (Body2D Body2D, Rectangle tile);
+    public abstract void collisionMap (Character Character, Rectangle tile);
 
     /** 碰撞到了其他角色  */
-    public abstract void collisionObserver (Body2D Body2D, Body2D other);
+    public abstract void collisionObserver (Character Character, Character other);
 
     /** 事件 **/
-    public abstract void event (Body2D Body2D, Event.OneObserverEvent event);
+    public abstract void event (Character Character, Event.OneObserverEvent event);
 
     public abstract void eventOneObserver (Event.OneObserverEvent event);
 

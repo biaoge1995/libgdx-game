@@ -34,7 +34,7 @@ package org.cbzmq.game;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.Vector2;
 import org.cbzmq.game.netty.UdpServer;
-import org.cbzmq.game.stage.LocalModel;
+import org.cbzmq.game.stage.GameEngine;
 import org.cbzmq.game.stage.Model;
 import org.cbzmq.game.stage.View;
 import org.cbzmq.game.stage.UI;
@@ -79,7 +79,7 @@ public class GameServer extends Game {
 	}
 
 	public void create () {
-		model = new LocalModel();
+		model = new GameEngine();
 		try {
 			udpServer = new UdpServer();
 			model.addListener(udpServer);

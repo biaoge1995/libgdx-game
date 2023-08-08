@@ -16,11 +16,42 @@ import org.cbzmq.game.stage.Model;
 /**
  * The model class for an enemy or player that moves around the map.
  */
-public class Character extends Body2D{
+public class Character implements Observer {
 
     private static final Array<ByteArray.Type> types;
     public CharacterType characterType = CharacterType.unknown;
     public int id;
+
+    public String name;
+
+    //地面时间
+    public static float groundedTime = 0.15f;
+
+    //地板上的 控制的x奔跑速度
+    public static float runGroundX = 80, runAirSame = 45, runAirOpposite = 45;
+
+    //空中的时间
+    public float airTime;
+
+
+    //角色的矩阵
+    //TODO view会用到
+    public Rectangle rect = new Rectangle();
+
+    //TODO view会用到
+    public Vector2 position = new Vector2();
+
+    //目标位置向量
+    public Vector2 targetPosition = new Vector2();
+
+    //速度向量
+    //TODO view会用到
+    public Vector2 velocity = new Vector2();
+
+    public float collisionOffsetY;
+
+
+    public float collisionTimer;
 
     @Null
     Group<Character> parent;
@@ -33,10 +64,9 @@ public class Character extends Body2D{
     public CharacterState state = CharacterState.idle;
     //开始时间
 
-    //方向
+    //角色模型面朝的方向 1右边 -1左边
     //TODO view会用到
     public float dir;
-
 
     //是否状态改变
     //TODO view会用到
@@ -51,7 +81,7 @@ public class Character extends Body2D{
     //跳的速度在Y上
     public float jumpVelocity;
 
-    public boolean isWin = false;
+//    public boolean isWin = false;
 
     public float damage;
 
@@ -71,20 +101,19 @@ public class Character extends Body2D{
     }
 
     public void update(float delta) {
-
         if (hp <= 0) {
             beDeath();
         }
         // If moving downward, change state to fall.
         //如果角色在往下移动则设置该角色的状态为fll
-        if (velocity.y < 0 && state != CharacterState.jump && state != CharacterState.fall) {
-            setState(CharacterState.fall);
+        if (velocity.y < 0 && state != CharacterState.jumping && state != CharacterState.falling) {
+            setState(CharacterState.falling);
             setGrounded(false);
         }
         if(velocity.x==0){
             setState(CharacterState.idle);
         }
-        if (state == CharacterState.jump) setState(CharacterState.idle);
+        if (state == CharacterState.jumping) setState(CharacterState.idle);
 
     }
 
@@ -108,14 +137,14 @@ public class Character extends Body2D{
         if (this.state != CharacterState.death) {
             this.hp = 0;
             this.state = CharacterState.death;
-            if (queue != null) queue.death(this);
+            if (queue != null) queue.beDeath(this);
         }
     }
 
     public void setState(CharacterState newState) {
-        if ((state == newState && state != CharacterState.fall) || state == CharacterState.death) return;
+        if ((state == newState && state != CharacterState.falling) || state == CharacterState.death) return;
         state = newState;
-        stateTime = 0;
+//        stateTime = 0;
         stateChanged = true;
     }
 
@@ -124,28 +153,34 @@ public class Character extends Body2D{
         float adjust;
         if (isGrounded()) {
             adjust = runGroundX;
-            setState(CharacterState.run);
+            setState(CharacterState.running);
         } else
             adjust = velocity.x <= 0 ? runAirSame : runAirOpposite;
         if (velocity.x > -maxVelocityX) velocity.x = Math.max(velocity.x - adjust * delta, -maxVelocityX);
         dir = -1;
+        this.queue.moveLeft(this);
     }
 
     public void moveRight(float delta) {
         float adjust;
         if (isGrounded()) {
             adjust = runGroundX;
-            setState(CharacterState.run);
+            setState(CharacterState.running);
         } else
             adjust = velocity.x >= 0 ? runAirSame : runAirOpposite;
         if (velocity.x < maxVelocityX) velocity.x = Math.min(velocity.x + adjust * delta, maxVelocityX);
         dir = 1;
+        this.queue.moveRight(this);
     }
 
+    /**
+     * 跳跃事件
+     */
     public void jump() {
         velocity.y += jumpVelocity;
-        setState(CharacterState.jump);
+        setState(CharacterState.jumping);
         setGrounded(false);
+        this.queue.jump(this);
     }
 
     public void jumpDamping() {
@@ -223,7 +258,7 @@ public class Character extends Body2D{
         son.targetPosition = father.targetPosition;
         son.velocity = father.velocity;
         son.state = father.state;
-        son.stateTime = father.stateTime;
+//        son.stateTime = father.stateTime;
         son.dir = father.dir;
         son.airTime = father.airTime;
         son.rect = father.rect;
@@ -232,7 +267,7 @@ public class Character extends Body2D{
         son.maxVelocityX = father.maxVelocityX;
         son.collisionOffsetY = father.collisionOffsetY;
         son.jumpVelocity = father.jumpVelocity;
-        son.isWin = father.isWin;
+//        son.isWin = father.isWin;
         son.damage = father.damage;
         son.collisionTimer = father.collisionTimer;
         son.setQueue(father.getQueue());
@@ -361,7 +396,7 @@ public class Character extends Body2D{
         this.targetPosition = character.targetPosition;
         this.velocity = character.velocity;
         this.state = character.state;
-        this.stateTime = character.stateTime;
+//        this.stateTime = character.stateTime;
         this.dir = character.dir;
         this.airTime = character.airTime;
         this.rect = character.rect;
@@ -370,7 +405,7 @@ public class Character extends Body2D{
         this.maxVelocityX = character.maxVelocityX;
         this.collisionOffsetY = character.collisionOffsetY;
         this.jumpVelocity = character.jumpVelocity;
-        this.isWin = character.isWin;
+//        this.isWin = character.isWin;
         this.damage = character.damage;
         this.collisionTimer = character.collisionTimer;
         this.setQueue(character.getQueue());
@@ -437,13 +472,13 @@ public class Character extends Body2D{
 
     @Override
     public void onOneObserverEvent(Event.OneObserverEvent event) {
-        if(event.getBody2D() instanceof Group) return;
+        if(event.getCharacter() instanceof Group) return;
         switch (event.getEventType()) {
             case frameEnd:
             case collisionMap:
                 return;
             default:
-                Gdx.app.log("监听者"+this+"| 事件"+event.getEventType().toString(),event.getBody2D().toString());
+                Gdx.app.log("监听者"+this+"| 事件"+event.getEventType().toString(),event.getCharacter().toString());
         }
     }
 
@@ -456,6 +491,34 @@ public class Character extends Body2D{
         if(state == CharacterState.death)return false;
         return true;
     }
+
+
+
+
+
+    public boolean isGrounded() {
+        // The character is considered grounded for a short time after leaving the ground, making jumping over gaps easier.
+        //角色离开地面后会被视为短暂停飞，从而更容易跳过空隙
+        return airTime < groundedTime;
+    }
+
+    public void setGrounded(boolean grounded) {
+        airTime = grounded ? 0 : groundedTime;
+    }
+
+    public void beCollide() {
+    }
+
+    public void collideMapX() {
+    }
+
+    public void collideMapY() {
+
+    }
+
+
+
+
 
 }
 

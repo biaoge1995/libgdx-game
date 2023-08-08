@@ -26,40 +26,41 @@ import java.util.Set;
  * @Date 2023/7/28 1:03 上午
  * @Version 1.0
  **/
-public class RemoteModel implements Model {
+public class Client implements Model {
 
-    Player player;
-    Map map;
-
-
-    Set<Integer> existsId = new HashSet<>();
-
-
+    final Player player;
+    final Map map;
+    final Set<Integer> existsId = new HashSet<>();
     final Array<Character> orderCharacterList = new Array<>();
-
     final java.util.Map<Integer, Character> characterMap = new HashMap<>();
-
     final Array<Enemy> enemies = new Array<>();
-
-    Array<Character> listeners = new Array<>();
-    EventQueue queue = new EventQueue();
-    Assets assets;
+    final Array<Observer> listeners = new Array<>();
+    final EventQueue queue = new EventQueue();
+    final Assets assets;
+    final Physic2DEngine physic2DEngine;
     boolean isPlayerWin = false;
     boolean isGameOver = false;
     Channel ch;
-
     boolean isStartSynced = false;
+    private int msgMaxId=0;
 
-    public static void main(String[] args) throws InterruptedException {
-        new RemoteModel();
-    }
 
-    public RemoteModel() throws InterruptedException {
+
+    public Client() throws InterruptedException {
         this.assets = new Assets();
-        map = new Map(assets.tiledMap);
-        player = new Player();
-        player.position.set(4, 8);
-        queue.setObservers(listeners);
+        this.map = new Map(assets.tiledMap);
+        this.player = new Player();
+        this.player.position.set(4, 8);
+        this.queue.setObservers(listeners);
+
+        this.physic2DEngine = Physic2DEngine
+                .newBuilder()
+                .setAssets(assets)
+                .setMap(map)
+                .setCollisionLayer(map.collisionLayer)
+                .setQueue(queue)
+                .setRoot(orderCharacterList)
+                .build();
 
         EventLoopGroup group = new NioEventLoopGroup();
 //        try {
@@ -88,6 +89,8 @@ public class RemoteModel implements Model {
     }
 
     public void sync(MsgProto.Msg msgProto) {
+        //如果消息是乱序到达则丢弃掉id小于当前id的消息
+        if(msgProto.getId()<msgMaxId) return;
 
         isStartSynced = false;
         existsId.clear();
@@ -103,42 +106,33 @@ public class RemoteModel implements Model {
                     break;
                 case bullet:
                     character = Bullet.parserProto(proto);
-//                    getBullets().add(bullet);
                     break;
                 case enemy:
                     character = Enemy.parserProto(proto);
-//                    getEnemies().add(enemy);
                     break;
             }
-
-
-            int index = proto.getId() - 1;
             if (character != null && !characterMap.containsKey(character.getId())) {
                 characterMap.put(proto.getId(), character);
                 orderCharacterList.add(character);
             } else if (character != null) {
                 characterMap.get(character.getId()).updateByCharacter(character);
-                ;
 
             }
         }
 
-
+        //默认没有从服务器更新的元素全部置为死亡
         for (Character value : orderCharacterList) {
             if (!existsId.contains(value.getId())) {
                 value.beDeath();
             }
-            switch (value.characterType) {
-                case player:
-                    player = (Player) value;
-                    break;
-//                case bullet:
-//                    getBullets().add((Bullet) value);
+//            switch (value.characterType) {
+//                case player:
+//                    player.updateByCharacter((Player) value);
 //                    break;
-                case enemy:
-                    getEnemies().add((Enemy) value);
-                    break;
-            }
+//                case enemy:
+//                    enemies.add((Enemy) value);
+//                    break;
+//            }
 
         }
 
@@ -147,9 +141,7 @@ public class RemoteModel implements Model {
 
     @Override
     public void update(float delta) {
-//        for (Character value : characterMap.values()) {
-//            value.update(delta);
-//        }
+        physic2DEngine.update(delta);
     }
 
     @Override
@@ -213,22 +205,23 @@ public class RemoteModel implements Model {
 
     @Override
     public Array<Observer> getListeners() {
+        return listeners;
+    }
+
+    @Override
+    public EventQueue getQueue() {
         return null;
     }
 
-
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
 }
 
 
 class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
-    private RemoteModel model;
+    private final Client model;
 
 
-    public UdpClientHandler(RemoteModel model) {
+    public UdpClientHandler(Client model) {
         this.model = model;
 
     }

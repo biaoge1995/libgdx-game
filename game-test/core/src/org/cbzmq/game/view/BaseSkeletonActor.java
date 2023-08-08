@@ -83,7 +83,10 @@ public class BaseSkeletonActor<T extends Character> extends SkeletonActor {
         if (force || oldAnimation != animation) {
             if (state.animation == null) return true;
             TrackEntry entry = getAnimationState().setAnimation(0, state.animation, state.loop);
-            if (oldAnimation != null) entry.setTrackTime(state.startTimes.get(oldAnimation, state.defaultStartTime));
+            if (oldAnimation != null) {
+                float v = state.startTimes.get(oldAnimation, state.defaultStartTime);
+                entry.setTrackTime(v);
+            };
             if (!state.loop) entry.setTrackEnd(Float.MAX_VALUE);
             return true;
         }

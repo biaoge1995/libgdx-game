@@ -80,7 +80,7 @@ public enum Code
   }
   public static final com.google.protobuf.Descriptors.EnumDescriptor
       getDescriptor() {
-    return org.cbzmq.game.enums.Enums.getDescriptor().getEnumTypes().get(6);
+    return org.cbzmq.game.enums.Enums.getDescriptor().getEnumTypes().get(5);
   }
 
   private static final Code[] VALUES = values();

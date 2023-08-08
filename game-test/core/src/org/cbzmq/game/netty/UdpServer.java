@@ -1,5 +1,6 @@
 package org.cbzmq.game.netty;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -33,12 +34,15 @@ import java.util.Date;
  **/
 
 
-public final class UdpServer extends CharacterAdapter {
+public final class UdpServer extends ObserverAdapter {
 
     private static final int PORT = Integer.parseInt(System.getProperty("port", "7686"));
     private Channel ch;
+    private static long counter=0;
+    private static final Array<CharacterProto.Character> characterProtos = new Array<>();
 
     private final Array<Character> container = new Array<>();
+    private final Array<MsgProto.Event> protoEvents = new Array<>();
 
 
     public UdpServer() throws InterruptedException {
@@ -57,61 +61,96 @@ public final class UdpServer extends CharacterAdapter {
     }
 
     @Override
+    public void onTwoObserverEvent(Event.TwoObserverEvent event) {
+        if (!(event.getA() instanceof Character && event.getB() instanceof Character)) return;
+        switch (event.getEventType()) {
+            case hit:
+            case beKilled:
+            case collisionCharacter:
+                break;
+        }
+    }
+
+    @Override
     public void onOneObserverEvent(Event.OneObserverEvent event) {
+        Character one = event.getCharacter();
+        switch (event.getEventType()) {
+            case win:
+            case born:
+            case attack:
+            case lose:
+            case beDeath:
+                MsgProto.Event.Builder builder1 = MsgProto.Event.newBuilder();
+                MsgProto.Event protoEvent = builder1.setOne(one.toCharacterProto().build())
+                        .setOneBodyEvent(event.getEventType())
+                        .build();
+                protoEvents.add(protoEvent);
+                break;
+            case frameEnd:
+                Group root = (Group) (event.getCharacter());
+                byte[] bytes;
+                //没60个轮训给客户端同步一次数据
+                if(counter%60==0){
+                    syncAllCharacter(root);
+                    MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
+                    MsgProto.Msg msg = builder
+                            .setId(counter)
+                            .setHeader(MsgHeader.SYNC_CHARACTERS_INFO)
+                            .addAllCharacterData(characterProtos)
+                            .setTimeStamp(new Date().getTime())
+                            .build();
 
-        if (event.getEventType() == Event.OneBodyEventType.frameEnd) {
-            Group body2D = (Group) (event.getBody2D());
-            container.clear();
-            body2D.flat(container);
+                    bytes = msg.toByteArray();
+                }else {
+                    MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
+                    MsgProto.Msg msg = builder
+                            .setId(counter)
+                            .setHeader(MsgHeader.SYNC_CHARACTERS_EVENT)
+                            .addAllEvents(protoEvents)
+                            .setTimeStamp(new Date().getTime())
+                            .build();
 
-//        MsgByte msgByte = new MsgByte(MsgHeader.SYNC_CHARACTERS_INFO, new Date().getTime());
-//        msgByte.setCharacters(all);
-            Array<CharacterProto.Character> characterProtos = new Array<>();
-//        Array<Byte> bytes = new Array<>();
-            for (Character character : container) {
-                if (character.state == CharacterState.death) continue;
-                CharacterProto.Character proto = character.toCharacterProto().build();
-                characterProtos.add(proto);
-//            bytes.addAll(character.toCharacterBytes().getBytes());
-            }
+                    bytes = msg.toByteArray();
+                    Gdx.app.log("events",msg.toString());
+                }
 
 
-            MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
-            MsgProto.Msg msg = builder
-                    .setHeader(MsgHeader.SYNC_CHARACTERS_INFO)
-                    .addAllCharacterData(characterProtos)
-                    .setTimeStamp(new Date().getTime())
-                    .build();
 
-            byte[] bytes = msg.toByteArray();
+                //二次压缩
+                MathUtils.CompressData compress = MathUtils.compress(bytes);
+                ByteBuf byteBuf = Unpooled.copiedBuffer(compress.getOutput());
 
-//        byte[] bytes = msgByte.toByteArray();
+//              System.out.println("元素数量" + msg.getCharacterDataList().size());
+//              System.out.println("protobuf消息长度" + bytes.length + "byte");
 
-            //二次压缩
-            MathUtils.CompressData compress = MathUtils.compress(bytes);
-            ByteBuf byteBuf = Unpooled.copiedBuffer(compress.getOutput());
-//        System.out.println(msg);
-//            System.out.println("元素数量" + msg.getCharacterDataList().size());
-//        System.out.println("protobuf消息长度" + bytes.length + "byte");
-//        System.out.println("string消息长度" + msg.toString().getBytes(StandardCharsets.UTF_8).length + "byte\n");
 
-//            Iterator<Channel> iterator = null;
-//            while (iterator.hasNext()) {
-//                Channel channel = iterator.next();
-//                channel.writeAndFlush(new DatagramPacket(
-//                        byteBuf,
-//                        SocketUtils.socketAddress("127.0.0.1", 8088))).sync();
-//            }
-
-            try {
-                ch.writeAndFlush(new DatagramPacket(
-                        byteBuf,
+                try {
+                    ch.writeAndFlush(new DatagramPacket(
+                            byteBuf,
 //                        SocketUtils.socketAddress("127.0.0.1", 8088)
-                    SocketUtils.socketAddress("192.168.2.145", 8088)
-                )).sync();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+                            SocketUtils.socketAddress("192.168.2.145", 8088)
+                    )).sync();
+                    if(counter==Long.MAX_VALUE){
+                        counter++;
+                    }else {
+                        counter=0;
+                    }
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+        }
+    }
+
+    public void syncAllCharacter(Group root ){
+        container.clear();
+        characterProtos.clear();
+        root.flat(container);
+
+        for (Character character : container) {
+            if (character.state == CharacterState.death) continue;
+            CharacterProto.Character proto = character.toCharacterProto().build();
+            characterProtos.add(proto);
         }
     }
 }

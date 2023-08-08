@@ -76,7 +76,7 @@ public class GameClient extends Game {
 
     public void create() {
         try {
-            model = new RemoteModel();
+            model = new Client();
         } catch (InterruptedException e) {
             e.printStackTrace();
             System.exit(-1);

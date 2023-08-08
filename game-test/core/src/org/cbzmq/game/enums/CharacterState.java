@@ -14,46 +14,86 @@ public enum CharacterState
     implements com.google.protobuf.ProtocolMessageEnum {
   /**
    * <code>idle = 0;</code>
+   *
+   * <pre>
+   *休息状态
+   * </pre>
    */
   idle(0, 0),
   /**
-   * <code>run = 1;</code>
+   * <code>running = 1;</code>
+   *
+   * <pre>
+   *处于奔跑中状态
+   * </pre>
    */
-  run(1, 1),
+  running(1, 1),
   /**
-   * <code>jump = 2;</code>
+   * <code>jumping = 2;</code>
+   *
+   * <pre>
+   *处于跳跃在空中的状态
+   * </pre>
    */
-  jump(2, 2),
+  jumping(2, 2),
   /**
    * <code>death = 3;</code>
+   *
+   * <pre>
+   *处于死亡的状态
+   * </pre>
    */
   death(3, 3),
   /**
-   * <code>fall = 4;</code>
+   * <code>falling = 4;</code>
+   *
+   * <pre>
+   *处于下落的状态
+   * </pre>
    */
-  fall(4, 4),
+  falling(4, 4),
   ;
 
   /**
    * <code>idle = 0;</code>
+   *
+   * <pre>
+   *休息状态
+   * </pre>
    */
   public static final int idle_VALUE = 0;
   /**
-   * <code>run = 1;</code>
+   * <code>running = 1;</code>
+   *
+   * <pre>
+   *处于奔跑中状态
+   * </pre>
    */
-  public static final int run_VALUE = 1;
+  public static final int running_VALUE = 1;
   /**
-   * <code>jump = 2;</code>
+   * <code>jumping = 2;</code>
+   *
+   * <pre>
+   *处于跳跃在空中的状态
+   * </pre>
    */
-  public static final int jump_VALUE = 2;
+  public static final int jumping_VALUE = 2;
   /**
    * <code>death = 3;</code>
+   *
+   * <pre>
+   *处于死亡的状态
+   * </pre>
    */
   public static final int death_VALUE = 3;
   /**
-   * <code>fall = 4;</code>
+   * <code>falling = 4;</code>
+   *
+   * <pre>
+   *处于下落的状态
+   * </pre>
    */
-  public static final int fall_VALUE = 4;
+  public static final int falling_VALUE = 4;
 
 
   public final int getNumber() { return value; }
@@ -61,10 +101,10 @@ public enum CharacterState
   public static CharacterState valueOf(int value) {
     switch (value) {
       case 0: return idle;
-      case 1: return run;
-      case 2: return jump;
+      case 1: return running;
+      case 2: return jumping;
       case 3: return death;
-      case 4: return fall;
+      case 4: return falling;
       default: return null;
     }
   }

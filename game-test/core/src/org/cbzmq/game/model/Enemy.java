@@ -102,7 +102,7 @@ public class Enemy extends Character {
             if (enemyType == EnemyType.becomesBig && size == 1) {
                 bigTimer = bigDuration;
                 collisionTimer = bigDuration;
-                state = CharacterState.run;
+                state = CharacterState.running;
                 hp = hpBig;
                 knockbackX = bigKnockbackX;
                 knockbackY = bigKnockbackY;
@@ -135,8 +135,6 @@ public class Enemy extends Character {
                     small.velocity.y = MathUtils.random(10, 25);
                     small.setGrounded(false);
                     parent.addCharacter(small);
-                    //TODO 增加到游戏主逻辑中去
-//					model.enemies.add(small);
                 }
             }
         }
@@ -160,18 +158,12 @@ public class Enemy extends Character {
         if (state == CharacterState.death)
             deathTimer -= delta;
         else if (collisionTimer < 0) {
-            //TODO  胜利的条件
-            //model.player.hp == 0
-            if (isWin) {
-                // Enemies win, jump for joy!
-                //如果怪物赢了
-                win();
-            } else {
+
                 //跳向目标方向
                 if (grounded && (forceJump || Math.abs(targetPosition.x - position.x) < jumpDistance)) {
                     jumpDelayTimer -= delta;
                     //跳跃的定时器
-                    if (state != CharacterState.jump && jumpDelayTimer < 0 && position.y <= targetPosition.y) {
+                    if (state != CharacterState.jumping && jumpDelayTimer < 0 && position.y <= targetPosition.y) {
                         jump();
                         jumpDelayTimer = MathUtils.random(0, jumpDelay);
                         forceJump = false;
@@ -184,17 +176,11 @@ public class Enemy extends Character {
                     } else if (velocity.x <= 0) //
                         moveLeft(delta);
                 }
-            }
+
         }
 
         int previousCollision = collisions;
-//        super.update(delta);
         if (!grounded || collisions == previousCollision) collisions = 0;
-
-        //如果死亡则移除自己
-//		if (this.deathTimer < 0) {
-//			remove();
-//		}
 
 
     }
@@ -202,7 +188,7 @@ public class Enemy extends Character {
     public void beCollide() {
         collisionTimer = Enemy.collisionDelay;
         if (hp > 0) {
-            state = CharacterState.fall;
+            state = CharacterState.falling;
             jumpDelayTimer = MathUtils.random(0, jumpDelay);
         }
     }
@@ -344,5 +330,9 @@ public class Enemy extends Character {
         this.collisions = father.collisions;
         this.knockbackX = father.knockbackX;
         this.knockbackY = father.knockbackY;
+    }
+
+    public Enemy copy(Character father,Character son){
+        return null;
     }
 }

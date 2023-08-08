@@ -154,7 +154,7 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
             float angle = bonePosition.sub(mouse).angle();
             float behind = (angle < 90 || angle > 270) ? -1 : 1;
             if (behind == -1) angle = -angle;
-            if (getModel().state == CharacterState.idle || (touched && (getModel().state == CharacterState.jump || getModel().state == CharacterState.fall)))
+            if (getModel().state == CharacterState.idle || (touched && (getModel().state == CharacterState.jumping || getModel().state == CharacterState.falling)))
                 getModel().dir = behind;
             if (behind != getModel().dir) angle = -angle;
             if (getModel().state != CharacterState.idle && behind != getModel().dir) {
@@ -209,7 +209,7 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
     public void jump() {
         if (getModel().isGrounded()) {
             getModel().jump();
-            setAnimation(getAssets().playerStates.get(CharacterState.jump), true);
+            setAnimation(getAssets().playerStates.get(CharacterState.jumping), true);
         }
 
     }

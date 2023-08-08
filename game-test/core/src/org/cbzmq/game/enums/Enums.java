@@ -17,21 +17,26 @@ public final class Enums {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\020avro/enums.proto*B\n\016CharacterState\022\010\n\004" +
-      "idle\020\000\022\007\n\003run\020\001\022\010\n\004jump\020\002\022\t\n\005death\020\003\022\010\n\004" +
-      "fall\020\004*?\n\rCharacterType\022\n\n\006player\020\000\022\t\n\005e" +
-      "nemy\020\001\022\n\n\006bullet\020\002\022\013\n\007unknown\020\003*Q\n\tEnemy" +
-      "Type\022\010\n\004weak\020\000\022\n\n\006normal\020\001\022\n\n\006strong\020\002\022\016" +
-      "\n\nbecomesBig\020\003\022\007\n\003big\020\004\022\t\n\005small\020\005*\177\n\tMs" +
-      "gHeader\022\030\n\024SYNC_CHARACTERS_INFO\020\000\022\031\n\025SYN" +
-      "C_CHARACTERS_EVENT\020\001\022\024\n\020SYNC_GAME_STATUS" +
-      "\020\003\022\014\n\010REGISTER\020\004\022\010\n\004QUIT\020\005\022\017\n\013GAME_ACTIO" +
-      "N\020\006**\n\nGameAction\022\010\n\004JUMP\020\000\022\007\n\003RUN\020\001\022\t\n\005",
-      "SHOOT\020\002*Z\n\nGameStatus\022\r\n\tNOT_START\020\000\022\013\n\007" +
-      "LOADING\020\001\022\t\n\005READY\020\002\022\013\n\007RUNNING\020\003\022\r\n\tGAM" +
-      "E_OVER\020\004\022\t\n\005PAUSE\020\005*#\n\004Code\022\007\n\002OK\020\310\001\022\022\n\r" +
-      "SERVER_FAILED\020\364\003B\030\n\024org.cbzmq.game.enums" +
-      "P\001"
+      "\n\020avro/enums.proto*L\n\016CharacterState\022\010\n\004" +
+      "idle\020\000\022\013\n\007running\020\001\022\013\n\007jumping\020\002\022\t\n\005deat" +
+      "h\020\003\022\013\n\007falling\020\004*?\n\rCharacterType\022\n\n\006pla" +
+      "yer\020\000\022\t\n\005enemy\020\001\022\n\n\006bullet\020\002\022\013\n\007unknown\020" +
+      "\003*Q\n\tEnemyType\022\010\n\004weak\020\000\022\n\n\006normal\020\001\022\n\n\006" +
+      "strong\020\002\022\016\n\nbecomesBig\020\003\022\007\n\003big\020\004\022\t\n\005sma" +
+      "ll\020\005*\177\n\tMsgHeader\022\030\n\024SYNC_CHARACTERS_INF" +
+      "O\020\000\022\031\n\025SYNC_CHARACTERS_EVENT\020\001\022\024\n\020SYNC_G" +
+      "AME_STATUS\020\003\022\014\n\010REGISTER\020\004\022\010\n\004QUIT\020\005\022\017\n\013" +
+      "GAME_ACTION\020\006*Z\n\nGameStatus\022\r\n\tNOT_START",
+      "\020\000\022\013\n\007LOADING\020\001\022\t\n\005READY\020\002\022\013\n\007RUNNING\020\003\022" +
+      "\r\n\tGAME_OVER\020\004\022\t\n\005PAUSE\020\005*#\n\004Code\022\007\n\002OK\020" +
+      "\310\001\022\022\n\rSERVER_FAILED\020\364\003*\273\001\n\020OneBodyEventT" +
+      "ype\022\010\n\004born\020\001\022\013\n\007beDeath\020\002\022\n\n\006attack\020\003\022\010" +
+      "\n\004jump\020\n\022\r\n\tmoveRight\020\013\022\014\n\010moveLeft\020\014\022\017\n" +
+      "\013bloodUpdate\020\r\022\013\n\007dispose\020\004\022\014\n\010beRemove\020" +
+      "\005\022\010\n\004lose\020\006\022\007\n\003win\020\007\022\020\n\014collisionMap\020\010\022\014" +
+      "\n\010frameEnd\020\t*A\n\020TwoBodyEventType\022\026\n\022coll" +
+      "isionCharacter\020\001\022\007\n\003hit\020\002\022\014\n\010beKilled\020\003B" +
+      "\030\n\024org.cbzmq.game.enumsP\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {

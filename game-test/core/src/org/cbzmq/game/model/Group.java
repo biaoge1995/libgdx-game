@@ -4,6 +4,7 @@ package org.cbzmq.game.model;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
+import org.cbzmq.game.enums.EnemyType;
 import org.cbzmq.game.stage.Model;
 
 /**

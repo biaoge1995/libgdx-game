@@ -35,7 +35,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
-import com.esotericsoftware.spine.EventData;
+import com.badlogic.gdx.utils.Queue;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Constants;
 import org.cbzmq.game.Map;
@@ -48,7 +48,7 @@ import org.cbzmq.game.model.*;
  * how this information might be drawn to the screen. This model-view separation is a clean way to organize the code.
  * 游戏逻辑的核心。模型管理着所有的游戏信息，但对视图一无所知（不用管如何将这些信息绘制到屏幕上）。这种模型视图分离是组织代码的一种干净方法。
  */
-public class LocalModel implements Model {
+public class GameEngine implements Model {
 
     Group<Character> root;
     Player player;
@@ -59,24 +59,20 @@ public class LocalModel implements Model {
     private final EventQueue queue = new EventQueue();
 
     float timeScale = 1;
-    Array<Trigger> triggers = new Array();
-//    Array<Bullet> bullets = new Array<>();
-//    Array<Enemy> enemies = new Array();
+    Array<Trigger> triggers = new Array<>();
 
-
-    Group<Bullet> bulletGroup;
     Group<Enemy> enemyGroup;
-    Group<Character> playerGroup;
+    Group<Player> playerGroup;
     float gameOverTimer;
     Assets assets;
-    Engine2D engine2D;
+    Physic2DEngine physic2DEngine;
 
     boolean isGameOver;
 
     boolean isPlayerWin;
 
 
-    public LocalModel() {
+    public GameEngine() {
         this.assets = new Assets();
         this.map = new Map(assets.tiledMap);
         this.collisionLayer = map.collisionLayer;
@@ -84,7 +80,7 @@ public class LocalModel implements Model {
         this.root.setModel(this);
         this.root.setQueue(queue);
         this.queue.setObservers(listener);
-        this.engine2D = Engine2D
+        this.physic2DEngine = Physic2DEngine
                 .newBuilder()
                 .setAssets(assets)
                 .setMap(map)
@@ -92,7 +88,7 @@ public class LocalModel implements Model {
                 .setQueue(queue)
                 .setRoot(container)
                 .build();
-        addListener(new CharacterAdapter(){
+        addListener(new ObserverAdapter() {
             @Override
             public void onOneObserverEvent(Event.OneObserverEvent event) {
                 super.onOneObserverEvent(event);
@@ -100,23 +96,18 @@ public class LocalModel implements Model {
 
             @Override
             public void onTwoObserverEvent(Event.TwoObserverEvent event) {
-
-                if(event.getA() instanceof Character && event.getB() instanceof Character){
-
-                    Character a = (Character) (event.getA());
-                    Character b = (Character) (event.getB());
-                    switch (event.getEventType()) {
-
-                        case hit:
-                            a.hp -= b.damage;
-                            break;
-                        case attack:
-                        case beKilled:
-                        case collisionCharacter:
-                            break;
-                    }
+                Character a = (event.getA());
+                Character b = (event.getB());
+                switch (event.getEventType()) {
+                    case hit:
+                        a.hp -= b.damage;
+                        queue.bloodUpdate(a);
+                        queue.bloodUpdate(b);
+                        break;
+                    case beKilled:
+                    case collisionCharacter:
+                        break;
                 }
-
             }
         });
 
@@ -125,12 +116,12 @@ public class LocalModel implements Model {
     }
 
     public void init() {
-        bulletGroup = new Group<>("bulletGroup");
+
         enemyGroup = new Group<>("enemyGroup");
         playerGroup = new Group<>("playerGroup");
-        addCharacter(playerGroup);
-        addCharacter(bulletGroup);
-        addCharacter(enemyGroup);
+
+        this.root.addCharacter(playerGroup);
+        this.root.addCharacter(enemyGroup);
         restart();
     }
 
@@ -138,14 +129,12 @@ public class LocalModel implements Model {
         isGameOver = false;
         playerGroup.clear();
         enemyGroup.clear();
-//        listener.clear();
         initPlayer();
 
         gameOverTimer = 0;
 
         // Setup triggers to spawn enemies based on the x coordinate of the player.
         triggers.clear();
-//        addTrigger(10, 10, 8, EnemyType.becomesBig, 2);
         addTrigger(17, 17 + 22, 8, EnemyType.normal, 2);
         addTrigger(17, 17 + 22, 8, EnemyType.strong, 1);
         addTrigger(31, 31 + 22, 8, EnemyType.normal, 3);
@@ -190,12 +179,24 @@ public class LocalModel implements Model {
 
     }
 
+    public void initPlayer() {
+        if (player != null) {
+            player.updateByCharacter(new Player());
+        } else {
+            player = new Player();
+            addListener(player);
+        }
+        playerGroup.addCharacter(player);
+        //给用户添加一个监听
+        //TODO 诞生了一个玩家
+        player.position.set(4, 8);
 
+    }
 
 
     public void update(float delta) {
         root.update(delta);
-        engine2D.update(delta);
+        physic2DEngine.update(delta);
 
         for (Character p : playerGroup.getChildren()) {
             if (p instanceof Player) {
@@ -210,7 +211,6 @@ public class LocalModel implements Model {
 
         }
         updateEnemies();
-//        updateBullets();
         updateTriggers();
         queue.frameEnd(root);
         //将事件队列处理掉
@@ -222,8 +222,7 @@ public class LocalModel implements Model {
             Trigger trigger = triggers.get(i);
             if (player.position.x > trigger.x) {
                 for (Enemy enemy : trigger.enemies) {
-//                    enemies.add(enemy);
-                    addEnemy(enemy);
+                    enemyGroup.addCharacter(enemy);
                 }
                 triggers.removeIndex(i);
                 break;
@@ -292,30 +291,6 @@ public class LocalModel implements Model {
     }
 
 
-    public void addCharacter(Character character) {
-        root.addCharacter(character);
-    }
-
-
-    public void addEnemy(Enemy enemy) {
-        enemyGroup.addCharacter(enemy);
-    }
-
-    public void initPlayer() {
-        if(player!=null){
-            player.updateByCharacter(new Player());
-        }else {
-            player = new Player();
-            addListener(player);
-        }
-        playerGroup.addCharacter(player);
-        //给用户添加一个监听
-        //TODO 诞生了一个玩家
-        player.position.set(4, 8);
-
-    }
-
-
     public float getTimeScale() {
         if (player.hp == 0)
             return timeScale * Interpolation.pow2In.apply(0, 1, MathUtils.clamp(gameOverTimer / Constants.gameOverSlowdown, 0.01f, 1));
@@ -337,6 +312,12 @@ public class LocalModel implements Model {
     public Array<Observer> getListeners() {
         return listener;
     }
+
+    @Override
+    public EventQueue getQueue() {
+        return queue;
+    }
+
     static class Trigger {
         float x;
         Array<Enemy> enemies = new Array();
@@ -359,11 +340,6 @@ public class LocalModel implements Model {
     }
 
 
-
-    public Array<Bullet> getBullets() {
-        return bulletGroup.getChildren();
-    }
-
     @Override
     public Array<Enemy> getEnemies() {
         return enemyGroup.getChildren();
@@ -374,10 +350,6 @@ public class LocalModel implements Model {
         return assets;
     }
 
-
-    public EventQueue queue() {
-        return queue;
-    }
 
     @Override
     public boolean isPlayerWin() {

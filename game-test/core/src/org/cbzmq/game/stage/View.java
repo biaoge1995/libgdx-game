@@ -96,11 +96,11 @@ public class View extends Stage {
         mapRenderer.setMaxTileSize(512, 512);
         assets = model.getAssets();
         ui = new UI(this);
-        model.addListener(new CharacterAdapter() {
+        model.addListener(new ObserverAdapter() {
             @Override
             public void onTwoObserverEvent(Event.TwoObserverEvent event) {
-                Body2D a = event.getA();
-                Body2D b = event.getB();
+                Character a = event.getA();
+                Character b = event.getB();
 
                 switch (event.getEventType()) {
                     case hit:
@@ -260,7 +260,7 @@ public class View extends Stage {
         } else if (playerView.isRightPressed()) {
             player.moveRight(delta);
 //            player.setState(CharacterState.run);
-        } else if (player.state == CharacterState.run) //
+        } else if (player.state == CharacterState.running) //
             player.setState(CharacterState.idle);
 
         if (playerView.isTouched()) playerView.shoot();
@@ -358,6 +358,7 @@ public class View extends Stage {
                 return true;
             case Keys.A:
             case Keys.LEFT:
+//                player.moveLeft(0.03f);
                 playerView.setLeftPressed(true);
                 return true;
             case Keys.D:

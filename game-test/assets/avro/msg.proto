@@ -11,15 +11,25 @@ option java_package = "org.cbzmq.game.proto";
 //生成 proto 文件名
 option java_outer_classname = "MsgProto";
 
-option java_multiple_files = false; // 会生成多个对象文件，一个Message一个
+option java_multiple_files = false;
 
-message Msg{
+// 会生成多个对象文件，一个Message一个
+
+message Msg {
     //自身属性
-    required MsgHeader header=1;
-    required int64 timeStamp=2;
-    optional Code code=3;
-    repeated Character characterData=4;
-    optional GameAction gameAction = 5;
+    required int64 id=1;
+    required MsgHeader header = 2;
+    required int64 timeStamp = 3;
+    optional Code code = 4;
+    repeated Character characterData = 5;
+    repeated Event events = 6;
+}
+
+message Event {
+    optional OneBodyEventType  oneBodyEvent = 2;
+    optional TwoBodyEventType towBodyEvent = 3;
+    optional Character one=4;
+    optional Character other=5;
 }
 
 

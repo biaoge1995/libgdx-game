@@ -1,6 +1,7 @@
 package org.cbzmq.game.model;
 
-import org.cbzmq.game.model.Body2D;
+import org.cbzmq.game.enums.OneBodyEventType;
+import org.cbzmq.game.enums.TwoBodyEventType;
 
 import java.util.Date;
 
@@ -12,39 +13,21 @@ import java.util.Date;
  * @Version 1.0
  **/
 public class Event {
-   public enum OneBodyEventType{
-       //这些事件需要通知客户端
-       born,
-       death,
-       attack,
-       frameEnd,
 
-       dispose,
-       beRemove,
-       lose,
-       win,
-       //
-       collisionMap,
-
-   }
-
-   public enum TwoBodyEventType{
-       collisionCharacter,attack,hit,beKilled;
-   }
     public static class OneObserverEvent {
         private final long timeStamp;
         private final OneBodyEventType eventType;
-        private final Body2D body2D;
+        private final Character character;
 
 
-        public static OneObserverEvent createEvent(OneBodyEventType eventType, Body2D body2D) {
-            return new OneObserverEvent(new Date().getTime(), eventType, body2D);
+        public static OneObserverEvent createEvent(OneBodyEventType eventType, Character character) {
+            return new OneObserverEvent(new Date().getTime(), eventType, character);
         }
 
-        private OneObserverEvent(long timeStamp, OneBodyEventType eventType, Body2D body2D) {
+        private OneObserverEvent(long timeStamp, OneBodyEventType eventType, Character character) {
             this.timeStamp = timeStamp;
             this.eventType = eventType;
-            this.body2D = body2D;
+            this.character = character;
         }
 
         public long getTimeStamp() {
@@ -56,22 +39,22 @@ public class Event {
         }
 
 
-        public Body2D getBody2D() {
-            return body2D;
+        public Character getCharacter() {
+            return character;
         }
     }
 
     public static class TwoObserverEvent {
         private long timeStamp;
         private TwoBodyEventType eventType;
-        private Body2D a;
-        private Body2D b;
+        private Character a;
+        private Character b;
 
-        public static TwoObserverEvent createEvent(TwoBodyEventType eventType, Body2D a, Body2D b) {
+        public static TwoObserverEvent createEvent(TwoBodyEventType eventType, Character a, Character b) {
             return new TwoObserverEvent(new Date().getTime(), eventType, a, b);
         }
 
-        private TwoObserverEvent(long timeStamp, TwoBodyEventType eventType, Body2D a, Body2D b) {
+        private TwoObserverEvent(long timeStamp, TwoBodyEventType eventType, Character a, Character b) {
             this.timeStamp = timeStamp;
             this.eventType = eventType;
             this.a = a;
@@ -94,19 +77,19 @@ public class Event {
             this.eventType = eventType;
         }
 
-        public Body2D getA() {
+        public Character getA() {
             return a;
         }
 
-        public void setA(Body2D a) {
+        public void setA(Character a) {
             this.a = a;
         }
 
-        public Body2D getB() {
+        public Character getB() {
             return b;
         }
 
-        public void setB(Body2D b) {
+        public void setB(Character b) {
             this.b = b;
         }
     }

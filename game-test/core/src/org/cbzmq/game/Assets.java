@@ -147,11 +147,11 @@ public class Assets {
 
 		setupState(playerStates, CharacterState.death, playerSkeletonData, "death", false);
 		StateAnimation idle = setupState(playerStates, CharacterState.idle, playerSkeletonData, "idle", true);
-		StateAnimation jump = setupState(playerStates, CharacterState.jump, playerSkeletonData, "jump", false);
-		StateAnimation run = setupState(playerStates, CharacterState.run, playerSkeletonData, "run", true);
+		StateAnimation jump = setupState(playerStates, CharacterState.jumping, playerSkeletonData, "jump", false);
+		StateAnimation run = setupState(playerStates, CharacterState.running, playerSkeletonData, "run", true);
 		if (idle.animation != null) run.startTimes.put(idle.animation, 8 * Constants.fps);
 		if (jump.animation != null) run.startTimes.put(jump.animation, 22 * Constants.fps);
-		StateAnimation fall = setupState(playerStates, CharacterState.fall, playerSkeletonData, "jump", false);
+		StateAnimation fall = setupState(playerStates, CharacterState.falling, playerSkeletonData, "jump", false);
 		fall.defaultStartTime = 22 * Constants.fps;
 	}
 
@@ -166,10 +166,10 @@ public class Assets {
 		enemyAnimationData.setDefaultMix(0.1f);
 
 		setupState(enemyStates, CharacterState.idle, enemySkeletonData, "run", true);
-		setupState(enemyStates, CharacterState.jump, enemySkeletonData, "jump", true);
-		setupState(enemyStates, CharacterState.run, enemySkeletonData, "run", true);
+		setupState(enemyStates, CharacterState.jumping, enemySkeletonData, "jump", true);
+		setupState(enemyStates, CharacterState.running, enemySkeletonData, "run", true);
 		setupState(enemyStates, CharacterState.death, enemySkeletonData, "death", false);
-		setupState(enemyStates, CharacterState.fall, enemySkeletonData, "run", false);
+		setupState(enemyStates, CharacterState.falling, enemySkeletonData, "run", false);
 	}
 
 	public void setMix (AnimationStateData data, String from, String to, float mix) {

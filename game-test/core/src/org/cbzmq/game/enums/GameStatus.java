@@ -148,7 +148,7 @@ public enum GameStatus
   }
   public static final com.google.protobuf.Descriptors.EnumDescriptor
       getDescriptor() {
-    return org.cbzmq.game.enums.Enums.getDescriptor().getEnumTypes().get(5);
+    return org.cbzmq.game.enums.Enums.getDescriptor().getEnumTypes().get(4);
   }
 
   private static final GameStatus[] VALUES = values();

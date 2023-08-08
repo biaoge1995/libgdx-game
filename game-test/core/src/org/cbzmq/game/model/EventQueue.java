@@ -2,16 +2,15 @@ package org.cbzmq.game.model;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
+import org.cbzmq.game.enums.OneBodyEventType;
+import org.cbzmq.game.enums.TwoBodyEventType;
 
 public class EventQueue {
     private final Array<Object> observerEvents = new Array<>();
-    boolean drainDisabled = false;
+    private boolean drainDisabled = false;
 
-//    Array<? extends Engine2DObserver> engine2DObservers;
-//
-//    Array<? extends GameLogicObserver> gameLogicObservers;
 
-    Array<? extends Observer> observers;
+    private Array<? extends Observer> observers;
 
     public EventQueue() {
 
@@ -21,73 +20,76 @@ public class EventQueue {
         this.observers = observers;
     }
 
-//    public void setEngine2DObservers(Array<? extends Engine2DObserver> engine2DObservers) {
-//        this.engine2DObservers = engine2DObservers;
-//
-//    }
-//
-//    public void setGameLogicObservers(Array<? extends GameLogicObserver> gameLogicObservers) {
-//        this.gameLogicObservers = gameLogicObservers;
-//    }
-
-    public void onOneObserverEvent(Event.OneBodyEventType eventType, Body2D body2D) {
-        Event.OneObserverEvent event = Event.OneObserverEvent.createEvent(eventType, body2D);
+    public void onOneObserverEvent(OneBodyEventType eventType, Character character) {
+        Event.OneObserverEvent event = Event.OneObserverEvent.createEvent(eventType, character);
         observerEvents.add(event);
     }
 
 
-    public void onTwoObserverEvent(Event.TwoBodyEventType eventType, Body2D body2D, Body2D other) {
-        Event.TwoObserverEvent event = Event.TwoObserverEvent.createEvent(eventType, body2D, other);
+    public void onTwoObserverEvent(TwoBodyEventType eventType, Character character, Character other) {
+        Event.TwoObserverEvent event = Event.TwoObserverEvent.createEvent(eventType, character, other);
         observerEvents.add(event);
     }
 
 
-    public void born(Body2D body2D) {
-        onOneObserverEvent(Event.OneBodyEventType.born, body2D);
+    public void born(Character character) {
+        onOneObserverEvent(OneBodyEventType.born, character);
     }
 
-    public void hit(Body2D character, Body2D hitCharacter) {
-        onTwoObserverEvent(Event.TwoBodyEventType.hit, character, hitCharacter);
+    public void jump(Character character) {
+        onOneObserverEvent(OneBodyEventType.jump, character);
+    }
+    public void moveRight(Character character) {
+        onOneObserverEvent(OneBodyEventType.moveRight, character);
+    }
+    public void moveLeft(Character character) {
+        onOneObserverEvent(OneBodyEventType.moveLeft, character);
+    }
+    public void bloodUpdate(Character character) {
+        onOneObserverEvent(OneBodyEventType.bloodUpdate, character);
+    }
+    public void hit(Character character, Character hitCharacter) {
+        onTwoObserverEvent(TwoBodyEventType.hit, character, hitCharacter);
     }
 
-    public void death(Body2D character) {
-        onOneObserverEvent(Event.OneBodyEventType.death, character);
+    public void beDeath(Character character) {
+        onOneObserverEvent(OneBodyEventType.beDeath, character);
     }
 
-    public void death(Body2D character, Body2D killer) {
-        onTwoObserverEvent(Event.TwoBodyEventType.beKilled, character, killer);
+    public void death(Character character, Character killer) {
+        onTwoObserverEvent(TwoBodyEventType.beKilled, character, killer);
     }
 
-    public void beRemove(Body2D body2D) {
-        onOneObserverEvent(Event.OneBodyEventType.beRemove, body2D);
+    public void beRemove(Character character) {
+        onOneObserverEvent(OneBodyEventType.beRemove, character);
     }
 
-    public void collisionMap(Body2D character, Rectangle tile) {
-        onOneObserverEvent(Event.OneBodyEventType.collisionMap, character);
+    public void collisionMap(Character character, Rectangle tile) {
+        onOneObserverEvent(OneBodyEventType.collisionMap, character);
     }
 
-    public void collisionCharacter(Body2D character, Body2D other) {
-        onTwoObserverEvent(Event.TwoBodyEventType.collisionCharacter, character, other);
+    public void collisionCharacter(Character character, Character other) {
+        onTwoObserverEvent(TwoBodyEventType.collisionCharacter, character, other);
     }
 
-    public void attack(Body2D character) {
-        onOneObserverEvent(Event.OneBodyEventType.attack, character);
+    public void attack(Character character) {
+        onOneObserverEvent(OneBodyEventType.attack, character);
     }
 
-    public void dispose(Body2D character) {
-        onOneObserverEvent(Event.OneBodyEventType.dispose, character);
+    public void dispose(Character character) {
+        onOneObserverEvent(OneBodyEventType.dispose, character);
     }
 
-    public void lose(Body2D character) {
-        onOneObserverEvent(Event.OneBodyEventType.lose, character);
+    public void lose(Character character) {
+        onOneObserverEvent(OneBodyEventType.lose, character);
     }
 
-    public void win(Body2D character) {
-        onOneObserverEvent(Event.OneBodyEventType.win, character);
+    public void win(Character character) {
+        onOneObserverEvent(OneBodyEventType.win, character);
     }
 
     public void frameEnd(Group root) {
-        onOneObserverEvent(Event.OneBodyEventType.frameEnd, root);
+        onOneObserverEvent(OneBodyEventType.frameEnd, root);
     }
 
     public void drain() {
@@ -113,73 +115,11 @@ public class EventQueue {
 
         }
 
-//        for (ObjectsAndEventType objectAndEvent : objects) {
-//            Event.EventType enemyType = objectAndEvent.eventType;
-//            Object obj = objectAndEvent.objects.get(0);
-//            Body2D body2D = null;
-//            Character character = null;
-//            if (obj instanceof Character) {
-//                character = (Character) obj;
-//            } else if (obj instanceof Body2D) {
-//                body2D = (Body2D) obj;
-//            }
-//            switch (enemyType) {
-//                case born:
-//                    for (int ii = 0; ii < gameLogicObservers.size; ii++)
-//                        gameLogicObservers.get(ii).born(character);
-//                    break;
-//                case death:
-//                    for (int ii = 0; ii < gameLogicObservers.size; ii++)
-//                        gameLogicObservers.get(ii).death(character, (Character) objectAndEvent.objects.get(1));
-//                    break;
-//                case hit:
-//                    Character hitCharacter = (Character) objectAndEvent.objects.get(1);
-//                    for (int ii = 0; ii < gameLogicObservers.size; ii++)
-//                        gameLogicObservers.get(ii).hit(character, hitCharacter);
-//                case dispose:
-//                    for (int ii = 0; ii < gameLogicObservers.size; ii++)
-//                        gameLogicObservers.get(ii).dispose(character);
-//                    break;
-//                case beRemove:
-//                    for (int ii = 0; ii < gameLogicObservers.size; ii++)
-//                        gameLogicObservers.get(ii).beRemove(character);
-//                    break;
-//                case attack:
-//                    for (int ii = 0; ii < gameLogicObservers.size; ii++)
-//                        gameLogicObservers.get(ii).attack(character);
-//                    break;
-//                case frameEnd:
-//                    float delta = (float) objectAndEvent.objects.get(1);
-//                    Array<Character> all = new Array<>();
-//                    all.clear();
-//                    ((Group) obj).flat(all);
-//                    for (int ii = 0; ii < gameLogicObservers.size; ii++)
-//                        gameLogicObservers.get(ii).frameEnd(all, delta);
-//                    break;
-//                case collisionCharacter:
-//                    Body2D other = (Body2D) objectAndEvent.objects.get(1);
-//                    for (int ii = 0; ii < engine2DObservers.size; ii++)
-//                        engine2DObservers.get(ii).collisionObserver(body2D, other);
-//                    break;
-//                case collisionMap:
-//                    Rectangle tile = (Rectangle) objectAndEvent.objects.get(1);
-//                    for (int ii = 0; ii < engine2DObservers.size; ii++)
-//                        engine2DObservers.get(ii).collisionMap(body2D, tile);
-//                    break;
-//                case event:
-//                    Event.OneObserverEvent event = (Event.OneObserverEvent) objectAndEvent.objects.get(1);
-//                    for (int ii = 0; ii < engine2DObservers.size; ii++)
-//                        engine2DObservers.get(ii).event(body2D, event);
-//                    break;
-//
-//            }
-//        }
         clear();
-
         drainDisabled = false;
     }
 
-    public void clear() {
+    private void clear() {
         observerEvents.clear();
     }
 

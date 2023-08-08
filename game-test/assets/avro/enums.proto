@@ -12,11 +12,11 @@ option java_multiple_files = true;
 
 // 会生成多个对象文件，一个Message一个
 enum CharacterState {
-    idle = 0;
-    run = 1;
-    jump = 2;
-    death = 3;
-    fall = 4;
+    idle = 0; //休息状态
+    running = 1;//处于奔跑中状态
+    jumping = 2;//处于跳跃在空中的状态
+    death = 3;//处于死亡的状态
+    falling = 4;//处于下落的状态
 }
 
 enum CharacterType {
@@ -52,11 +52,6 @@ enum MsgHeader {
     GAME_ACTION = 6; //游戏操作
 }
 
- enum GameAction {
-     JUMP=0;
-     RUN=1;
-     SHOOT=2;
- }
 
 
 
@@ -78,4 +73,31 @@ enum Code {
     SERVER_FAILED = 500;//服务器异常
 }
 
+//单个物体事件（一个瞬间发生的事情）
+enum OneBodyEventType{
+    //这些事件需要通知客户端
+    born=1;//出生
+    beDeath=2;//死亡
+    attack=3;//攻击
+    jump=10;//跳跃
+    moveRight=11;//向右边
+    moveLeft=12;//向左边
+    bloodUpdate=13;//血条更新
+    dispose=4;//销毁
+    beRemove=5;//移除
+    lose=6;//失败
+    win=7;//胜利
+    collisionMap=8;//碰撞到地图
+    frameEnd=9;//帧结束
+    //
+
+
+}
+
+//两个物体交互事件
+enum TwoBodyEventType{
+    collisionCharacter=1;//碰撞到其他角色
+    hit=2; //被击打
+    beKilled=3;
+}
 
