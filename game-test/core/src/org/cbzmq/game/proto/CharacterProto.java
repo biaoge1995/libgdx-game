@@ -533,6 +533,20 @@ public final class CharacterProto {
      * <code>required int32 id = 34;</code>
      */
     int getId();
+
+    // optional .Vector2 aimPoint = 35;
+    /**
+     * <code>optional .Vector2 aimPoint = 35;</code>
+     */
+    boolean hasAimPoint();
+    /**
+     * <code>optional .Vector2 aimPoint = 35;</code>
+     */
+    org.cbzmq.game.proto.CharacterProto.Vector2 getAimPoint();
+    /**
+     * <code>optional .Vector2 aimPoint = 35;</code>
+     */
+    org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder getAimPointOrBuilder();
   }
   /**
    * Protobuf type {@code Character}
@@ -810,6 +824,19 @@ public final class CharacterProto {
               id_ = input.readInt32();
               break;
             }
+            case 282: {
+              org.cbzmq.game.proto.CharacterProto.Vector2.Builder subBuilder = null;
+              if (((bitField1_ & 0x00000001) == 0x00000001)) {
+                subBuilder = aimPoint_.toBuilder();
+              }
+              aimPoint_ = input.readMessage(org.cbzmq.game.proto.CharacterProto.Vector2.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(aimPoint_);
+                aimPoint_ = subBuilder.buildPartial();
+              }
+              bitField1_ |= 0x00000001;
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -853,6 +880,7 @@ public final class CharacterProto {
     }
 
     private int bitField0_;
+    private int bitField1_;
     // required .CharacterType type = 1;
     public static final int TYPE_FIELD_NUMBER = 1;
     private org.cbzmq.game.enums.CharacterType type_;
@@ -1587,6 +1615,28 @@ public final class CharacterProto {
       return id_;
     }
 
+    // optional .Vector2 aimPoint = 35;
+    public static final int AIMPOINT_FIELD_NUMBER = 35;
+    private org.cbzmq.game.proto.CharacterProto.Vector2 aimPoint_;
+    /**
+     * <code>optional .Vector2 aimPoint = 35;</code>
+     */
+    public boolean hasAimPoint() {
+      return ((bitField1_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .Vector2 aimPoint = 35;</code>
+     */
+    public org.cbzmq.game.proto.CharacterProto.Vector2 getAimPoint() {
+      return aimPoint_;
+    }
+    /**
+     * <code>optional .Vector2 aimPoint = 35;</code>
+     */
+    public org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder getAimPointOrBuilder() {
+      return aimPoint_;
+    }
+
     private void initFields() {
       type_ = org.cbzmq.game.enums.CharacterType.player;
       position_ = org.cbzmq.game.proto.CharacterProto.Vector2.getDefaultInstance();
@@ -1621,6 +1671,7 @@ public final class CharacterProto {
       knockbackX_ = 0F;
       knockbackY_ = 0F;
       id_ = 0;
+      aimPoint_ = org.cbzmq.game.proto.CharacterProto.Vector2.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1683,6 +1734,12 @@ public final class CharacterProto {
       }
       for (int i = 0; i < getBulletsCount(); i++) {
         if (!getBullets(i).isInitialized()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
+      }
+      if (hasAimPoint()) {
+        if (!getAimPoint().isInitialized()) {
           memoizedIsInitialized = 0;
           return false;
         }
@@ -1792,6 +1849,9 @@ public final class CharacterProto {
       }
       if (((bitField0_ & 0x80000000) == 0x80000000)) {
         output.writeInt32(34, id_);
+      }
+      if (((bitField1_ & 0x00000001) == 0x00000001)) {
+        output.writeMessage(35, aimPoint_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1934,6 +1994,10 @@ public final class CharacterProto {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(34, id_);
       }
+      if (((bitField1_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(35, aimPoint_);
+      }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
       return size;
@@ -2047,6 +2111,7 @@ public final class CharacterProto {
           getVelocityFieldBuilder();
           getRectFieldBuilder();
           getBulletsFieldBuilder();
+          getAimPointFieldBuilder();
         }
       }
       private static Builder create() {
@@ -2141,6 +2206,12 @@ public final class CharacterProto {
         bitField0_ = (bitField0_ & ~0x80000000);
         id_ = 0;
         bitField1_ = (bitField1_ & ~0x00000001);
+        if (aimPointBuilder_ == null) {
+          aimPoint_ = org.cbzmq.game.proto.CharacterProto.Vector2.getDefaultInstance();
+        } else {
+          aimPointBuilder_.clear();
+        }
+        bitField1_ = (bitField1_ & ~0x00000002);
         return this;
       }
 
@@ -2170,6 +2241,7 @@ public final class CharacterProto {
         int from_bitField0_ = bitField0_;
         int from_bitField1_ = bitField1_;
         int to_bitField0_ = 0;
+        int to_bitField1_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
@@ -2323,7 +2395,16 @@ public final class CharacterProto {
           to_bitField0_ |= 0x80000000;
         }
         result.id_ = id_;
+        if (((from_bitField1_ & 0x00000002) == 0x00000002)) {
+          to_bitField1_ |= 0x00000001;
+        }
+        if (aimPointBuilder_ == null) {
+          result.aimPoint_ = aimPoint_;
+        } else {
+          result.aimPoint_ = aimPointBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
+        result.bitField1_ = to_bitField1_;
         onBuilt();
         return result;
       }
@@ -2461,6 +2542,9 @@ public final class CharacterProto {
         if (other.hasId()) {
           setId(other.getId());
         }
+        if (other.hasAimPoint()) {
+          mergeAimPoint(other.getAimPoint());
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
@@ -2522,6 +2606,12 @@ public final class CharacterProto {
         }
         for (int i = 0; i < getBulletsCount(); i++) {
           if (!getBullets(i).isInitialized()) {
+            
+            return false;
+          }
+        }
+        if (hasAimPoint()) {
+          if (!getAimPoint().isInitialized()) {
             
             return false;
           }
@@ -4565,6 +4655,123 @@ public final class CharacterProto {
         return this;
       }
 
+      // optional .Vector2 aimPoint = 35;
+      private org.cbzmq.game.proto.CharacterProto.Vector2 aimPoint_ = org.cbzmq.game.proto.CharacterProto.Vector2.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          org.cbzmq.game.proto.CharacterProto.Vector2, org.cbzmq.game.proto.CharacterProto.Vector2.Builder, org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder> aimPointBuilder_;
+      /**
+       * <code>optional .Vector2 aimPoint = 35;</code>
+       */
+      public boolean hasAimPoint() {
+        return ((bitField1_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional .Vector2 aimPoint = 35;</code>
+       */
+      public org.cbzmq.game.proto.CharacterProto.Vector2 getAimPoint() {
+        if (aimPointBuilder_ == null) {
+          return aimPoint_;
+        } else {
+          return aimPointBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .Vector2 aimPoint = 35;</code>
+       */
+      public Builder setAimPoint(org.cbzmq.game.proto.CharacterProto.Vector2 value) {
+        if (aimPointBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          aimPoint_ = value;
+          onChanged();
+        } else {
+          aimPointBuilder_.setMessage(value);
+        }
+        bitField1_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .Vector2 aimPoint = 35;</code>
+       */
+      public Builder setAimPoint(
+          org.cbzmq.game.proto.CharacterProto.Vector2.Builder builderForValue) {
+        if (aimPointBuilder_ == null) {
+          aimPoint_ = builderForValue.build();
+          onChanged();
+        } else {
+          aimPointBuilder_.setMessage(builderForValue.build());
+        }
+        bitField1_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .Vector2 aimPoint = 35;</code>
+       */
+      public Builder mergeAimPoint(org.cbzmq.game.proto.CharacterProto.Vector2 value) {
+        if (aimPointBuilder_ == null) {
+          if (((bitField1_ & 0x00000002) == 0x00000002) &&
+              aimPoint_ != org.cbzmq.game.proto.CharacterProto.Vector2.getDefaultInstance()) {
+            aimPoint_ =
+              org.cbzmq.game.proto.CharacterProto.Vector2.newBuilder(aimPoint_).mergeFrom(value).buildPartial();
+          } else {
+            aimPoint_ = value;
+          }
+          onChanged();
+        } else {
+          aimPointBuilder_.mergeFrom(value);
+        }
+        bitField1_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .Vector2 aimPoint = 35;</code>
+       */
+      public Builder clearAimPoint() {
+        if (aimPointBuilder_ == null) {
+          aimPoint_ = org.cbzmq.game.proto.CharacterProto.Vector2.getDefaultInstance();
+          onChanged();
+        } else {
+          aimPointBuilder_.clear();
+        }
+        bitField1_ = (bitField1_ & ~0x00000002);
+        return this;
+      }
+      /**
+       * <code>optional .Vector2 aimPoint = 35;</code>
+       */
+      public org.cbzmq.game.proto.CharacterProto.Vector2.Builder getAimPointBuilder() {
+        bitField1_ |= 0x00000002;
+        onChanged();
+        return getAimPointFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .Vector2 aimPoint = 35;</code>
+       */
+      public org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder getAimPointOrBuilder() {
+        if (aimPointBuilder_ != null) {
+          return aimPointBuilder_.getMessageOrBuilder();
+        } else {
+          return aimPoint_;
+        }
+      }
+      /**
+       * <code>optional .Vector2 aimPoint = 35;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          org.cbzmq.game.proto.CharacterProto.Vector2, org.cbzmq.game.proto.CharacterProto.Vector2.Builder, org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder> 
+          getAimPointFieldBuilder() {
+        if (aimPointBuilder_ == null) {
+          aimPointBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              org.cbzmq.game.proto.CharacterProto.Vector2, org.cbzmq.game.proto.CharacterProto.Vector2.Builder, org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder>(
+                  aimPoint_,
+                  getParentForChildren(),
+                  isClean());
+          aimPoint_ = null;
+        }
+        return aimPointBuilder_;
+      }
+
       // @@protoc_insertion_point(builder_scope:Character)
     }
 
@@ -5765,7 +5972,7 @@ public final class CharacterProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\024avro/character.proto\032\020avro/enums.proto" +
-      "\"\352\005\n\tCharacter\022\034\n\004type\030\001 \002(\0162\016.Character" +
+      "\"\206\006\n\tCharacter\022\034\n\004type\030\001 \002(\0162\016.Character" +
       "Type\022\032\n\010position\030\002 \002(\0132\010.Vector2\022 \n\016targ" +
       "etPosition\030\003 \001(\0132\010.Vector2\022\032\n\010velocity\030\004" +
       " \002(\0132\010.Vector2\022\036\n\005state\030\005 \002(\0162\017.Characte" +
@@ -5783,11 +5990,11 @@ public final class CharacterProto {
       "\022\020\n\010bigTimer\030\033 \001(\002\022\030\n\020spawnSmallsTimer\030\034" +
       " \001(\002\022\014\n\004move\030\035 \001(\010\022\021\n\tforceJump\030\036 \001(\010\022\022\n" +
       "\ncollisions\030\037 \001(\005\022\022\n\nknockbackX\030  \001(\002\022\022\n" +
-      "\nknockbackY\030! \001(\002\022\n\n\002id\030\" \002(\005\"\037\n\007Vector2",
-      "\022\t\n\001x\030\001 \002(\002\022\t\n\001y\030\002 \002(\002\"@\n\tRectangle\022\t\n\001x" +
-      "\030\001 \002(\002\022\t\n\001y\030\002 \002(\002\022\r\n\005width\030\003 \002(\002\022\016\n\006heig" +
-      "ht\030\004 \002(\002B(\n\024org.cbzmq.game.protoB\016Charac" +
-      "terProtoP\000"
+      "\nknockbackY\030! \001(\002\022\n\n\002id\030\" \002(\005\022\032\n\010aimPoin",
+      "t\030# \001(\0132\010.Vector2\"\037\n\007Vector2\022\t\n\001x\030\001 \002(\002\022" +
+      "\t\n\001y\030\002 \002(\002\"@\n\tRectangle\022\t\n\001x\030\001 \002(\002\022\t\n\001y\030" +
+      "\002 \002(\002\022\r\n\005width\030\003 \002(\002\022\016\n\006height\030\004 \002(\002B(\n\024" +
+      "org.cbzmq.game.protoB\016CharacterProtoP\000"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -5799,7 +6006,7 @@ public final class CharacterProto {
           internal_static_Character_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_Character_descriptor,
-              new java.lang.String[] { "Type", "Position", "TargetPosition", "Velocity", "State", "StateTime", "Dir", "AirTime", "Rect", "StateChanged", "Hp", "MaxVelocityX", "CollisionOffsetY", "JumpVelocity", "Damage", "CollisionTimer", "ShootTimer", "HpTimer", "Bullets", "Player", "DeathTimer", "MaxVelocityGroundX", "JumpDelayTimer", "EnemyType", "Size", "BigTimer", "SpawnSmallsTimer", "Move", "ForceJump", "Collisions", "KnockbackX", "KnockbackY", "Id", });
+              new java.lang.String[] { "Type", "Position", "TargetPosition", "Velocity", "State", "StateTime", "Dir", "AirTime", "Rect", "StateChanged", "Hp", "MaxVelocityX", "CollisionOffsetY", "JumpVelocity", "Damage", "CollisionTimer", "ShootTimer", "HpTimer", "Bullets", "Player", "DeathTimer", "MaxVelocityGroundX", "JumpDelayTimer", "EnemyType", "Size", "BigTimer", "SpawnSmallsTimer", "Move", "ForceJump", "Collisions", "KnockbackX", "KnockbackY", "Id", "AimPoint", });
           internal_static_Vector2_descriptor =
             getDescriptor().getMessageTypes().get(1);
           internal_static_Vector2_fieldAccessorTable = new

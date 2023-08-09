@@ -83,6 +83,7 @@ enum OneBodyEventType{
     moveRight=11;//向右边
     moveLeft=12;//向左边
     bloodUpdate=13;//血条更新
+    aimPoint=14;//瞄准
     dispose=4;//销毁
     beRemove=5;//移除
     lose=6;//失败

@@ -78,6 +78,8 @@ message Character {
 
     required int32 id=34;
 
+    optional Vector2 aimPoint=35;
+
     ;
 
 
