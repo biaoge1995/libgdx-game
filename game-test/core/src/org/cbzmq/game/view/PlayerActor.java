@@ -30,17 +30,13 @@
 
 package org.cbzmq.game.view;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.spine.*;
 import com.esotericsoftware.spine.AnimationState.AnimationStateAdapter;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Assets.SoundEffect;
-import org.cbzmq.game.Constants;
-import org.cbzmq.game.StateAnimation;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.model.Player;
 
@@ -104,13 +100,6 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
         );
     }
 
-    public void setAimPoint(int screenX, int screenY){
-        Vector2 mouse = temp1.set(screenX, screenY);
-        //将指定的屏幕坐标系转换为世界坐标系
-        getViewport().unproject(mouse);
-        getModel().aimPoint.set(mouse);
-//        Gdx.app.log("setAimPoint",getModel().aimPoint.toString());
-    }
 
     @Override
     public void act(float delta) {
@@ -213,17 +202,17 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
     }
 
 
-    public void jump() {
-        if (getModel().jump()) {
+//    public void jump() {
+//        if (getModel().jump()) {
+//
+//            getModel().getQueue().jump(getModel(),0);
+////            StateAnimation stateAnimation = getAssets().playerStates.get(CharacterState.jumping);
+////            setAnimation(stateAnimation, true);
+//        }
+//    }
 
-            getModel().getQueue().jump(getModel(),0);
-//            StateAnimation stateAnimation = getAssets().playerStates.get(CharacterState.jumping);
-//            setAnimation(stateAnimation, true);
-        }
-    }
-
-    public void shoot() {
-        if (!canShoot || getModel().shootTimer >= 0) return;
+    public boolean shoot() {
+        if (!canShoot || getModel().shootTimer >= 0) return false;
         getModel().shootTimer = Player.shootDelay;
         burstTimer = Player.burstDuration;
 
@@ -242,8 +231,7 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
 //        Vector2 unproject = getViewport().unproject(temp1.set(mouseX, mouseY));
 //        Gdx.app.log("aim",getModel().aimPoint.toString());
         //计算发射倾斜角
-        temp2.set(getModel().aimPoint);
-        float angle = temp2.sub(x, y).angle();
+
         if (rearUpperArmBone != null && rearBracerBone != null && gunBone != null) {
             x = gunBone.getWorldX();
             y = gunBone.getWorldY();
@@ -252,7 +240,8 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
         if (shootAnimation != null) getAnimationState().setAnimation(1, shootAnimation, false);
         //镜头抖动设置
         getCamera().shackCamera();
-        burstShots = getModel().shoot(x, y,angle,burstShots);
+        burstShots = getModel().attack(x, y,burstShots);
+        return true;
     }
 
     /**

@@ -31,9 +31,7 @@ package org.cbzmq.game.model;
 
 
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.Constants;
 import org.cbzmq.game.MathUtils;
 import org.cbzmq.game.enums.CharacterState;
@@ -41,6 +39,8 @@ import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.proto.ByteArray;
 import org.cbzmq.game.proto.CharacterIntProto;
 import org.cbzmq.game.proto.CharacterProto;
+
+import java.util.Vector;
 
 
 /** The model class for the player. */
@@ -58,10 +58,11 @@ public class Player extends Character{
 	//计时器
 	//通过timer控制射击的时间间隔
 	public float shootTimer;
-	//瞄准点的位置位置
-	public Vector2 aimPoint = new Vector2();
+
 	//控制回血时间
 	public float hpTimer;
+
+	private final Vector2 temp = new Vector2();
 
 
 
@@ -111,7 +112,9 @@ public class Player extends Character{
 		}
 	}
 
-	public float shoot(float gunX, float gunY, float angle,float burstShots) {
+	public float attack(float gunX, float gunY, float burstShots) {
+		temp.set(aimPoint);
+		float angle = temp.sub(gunX, gunY).angle();
 		angle += Player.kickbackAngle * Math.min(1, burstShots / Player.kickbackShots) *  dir;
 		float variance = Player.kickbackVariance * Math.min(1, burstShots / Player.kickbackVarianceShots);
 		angle += com.badlogic.gdx.math.MathUtils.random(-variance, variance);
@@ -128,7 +131,7 @@ public class Player extends Character{
 		if(parent!=null) parent.addCharacter(new Bullet(this,gunX,gunY,vx,vy));
 		//后坐力
 		velocity.x -= Player.kickback * dir;
-
+		System.out.println("burstShots"+burstShots);
 		return Math.min(Player.kickbackShots, burstShots + 1);
 	}
 

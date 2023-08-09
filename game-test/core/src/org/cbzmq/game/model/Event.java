@@ -1,5 +1,6 @@
 package org.cbzmq.game.model;
 
+import com.badlogic.gdx.math.Vector2;
 import org.cbzmq.game.enums.OneBodyEventType;
 import org.cbzmq.game.enums.TwoBodyEventType;
 
@@ -18,18 +19,31 @@ public class Event {
         private final long timeStamp;
         private final OneBodyEventType eventType;
         private final Character character;
-        private final float delta;
+        private float floatData;
+
+        private Vector2 vector;
 
 
-        public static OneObserverEvent createEvent(OneBodyEventType eventType, Character character,float delta) {
-            return new OneObserverEvent(new Date().getTime(), eventType, character,delta);
+        public static OneObserverEvent createEvent(OneBodyEventType eventType, Character character ) {
+            return new OneObserverEvent(new Date().getTime(), eventType, character);
         }
 
-        private OneObserverEvent(long timeStamp, OneBodyEventType eventType, Character character,float delta) {
+        private OneObserverEvent(long timeStamp, OneBodyEventType eventType, Character character) {
             this.timeStamp = timeStamp;
             this.eventType = eventType;
             this.character = character;
-            this.delta = delta;
+        }
+
+        public void setFloatData(float floatData) {
+            this.floatData = floatData;
+        }
+
+        public void setVector(Vector2 vector) {
+            this.vector = vector;
+        }
+
+        public Vector2 getVector() {
+            return vector;
         }
 
         public long getTimeStamp() {
@@ -39,8 +53,8 @@ public class Event {
             return eventType;
         }
 
-        public float getDelta() {
-            return delta;
+        public float getFloatData() {
+            return floatData;
         }
 
         public Character getCharacter() {
@@ -53,17 +67,20 @@ public class Event {
         private final TwoBodyEventType eventType;
         private final Character a;
         private final Character b;
-        private final float delta;
+        private  float delta;
 
-        public static TwoObserverEvent createEvent(TwoBodyEventType eventType, Character a, Character b,float delta) {
-            return new TwoObserverEvent(new Date().getTime(), eventType, a, b, delta);
+        public static TwoObserverEvent createEvent(TwoBodyEventType eventType, Character a, Character b ) {
+            return new TwoObserverEvent(new Date().getTime(), eventType, a, b);
         }
 
-        private TwoObserverEvent(long timeStamp, TwoBodyEventType eventType, Character a, Character b,float delta) {
+        private TwoObserverEvent(long timeStamp, TwoBodyEventType eventType, Character a, Character b) {
             this.timeStamp = timeStamp;
             this.eventType = eventType;
             this.a = a;
             this.b = b;
+        }
+
+        public void setDelta(float delta) {
             this.delta = delta;
         }
 

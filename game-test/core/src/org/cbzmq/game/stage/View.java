@@ -35,6 +35,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.renderers.OrthoCachedTiledMapRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -73,6 +74,8 @@ public class View extends Stage {
     public OrthoCachedTiledMapRenderer mapRenderer;
     public Assets assets;
     public UI ui;
+
+    Vector2 mouse = new Vector2();
 //    Group playerGroup;
 //    Group enemyGroup;
 //    Group bulletGroup;
@@ -214,6 +217,7 @@ public class View extends Stage {
         }
         if (model.isGameOver()) eventGameOver(model.isPlayerWin());
 
+        updateAimPoint();
     }
 
     @Override
@@ -250,18 +254,24 @@ public class View extends Stage {
 
     }
 
+    public void updateAimPoint(){
+        mouse.set(Gdx.input.getX(),Gdx.input.getY());
+        //将指定的屏幕坐标系转换为世界坐标系
+        getViewport().unproject(mouse);
+        model.getQueue().aimPoint(player,mouse);
+    }
 
     public void updateInput(float delta) {
         if (player.hp == 0) return;
 
         if (playerView.isLeftPressed()) {
             //TODO
-            player.moveLeft(delta);
-            model.getQueue().moveLeft(player,delta);
+//            player.moveLeft(delta);
+            model.getQueue().moveLeft(player, delta);
         } else if (playerView.isRightPressed()) {
             //TODO
-            player.moveRight(delta);
-            model.getQueue().moveRight(player,delta);
+//            player.moveRight(delta);
+            model.getQueue().moveRight(player, delta);
         } else if (player.state == CharacterState.running) {
             //TODO
             player.setState(CharacterState.idle);
@@ -269,13 +279,11 @@ public class View extends Stage {
 
 
         if (playerView.isShootPressed()) {
-            //TODO
-            model.getQueue().attack(player,delta);
-            playerView.shoot();
-            if(model.getQueue()!=null){
-                model.getQueue().attack(player,0);
+            if (model.getQueue() != null &&  playerView.shoot()) {
+                model.getQueue().attack(player);
             }
-        };
+        }
+        ;
     }
 
     public void updateCamera(float delta) {
@@ -347,8 +355,12 @@ public class View extends Stage {
         ui.resize(width, height);
     }
 
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 
+
+
+
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+//        playerView.setAimPoint(screenX, screenY);
         playerView.setShootPressed(true);
 //        playerView.shoot();
         return true;
@@ -365,18 +377,23 @@ public class View extends Stage {
             case Keys.UP:
             case Keys.SPACE:
                 if (player.hp == 0) return false;
-                playerView.setJumpPressed(true);
+                else if (player.isGrounded()) {
+//                    playerView.setJumpPressed(true);
 //                playerView.jump();
-                model.getQueue().jump(player,0);
+                    model.getQueue().jump(player, 0);
+                }
+
                 return true;
             case Keys.A:
             case Keys.LEFT:
 //                player.moveLeft(0.03f);
                 playerView.setLeftPressed(true);
+
                 return true;
             case Keys.D:
             case Keys.RIGHT:
                 playerView.setRightPressed(true);
+//                model.getQueue().moveLeft(player, 0.5f);
                 return true;
         }
         return false;
@@ -405,10 +422,5 @@ public class View extends Stage {
         return false;
     }
 
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-//        return super.mouseMoved(screenX, screenY);
-        playerView.setAimPoint(screenX,screenY);
-        return true;
-    }
+
 }

@@ -101,8 +101,7 @@ public class GameEngine implements Model {
                 switch (event.getEventType()) {
                     case hit:
                         a.hp -= b.damage;
-                        queue.bloodUpdate(a,0);
-                        queue.bloodUpdate(b,0);
+                        queue.bloodUpdate(a,a.hp);
                         break;
                     case beKilled:
                     case collisionCharacter:
@@ -203,7 +202,7 @@ public class GameEngine implements Model {
                 if (p.hp > 0) break;
                 else {
                     gameOverTimer += delta / getTimeScale() * timeScale; // Isn't affected by player death time scaling.
-                    queue.lose(playerGroup,delta);
+                    queue.lose(playerGroup);
                     isGameOver = true;
                 }
             }
@@ -234,12 +233,12 @@ public class GameEngine implements Model {
         if (isGameOver) return;
         this.isPlayerWin = isPlayerWin;
         if (isPlayerWin) {
-            queue.win(playerGroup,0);
-            queue.lose(enemyGroup,0);
+            queue.win(playerGroup);
+            queue.lose(enemyGroup);
             isGameOver = true;
         } else {
-            queue.win(playerGroup,0);
-            queue.lose(enemyGroup,0);
+            queue.win(playerGroup);
+            queue.lose(enemyGroup);
             isGameOver = true;
         }
 

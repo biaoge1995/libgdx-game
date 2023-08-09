@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Null;
-import org.cbzmq.game.StateAnimation;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.proto.ByteArray;
@@ -48,6 +47,9 @@ public class Character implements Observer {
     //速度向量
     //TODO view会用到
     public Vector2 velocity = new Vector2();
+
+    //瞄准点的位置位置
+    public Vector2 aimPoint = new Vector2();
 
     public float collisionOffsetY;
 
@@ -125,28 +127,29 @@ public class Character implements Observer {
                 jump();
                 break;
             case moveLeft:
-//                moveLeft(event.getDelta());
+                moveLeft(event.getFloatData());
                 break;
             case moveRight:
-//                moveLeft(event.getDelta());
+                moveRight(event.getFloatData());
                 break;
             case bloodUpdate:
+                hp = event.getFloatData();
                 break;
             case attack:
-                break;
-
             case born:
             case win:
             case dispose:
             case beRemove:
             case beDeath:
             case lose:
+                Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), event.getCharacter().toString());
+                break;
+            case aimPoint:
+                aimPoint.set(event.getVector());
             case frameEnd:
             case collisionMap:
                 //TODO
                 break;
-            default:
-                Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), event.getCharacter().toString());
         }
     }
 
@@ -175,10 +178,13 @@ public class Character implements Observer {
         if (this.state != CharacterState.death) {
             this.hp = 0;
             this.state = CharacterState.death;
-            if (queue != null) queue.beDeath(this, 0);
+            if (queue != null) queue.beDeath(this);
         }
     }
 
+    public void attack(){
+
+    }
     public void setState(CharacterState newState) {
         if ((state == newState && state != CharacterState.falling) || state == CharacterState.death) return;
         state = newState;

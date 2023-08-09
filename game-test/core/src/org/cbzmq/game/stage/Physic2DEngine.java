@@ -218,7 +218,7 @@ public class Physic2DEngine {
         for (Rectangle tile : map.getCollisionTiles(x, startY, x, endY)) {
             if (!character.rect.overlaps(tile)) continue;
             if (queue != null) {
-                queue.collisionMap(character, tile,0);
+                queue.collisionMap(character, tile);
             }
             if (character.velocity.x >= 0)
                 character.position.x = tile.x - character.rect.width;
@@ -287,14 +287,14 @@ public class Physic2DEngine {
                 else {
                     // 撞击
                     if (a.rect.overlaps(b.rect)) {
-                        queue.collisionCharacter(a, b,0);
+                        queue.collisionCharacter(a, b);
 
                         //TODO 扣血 这块可以放到游戏主逻辑中做 不参与物理引擎运行
                         float dirX = a.position.x + a.rect.width / 2 < b.position.x + b.rect.width / 2 ? -1 : 1;
                         if (a.collisionTimer < 0) {
                             a.beCollide();
 
-                            queue.hit(a, b,0);
+                            queue.hit(a, b);
                         }
 
                         //判断x轴击退的量
