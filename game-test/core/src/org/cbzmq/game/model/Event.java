@@ -18,26 +18,30 @@ public class Event {
         private final long timeStamp;
         private final OneBodyEventType eventType;
         private final Character character;
+        private final float delta;
 
 
-        public static OneObserverEvent createEvent(OneBodyEventType eventType, Character character) {
-            return new OneObserverEvent(new Date().getTime(), eventType, character);
+        public static OneObserverEvent createEvent(OneBodyEventType eventType, Character character,float delta) {
+            return new OneObserverEvent(new Date().getTime(), eventType, character,delta);
         }
 
-        private OneObserverEvent(long timeStamp, OneBodyEventType eventType, Character character) {
+        private OneObserverEvent(long timeStamp, OneBodyEventType eventType, Character character,float delta) {
             this.timeStamp = timeStamp;
             this.eventType = eventType;
             this.character = character;
+            this.delta = delta;
         }
 
         public long getTimeStamp() {
             return timeStamp;
         }
-
         public OneBodyEventType getEventType() {
             return eventType;
         }
 
+        public float getDelta() {
+            return delta;
+        }
 
         public Character getCharacter() {
             return character;
@@ -45,52 +49,38 @@ public class Event {
     }
 
     public static class TwoObserverEvent {
-        private long timeStamp;
-        private TwoBodyEventType eventType;
-        private Character a;
-        private Character b;
+        private final long timeStamp;
+        private final TwoBodyEventType eventType;
+        private final Character a;
+        private final Character b;
+        private final float delta;
 
-        public static TwoObserverEvent createEvent(TwoBodyEventType eventType, Character a, Character b) {
-            return new TwoObserverEvent(new Date().getTime(), eventType, a, b);
+        public static TwoObserverEvent createEvent(TwoBodyEventType eventType, Character a, Character b,float delta) {
+            return new TwoObserverEvent(new Date().getTime(), eventType, a, b, delta);
         }
 
-        private TwoObserverEvent(long timeStamp, TwoBodyEventType eventType, Character a, Character b) {
+        private TwoObserverEvent(long timeStamp, TwoBodyEventType eventType, Character a, Character b,float delta) {
             this.timeStamp = timeStamp;
             this.eventType = eventType;
             this.a = a;
             this.b = b;
+            this.delta = delta;
         }
 
         public long getTimeStamp() {
             return timeStamp;
         }
-
-        public void setTimeStamp(long timeStamp) {
-            this.timeStamp = timeStamp;
-        }
-
         public TwoBodyEventType getEventType() {
             return eventType;
         }
-
-        public void setEventType(TwoBodyEventType eventType) {
-            this.eventType = eventType;
-        }
-
         public Character getA() {
             return a;
         }
-
-        public void setA(Character a) {
-            this.a = a;
-        }
-
         public Character getB() {
             return b;
         }
-
-        public void setB(Character b) {
-            this.b = b;
+        public float getDelta() {
+            return delta;
         }
     }
 }

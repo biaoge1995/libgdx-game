@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Null;
+import org.cbzmq.game.StateAnimation;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.proto.ByteArray;
@@ -89,9 +90,6 @@ public class Character implements Observer {
     private EventQueue queue;
 
 
-
-
-
     public Character() {
     }
 
@@ -109,13 +107,52 @@ public class Character implements Observer {
             setState(CharacterState.falling);
             setGrounded(false);
         }
-        if(velocity.x==0 && isGrounded()){
+        if (velocity.x == 0 && isGrounded()) {
             setState(CharacterState.idle);
 
         }
-        if( isGrounded() && state == CharacterState.jumping){
+        if (isGrounded() && state == CharacterState.jumping) {
             setState(CharacterState.idle);
         }
+    }
+
+    @Override
+    public void onOneObserverEvent(Event.OneObserverEvent event) {
+        //判断当前事件是
+        if (!(event.getCharacter() == this)) return;
+        switch (event.getEventType()) {
+            case jump:
+                jump();
+                break;
+            case moveLeft:
+//                moveLeft(event.getDelta());
+                break;
+            case moveRight:
+//                moveLeft(event.getDelta());
+                break;
+            case bloodUpdate:
+                break;
+            case attack:
+                break;
+
+            case born:
+            case win:
+            case dispose:
+            case beRemove:
+            case beDeath:
+            case lose:
+            case frameEnd:
+            case collisionMap:
+                //TODO
+                break;
+            default:
+                Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), event.getCharacter().toString());
+        }
+    }
+
+    @Override
+    public void onTwoObserverEvent(Event.TwoObserverEvent event) {
+        Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), event.getA() + "->" + event.getB());
     }
 
     //是否可以被从parent中清除掉
@@ -138,7 +175,7 @@ public class Character implements Observer {
         if (this.state != CharacterState.death) {
             this.hp = 0;
             this.state = CharacterState.death;
-            if (queue != null) queue.beDeath(this);
+            if (queue != null) queue.beDeath(this, 0);
         }
     }
 
@@ -159,7 +196,7 @@ public class Character implements Observer {
             adjust = velocity.x <= 0 ? runAirSame : runAirOpposite;
         if (velocity.x > -maxVelocityX) velocity.x = Math.max(velocity.x - adjust * delta, -maxVelocityX);
         dir = -1;
-        this.queue.moveLeft(this);
+
     }
 
     public void moveRight(float delta) {
@@ -171,17 +208,20 @@ public class Character implements Observer {
             adjust = velocity.x >= 0 ? runAirSame : runAirOpposite;
         if (velocity.x < maxVelocityX) velocity.x = Math.min(velocity.x + adjust * delta, maxVelocityX);
         dir = 1;
-        this.queue.moveRight(this);
+
     }
 
     /**
      * 跳跃事件
      */
-    public void jump() {
-        velocity.y += jumpVelocity;
-        setState(CharacterState.jumping);
-        setGrounded(false);
-        this.queue.jump(this);
+    public boolean jump() {
+        if (isGrounded()) {
+            velocity.y += jumpVelocity;
+            setState(CharacterState.jumping);
+            setGrounded(false);
+            return true;
+        }
+        return false;
     }
 
     public void jumpDamping() {
@@ -202,10 +242,10 @@ public class Character implements Observer {
         character.dir = byteArray.popByte();
         character.hp = byteArray.popByte();
         character.id = byteArray.popShort();
-        character.position.set(byteArray.popShort(),byteArray.popShort());
-        character.collisionTimer = byteArray.popShort()/100f;
-        character.velocity.set(byteArray.popShort(),byteArray.popShort());
-        character.rect.set(byteArray.popShort(),byteArray.popShort(),byteArray.popByte(),byteArray.popByte());
+        character.position.set(byteArray.popShort(), byteArray.popShort());
+        character.collisionTimer = byteArray.popShort() / 100f;
+        character.velocity.set(byteArray.popShort(), byteArray.popShort());
+        character.rect.set(byteArray.popShort(), byteArray.popShort(), byteArray.popByte(), byteArray.popByte());
         character.stateChanged = byteArray.popBoolean();
         return character;
     }
@@ -443,7 +483,6 @@ public class Character implements Observer {
     }
 
 
-
     public void win() {
 
     }
@@ -471,30 +510,11 @@ public class Character implements Observer {
         this.characterType = characterType;
     }
 
-    @Override
-    public void onOneObserverEvent(Event.OneObserverEvent event) {
-        if(event.getCharacter() instanceof Group) return;
-        switch (event.getEventType()) {
-            case frameEnd:
-            case collisionMap:
-                return;
-            default:
-                Gdx.app.log("监听者"+this+"| 事件"+event.getEventType().toString(),event.getCharacter().toString());
-        }
-    }
 
-    @Override
-    public void onTwoObserverEvent(Event.TwoObserverEvent event) {
-        Gdx.app.log("监听者"+this+"| 事件"+event.getEventType().toString(),event.getA()+"->"+event.getB());
-    }
-
-    public boolean isNeedCheckCollision(){
-        if(state == CharacterState.death)return false;
+    public boolean isNeedCheckCollision() {
+        if (state == CharacterState.death) return false;
         return true;
     }
-
-
-
 
 
     public boolean isGrounded() {
@@ -516,9 +536,6 @@ public class Character implements Observer {
     public void collideMapY() {
 
     }
-
-
-
 
 
 }

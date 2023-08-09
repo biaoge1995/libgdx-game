@@ -1,6 +1,7 @@
 package org.cbzmq.game.model;
 
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
@@ -34,6 +35,7 @@ public class Group<T extends Character> extends Character {
             Character c = iterator.next();
             c.update(delta);
             if(c.isCanBeRemove()){
+                Gdx.app.log("remove",c.toString());
                 c.remove();
             }
         }
@@ -51,7 +53,7 @@ public class Group<T extends Character> extends Character {
 
         character.setQueue(getQueue());
 
-        getQueue().born(character);
+        getQueue().born(character,0);
 
     }
 
@@ -60,7 +62,7 @@ public class Group<T extends Character> extends Character {
         if (index == -1) return false;
         removeActorAt(index, unfocus);
         //TODO 移除了一头
-        getQueue().beRemove(actor);
+        getQueue().beRemove(actor,0);
         return true;
     }
 
@@ -102,6 +104,12 @@ public class Group<T extends Character> extends Character {
 
 
     public void clear(){
+        for (T child : this.children) {
+            child.setParent(null);
+            child.setModel(null);
+            child.setQueue(null);
+        }
+
         this.children.clear();
     }
 

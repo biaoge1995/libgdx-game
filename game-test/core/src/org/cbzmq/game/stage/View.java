@@ -136,7 +136,7 @@ public class View extends Stage {
         playerView = new PlayerActor(player);
         addActor(playerView);
         camera.lookahead = 0;
-        playerView.setTouched(false);
+        playerView.setShootPressed(false);
 //        hits.clear();
 //        playerGroup.clear();
 //        enemyGroup.clear();
@@ -255,15 +255,27 @@ public class View extends Stage {
         if (player.hp == 0) return;
 
         if (playerView.isLeftPressed()) {
+            //TODO
             player.moveLeft(delta);
-//            player.setState(CharacterState.run);
+            model.getQueue().moveLeft(player,delta);
         } else if (playerView.isRightPressed()) {
+            //TODO
             player.moveRight(delta);
-//            player.setState(CharacterState.run);
-        } else if (player.state == CharacterState.running) //
+            model.getQueue().moveRight(player,delta);
+        } else if (player.state == CharacterState.running) {
+            //TODO
             player.setState(CharacterState.idle);
+        }
 
-        if (playerView.isTouched()) playerView.shoot();
+
+        if (playerView.isShootPressed()) {
+            //TODO
+            model.getQueue().attack(player,delta);
+            playerView.shoot();
+            if(model.getQueue()!=null){
+                model.getQueue().attack(player,0);
+            }
+        };
     }
 
     public void updateCamera(float delta) {
@@ -337,13 +349,13 @@ public class View extends Stage {
 
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 
-        playerView.setTouched(true);
-        playerView.shoot();
+        playerView.setShootPressed(true);
+//        playerView.shoot();
         return true;
     }
 
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        playerView.setTouched(false);
+        playerView.setShootPressed(false);
         return true;
     }
 
@@ -354,7 +366,8 @@ public class View extends Stage {
             case Keys.SPACE:
                 if (player.hp == 0) return false;
                 playerView.setJumpPressed(true);
-                playerView.jump();
+//                playerView.jump();
+                model.getQueue().jump(player,0);
                 return true;
             case Keys.A:
             case Keys.LEFT:
@@ -392,4 +405,10 @@ public class View extends Stage {
         return false;
     }
 
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+//        return super.mouseMoved(screenX, screenY);
+        playerView.setAimPoint(screenX,screenY);
+        return true;
+    }
 }

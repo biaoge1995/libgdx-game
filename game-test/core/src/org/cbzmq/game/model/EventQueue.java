@@ -20,76 +20,76 @@ public class EventQueue {
         this.observers = observers;
     }
 
-    public void onOneObserverEvent(OneBodyEventType eventType, Character character) {
-        Event.OneObserverEvent event = Event.OneObserverEvent.createEvent(eventType, character);
+    public void onOneObserverEvent(OneBodyEventType eventType, Character character,float delta) {
+        Event.OneObserverEvent event = Event.OneObserverEvent.createEvent(eventType, character,delta);
         observerEvents.add(event);
     }
 
 
-    public void onTwoObserverEvent(TwoBodyEventType eventType, Character character, Character other) {
-        Event.TwoObserverEvent event = Event.TwoObserverEvent.createEvent(eventType, character, other);
+    public void onTwoObserverEvent(TwoBodyEventType eventType, Character character, Character other,float delta) {
+        Event.TwoObserverEvent event = Event.TwoObserverEvent.createEvent(eventType, character, other,delta);
         observerEvents.add(event);
     }
 
 
-    public void born(Character character) {
-        onOneObserverEvent(OneBodyEventType.born, character);
+    public void born(Character character,float delta) {
+        onOneObserverEvent(OneBodyEventType.born, character,delta);
     }
 
-    public void jump(Character character) {
-        onOneObserverEvent(OneBodyEventType.jump, character);
+    public void jump(Character character,float delta) {
+        onOneObserverEvent(OneBodyEventType.jump, character,delta);
     }
-    public void moveRight(Character character) {
-        onOneObserverEvent(OneBodyEventType.moveRight, character);
+    public void moveRight(Character character,float delta) {
+        onOneObserverEvent(OneBodyEventType.moveRight, character,delta);
     }
-    public void moveLeft(Character character) {
-        onOneObserverEvent(OneBodyEventType.moveLeft, character);
+    public void moveLeft(Character character,float delta) {
+        onOneObserverEvent(OneBodyEventType.moveLeft, character,delta);
     }
-    public void bloodUpdate(Character character) {
-        onOneObserverEvent(OneBodyEventType.bloodUpdate, character);
+    public void bloodUpdate(Character character,float delta) {
+        onOneObserverEvent(OneBodyEventType.bloodUpdate, character,delta);
     }
-    public void hit(Character character, Character hitCharacter) {
-        onTwoObserverEvent(TwoBodyEventType.hit, character, hitCharacter);
-    }
-
-    public void beDeath(Character character) {
-        onOneObserverEvent(OneBodyEventType.beDeath, character);
+    public void hit(Character character, Character hitCharacter,float delta) {
+        onTwoObserverEvent(TwoBodyEventType.hit, character, hitCharacter,delta);
     }
 
-    public void death(Character character, Character killer) {
-        onTwoObserverEvent(TwoBodyEventType.beKilled, character, killer);
+    public void beDeath(Character character,float delta) {
+        onOneObserverEvent(OneBodyEventType.beDeath, character,delta);
     }
 
-    public void beRemove(Character character) {
-        onOneObserverEvent(OneBodyEventType.beRemove, character);
+    public void death(Character character, Character killer,float delta) {
+        onTwoObserverEvent(TwoBodyEventType.beKilled, character, killer,delta);
     }
 
-    public void collisionMap(Character character, Rectangle tile) {
-        onOneObserverEvent(OneBodyEventType.collisionMap, character);
+    public void beRemove(Character character,float delta) {
+        onOneObserverEvent(OneBodyEventType.beRemove, character,delta);
     }
 
-    public void collisionCharacter(Character character, Character other) {
-        onTwoObserverEvent(TwoBodyEventType.collisionCharacter, character, other);
+    public void collisionMap(Character character, Rectangle tile,float delta) {
+        onOneObserverEvent(OneBodyEventType.collisionMap, character,delta);
     }
 
-    public void attack(Character character) {
-        onOneObserverEvent(OneBodyEventType.attack, character);
+    public void collisionCharacter(Character character, Character other,float delta) {
+        onTwoObserverEvent(TwoBodyEventType.collisionCharacter, character, other,delta);
     }
 
-    public void dispose(Character character) {
-        onOneObserverEvent(OneBodyEventType.dispose, character);
+    public void attack(Character character,float delta) {
+        onOneObserverEvent(OneBodyEventType.attack, character,delta);
     }
 
-    public void lose(Character character) {
-        onOneObserverEvent(OneBodyEventType.lose, character);
+    public void dispose(Character character,float delta) {
+        onOneObserverEvent(OneBodyEventType.dispose, character,delta);
     }
 
-    public void win(Character character) {
-        onOneObserverEvent(OneBodyEventType.win, character);
+    public void lose(Character character,float delta) {
+        onOneObserverEvent(OneBodyEventType.lose, character,delta);
     }
 
-    public void frameEnd(Group root) {
-        onOneObserverEvent(OneBodyEventType.frameEnd, root);
+    public void win(Character character,float delta) {
+        onOneObserverEvent(OneBodyEventType.win, character,delta);
+    }
+
+    public void frameEnd(Group root,float delta) {
+        onOneObserverEvent(OneBodyEventType.frameEnd, root,delta);
     }
 
     public void drain() {

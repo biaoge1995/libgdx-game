@@ -55,7 +55,8 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
     public float burstShots, burstTimer;
     public Vector2 temp1 = new Vector2(), temp2 = new Vector2();
 
-    private boolean touched, jumpPressed, leftPressed, rightPressed;
+    //按钮被按下
+    private boolean shootPressed, jumpPressed, leftPressed, rightPressed;
 
 
     public PlayerActor(final Player player) {
@@ -103,17 +104,25 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
         );
     }
 
+    public void setAimPoint(int screenX, int screenY){
+        Vector2 mouse = temp1.set(screenX, screenY);
+        //将指定的屏幕坐标系转换为世界坐标系
+        getViewport().unproject(mouse);
+        getModel().aimPoint.set(mouse);
+//        Gdx.app.log("setAimPoint",getModel().aimPoint.toString());
+    }
+
     @Override
     public void act(float delta) {
 
         // When not shooting, reset the number of burst shots.
-        if (!touched && burstTimer > 0) {
+        if (!shootPressed && burstTimer > 0) {
             burstTimer -= delta;
             if (burstTimer < 0) burstShots = 0;
         }
 
         // If jump was pressed in the air, jump as soon as grounded.
-        if (jumpPressed) jump();
+//        if (jumpPressed) jump();
 
         getSkeleton().setX(getModel().position.x + Player.width / 2);
         getSkeleton().setY(getModel().position.y);
@@ -122,10 +131,7 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
             getAnimationState().update(delta);
         getAnimationState().apply(getSkeleton());
 
-        Vector2 mouse = temp1.set(Gdx.input.getX(), Gdx.input.getY());
-        //将指定的屏幕坐标系转换为世界坐标系
-        getViewport().unproject(mouse);
-
+        Vector2 aimPoint = getModel().aimPoint;
         // Determine if the player can shoot at the mouse position.
         //确定player是否可以开始射击
         canShoot = false;
@@ -134,7 +140,7 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
         else if (getModel().hp > 0
 //				&& !spineBoyStage.ui.hasSplash
                 //骨骼距离鼠标的x和y轴距离要超过一定的数值
-                && (Math.abs(getSkeleton().getY() - mouse.y) > 2.7f || Math.abs(getSkeleton().getX() - mouse.x) > 0.75f)) {
+                && (Math.abs(getSkeleton().getY() - aimPoint.y) > 2.7f || Math.abs(getSkeleton().getX() - aimPoint.x) > 0.75f)) {
             // Store bone rotations from the animation that was applied.
             float rearUpperArmRotation = rearUpperArmBone.getRotation();
             float rearBracerRotation = rearBracerBone.getRotation();
@@ -152,10 +158,10 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
 
             // Compute the arm's angle to the mouse, flipping it based on the direction the player faces.
             Vector2 bonePosition = temp2.set(rearUpperArmBone.getWorldX(), rearUpperArmBone.getWorldY());
-            float angle = bonePosition.sub(mouse).angle();
+            float angle = bonePosition.sub(aimPoint).angle();
             float behind = (angle < 90 || angle > 270) ? -1 : 1;
             if (behind == -1) angle = -angle;
-            if (getModel().state == CharacterState.idle || (touched && (getModel().state == CharacterState.jumping || getModel().state == CharacterState.falling)))
+            if (getModel().state == CharacterState.idle || (shootPressed && (getModel().state == CharacterState.jumping || getModel().state == CharacterState.falling)))
                 getModel().dir = behind;
             if (behind != getModel().dir) angle = -angle;
             if (getModel().state != CharacterState.idle && behind != getModel().dir) {
@@ -208,12 +214,12 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
 
 
     public void jump() {
-        if (getModel().isGrounded()) {
-            getModel().jump();
-            StateAnimation stateAnimation = getAssets().playerStates.get(CharacterState.jumping);
-            setAnimation(stateAnimation, true);
-        }
+        if (getModel().jump()) {
 
+            getModel().getQueue().jump(getModel(),0);
+//            StateAnimation stateAnimation = getAssets().playerStates.get(CharacterState.jumping);
+//            setAnimation(stateAnimation, true);
+        }
     }
 
     public void shoot() {
@@ -222,6 +228,7 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
         burstTimer = Player.burstDuration;
 
         // Compute the position and velocity to spawn a new bullet.
+        //找出手臂位置
         float x = 0, y = 0;
         if (rearUpperArmBone != null && rearBracerBone != null && gunBone != null) {
             x += rearUpperArmBone.getWorldX();
@@ -230,34 +237,22 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
             x += Player.width / 2;
             y += Player.height / 2;
         }
-        float mouseX = Gdx.input.getX(), mouseY = Gdx.input.getY();
-        //将屏幕坐标转换为世界坐标
-        Vector2 unproject = getViewport().unproject(temp1.set(mouseX, mouseY));
-
-        float angle = unproject.sub(x, y).angle();
-        angle += Player.kickbackAngle * Math.min(1, burstShots / Player.kickbackShots) * getModel().dir;
-        float variance = Player.kickbackVariance * Math.min(1, burstShots / Player.kickbackVarianceShots);
-        angle += MathUtils.random(-variance, variance);
-
-        float cos = MathUtils.cosDeg(angle), sin = MathUtils.sinDeg(angle);
-        float vx = cos * Player.bulletSpeed + getModel().velocity.x * Player.bulletInheritVelocity;
-        float vy = sin * Player.bulletSpeed + getModel().velocity.y * Player.bulletInheritVelocity;
+//        float mouseX = Gdx.input.getX(), mouseY = Gdx.input.getY();
+//        //将屏幕坐标转换为世界坐标
+//        Vector2 unproject = getViewport().unproject(temp1.set(mouseX, mouseY));
+//        Gdx.app.log("aim",getModel().aimPoint.toString());
+        //计算发射倾斜角
+        temp2.set(getModel().aimPoint);
+        float angle = temp2.sub(x, y).angle();
         if (rearUpperArmBone != null && rearBracerBone != null && gunBone != null) {
             x = gunBone.getWorldX();
-            y = gunBone.getWorldY() + Player.shootOffsetY * Constants.scale;
-            x += cos * Player.shootOffsetX * Constants.scale;
-            y += sin * Player.shootOffsetX * Constants.scale;
+            y = gunBone.getWorldY();
         }
-        getModel().shoot(x, y, vx, vy);
         //开枪时的镜头抖动设置
         if (shootAnimation != null) getAnimationState().setAnimation(1, shootAnimation, false);
         //镜头抖动设置
         getCamera().shackCamera();
-
-        getModel().velocity.x -= Player.kickback * getModel().dir;
-//		SoundEffect.shoot.play();
-
-        burstShots = Math.min(Player.kickbackShots, burstShots + 1);
+        burstShots = getModel().shoot(x, y,angle,burstShots);
     }
 
     /**
@@ -272,8 +267,10 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
     }
 
 
-    public void setTouched(boolean touched) {
-        this.touched = touched;
+
+
+    public void setShootPressed(boolean shootPressed) {
+        this.shootPressed = shootPressed;
     }
 
     public void setJumpPressed(boolean jumpPressed) {
@@ -288,8 +285,8 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
         this.rightPressed = rightPressed;
     }
 
-    public boolean isTouched() {
-        return touched;
+    public boolean isShootPressed() {
+        return shootPressed;
     }
 
     public boolean isJumpPressed() {

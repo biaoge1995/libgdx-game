@@ -32,6 +32,7 @@ package org.cbzmq.game.model;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.Constants;
 import org.cbzmq.game.MathUtils;
@@ -54,11 +55,11 @@ public class Player extends Character{
 	public static float kickbackShots = 33, kickbackAngle = 30, kickbackVarianceShots = 11, kickbackVariance = 6, kickback = 1.6f;
 	public static float knockbackX = 14, knockbackY = 5, collisionDelay = 2.5f, flashTime = 0.07f;
 	public static float headBounceX = 12, headBounceY = 20;
-
 	//计时器
 	//通过timer控制射击的时间间隔
 	public float shootTimer;
-
+	//瞄准点的位置位置
+	public Vector2 aimPoint = new Vector2();
 	//控制回血时间
 	public float hpTimer;
 
@@ -110,12 +111,25 @@ public class Player extends Character{
 		}
 	}
 
-	public void shoot(float startX, float startY, float vx, float vy) {
-		if(parent!=null) parent.addCharacter(new Bullet(this,startX,startY,vx,vy));
+	public float shoot(float gunX, float gunY, float angle,float burstShots) {
+		angle += Player.kickbackAngle * Math.min(1, burstShots / Player.kickbackShots) *  dir;
+		float variance = Player.kickbackVariance * Math.min(1, burstShots / Player.kickbackVarianceShots);
+		angle += com.badlogic.gdx.math.MathUtils.random(-variance, variance);
+		float cos = com.badlogic.gdx.math.MathUtils.cosDeg(angle),
+				sin = com.badlogic.gdx.math.MathUtils.sinDeg(angle);
+		float vx = cos * Player.bulletSpeed + velocity.x * Player.bulletInheritVelocity;
+		float vy = sin * Player.bulletSpeed + velocity.y * Player.bulletInheritVelocity;
 
-		if(getQueue()!=null){
-			getQueue().attack(this);
-		}
+		gunY+= Player.shootOffsetY * Constants.scale;
+
+		gunX += cos * Player.shootOffsetX * Constants.scale;
+		gunY += sin * Player.shootOffsetX * Constants.scale;
+
+		if(parent!=null) parent.addCharacter(new Bullet(this,gunX,gunY,vx,vy));
+		//后坐力
+		velocity.x -= Player.kickback * dir;
+
+		return Math.min(Player.kickbackShots, burstShots + 1);
 	}
 
 

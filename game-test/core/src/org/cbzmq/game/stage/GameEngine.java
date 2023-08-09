@@ -101,8 +101,8 @@ public class GameEngine implements Model {
                 switch (event.getEventType()) {
                     case hit:
                         a.hp -= b.damage;
-                        queue.bloodUpdate(a);
-                        queue.bloodUpdate(b);
+                        queue.bloodUpdate(a,0);
+                        queue.bloodUpdate(b,0);
                         break;
                     case beKilled:
                     case collisionCharacter:
@@ -203,7 +203,7 @@ public class GameEngine implements Model {
                 if (p.hp > 0) break;
                 else {
                     gameOverTimer += delta / getTimeScale() * timeScale; // Isn't affected by player death time scaling.
-                    queue.lose(playerGroup);
+                    queue.lose(playerGroup,delta);
                     isGameOver = true;
                 }
             }
@@ -212,7 +212,7 @@ public class GameEngine implements Model {
         }
         updateEnemies();
         updateTriggers();
-        queue.frameEnd(root);
+        queue.frameEnd(root,delta);
         //将事件队列处理掉
         queue.drain();
     }
@@ -234,12 +234,12 @@ public class GameEngine implements Model {
         if (isGameOver) return;
         this.isPlayerWin = isPlayerWin;
         if (isPlayerWin) {
-            queue.win(playerGroup);
-            queue.lose(enemyGroup);
+            queue.win(playerGroup,0);
+            queue.lose(enemyGroup,0);
             isGameOver = true;
         } else {
-            queue.win(playerGroup);
-            queue.lose(enemyGroup);
+            queue.win(playerGroup,0);
+            queue.lose(enemyGroup,0);
             isGameOver = true;
         }
 
