@@ -61,8 +61,8 @@ public class View extends Stage {
     public static int[] mapLayersOpaque3 = {10};
     public static int[] mapForegroundLayers4 = {7, 8, 9};
     public static int[] mapForegroundLayers5 = {11};
-
-    public Map<Integer, BaseSkeletonActor> modelAndViewMap = new HashMap<>();
+    public static final String TAG = View.class.getName();
+    
     ActorFactory actorFactory;
 
     public Model model;
@@ -100,27 +100,33 @@ public class View extends Stage {
         assets = model.getAssets();
         ui = new UI(this);
         model.addListener(new ObserverAdapter() {
+
             @Override
-            public void onTwoObserverEvent(Event.TwoObserverEvent event) {
-                Character a = event.getA();
-                Character b = event.getB();
-
+            public boolean onOneObserverEvent(Event.OneCharacterEvent event) {
+                Character character = event.getCharacter();
                 switch (event.getEventType()) {
-                    case hit:
-                        Character character = (Character) a;
-                        if (a instanceof Character && modelAndViewMap.containsKey(character.getId())) {
-                            BaseSkeletonActor baseSkeletonActor = modelAndViewMap.get(character.getId());
+                    case born:
+                        switch (character.characterType) {
 
-                            baseSkeletonActor.beHit();
+                            case player:
+                                if (player != character) {
+                                    player = (Player) character;
+                                    playerView = new PlayerActor(player);
+                                }
+                                addActor(playerView);
+                                break;
+                            case enemy:
+                                addActor(new EnemyActor((Enemy) character));
+                                break;
+                            case bullet:
+                                addActor(new BulletActor((Bullet) character));
+                                break;
                         }
-                    default:
-                        Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), event.getA().toString());
-                        break;
+
+
                 }
-
-
+                return true;
             }
-
 
         });
         restart();
@@ -134,16 +140,11 @@ public class View extends Stage {
     private void restart() {
 
         clear();
-        modelAndViewMap.clear();
         player = model.getPlayer();
         playerView = new PlayerActor(player);
         addActor(playerView);
         camera.lookahead = 0;
         playerView.setShootPressed(false);
-//        hits.clear();
-//        playerGroup.clear();
-//        enemyGroup.clear();
-//        bulletGroup.clear();
 
 
     }
@@ -161,15 +162,10 @@ public class View extends Stage {
 
 
     public void addActor(BaseSkeletonActor actor) {
-        if (modelAndViewMap.containsKey(actor.getModel().getId())) {
-            return;
-        } else {
-            modelAndViewMap.put(actor.getModel().getId(), actor);
-            super.addActor(actor);
-            actor.loadAssets(assets);
-            actor.setViewport(viewport);
-            actor.setCamera(camera);
-        }
+        super.addActor(actor);
+        actor.loadAssets(assets);
+        actor.setViewport(viewport);
+        actor.setCamera(camera);
 
 
     }
@@ -179,42 +175,6 @@ public class View extends Stage {
         super.act(delta);
         updateInput(delta);
         updateCamera(delta);
-        Array<Character> all = model.getAll();
-
-        for (int i = 0; i < all.size; i++) {
-            Character character = all.get(i);
-            BaseSkeletonActor actor = null;
-            if (modelAndViewMap.containsKey(character.getId())) {
-                actor = modelAndViewMap.get(character.getId());
-            }
-            switch (character.characterType) {
-
-                case player:
-                    if (player != character) {
-                        this.player = (Player) character;
-                        this.playerView = new PlayerActor(this.player);
-                    }
-                    if (actor != null && this.playerView != actor) {
-                        PlayerActor actor1 = (PlayerActor) actor;
-                        actor1.setModel(this.player);
-                        this.playerView = actor1;
-                    }
-                    break;
-                case enemy:
-                    if (actor == null) {
-                        actor = new EnemyActor((Enemy) character);
-                    }
-                    break;
-                case bullet:
-                    if (actor == null) {
-                        actor = new BulletActor((Bullet) character);
-                    }
-                    break;
-            }
-            if (actor != null) {
-                addActor(actor);
-            }
-        }
         if (model.isGameOver()) eventGameOver(model.isPlayerWin());
 
         updateAimPoint();
@@ -254,33 +214,32 @@ public class View extends Stage {
 
     }
 
-    public void updateAimPoint(){
-        mouse.set(Gdx.input.getX(),Gdx.input.getY());
+    public void updateAimPoint() {
+        mouse.set(Gdx.input.getX(), Gdx.input.getY());
         //将指定的屏幕坐标系转换为世界坐标系
         getViewport().unproject(mouse);
-        model.getQueue().aimPoint(player,mouse);
+        model.onCharacterEvent(Event.aimPoint(TAG,player, mouse));
     }
 
     public void updateInput(float delta) {
-        if (player.hp == 0) return;
+
 
         if (playerView.isLeftPressed()) {
             //TODO
-//            player.moveLeft(delta);
-            model.getQueue().moveLeft(player, delta);
+            model.onCharacterEvent(Event.moveLeft(TAG,player, delta));
         } else if (playerView.isRightPressed()) {
             //TODO
-//            player.moveRight(delta);
-            model.getQueue().moveRight(player, delta);
+            model.onCharacterEvent(Event.moveRight(TAG,player, delta));
         } else if (player.state == CharacterState.running) {
             //TODO
-            player.setState(CharacterState.idle);
+            model.onCharacterEvent(Event.stateUpdate(TAG,player, CharacterState.idle));
         }
 
 
         if (playerView.isShootPressed()) {
-            if (model.getQueue() != null &&  playerView.shoot()) {
-                model.getQueue().attack(player);
+            if (model.getQueue() != null && playerView.shoot()) {
+                model.onCharacterEvent(Event.attack(TAG,player));
+
             }
         }
         ;
@@ -356,9 +315,6 @@ public class View extends Stage {
     }
 
 
-
-
-
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 //        playerView.setAimPoint(screenX, screenY);
         playerView.setShootPressed(true);
@@ -376,24 +332,15 @@ public class View extends Stage {
             case Keys.W:
             case Keys.UP:
             case Keys.SPACE:
-                if (player.hp == 0) return false;
-                else if (player.isGrounded()) {
-//                    playerView.setJumpPressed(true);
-//                playerView.jump();
-                    model.getQueue().jump(player, 0);
-                }
-
+                model.onCharacterEvent(Event.jump(TAG,player));
                 return true;
             case Keys.A:
             case Keys.LEFT:
-//                player.moveLeft(0.03f);
                 playerView.setLeftPressed(true);
-
                 return true;
             case Keys.D:
             case Keys.RIGHT:
                 playerView.setRightPressed(true);
-//                model.getQueue().moveLeft(player, 0.5f);
                 return true;
         }
         return false;

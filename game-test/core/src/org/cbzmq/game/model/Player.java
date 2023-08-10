@@ -131,7 +131,6 @@ public class Player extends Character{
 		if(parent!=null) parent.addCharacter(new Bullet(this,gunX,gunY,vx,vy));
 		//后坐力
 		velocity.x -= Player.kickback * dir;
-		System.out.println("burstShots"+burstShots);
 		return Math.min(Player.kickbackShots, burstShots + 1);
 	}
 

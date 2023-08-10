@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
+import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.EnemyType;
 import org.cbzmq.game.stage.Model;
 
@@ -17,12 +18,12 @@ import org.cbzmq.game.stage.Model;
  **/
 public class Group<T extends Character> extends Character {
     private final Array<T> children = new Array<>();
-
     public Group(String name) {
         this.name = name;
     }
-
-
+    private final static String TAG = Group.class.getName();
+    //将container打平
+//    private final Array<T> flatContainer = new Array<>();
 
     public Group() {
         this.name = "root";
@@ -33,9 +34,16 @@ public class Group<T extends Character> extends Character {
         Array.ArrayIterator<T> iterator = children.iterator();
         while (iterator.hasNext()) {
             Character c = iterator.next();
+            if (!(c instanceof Group) && c.hp <= 0) {
+                if (this.state != CharacterState.death) {
+                    this.state = CharacterState.death;
+                    if (getModel().getQueue() != null)
+                        getModel().getQueue().pushCharacterEvent(Event.beDeath(TAG,c));
+                }
+            }
             c.update(delta);
-            if(c.isCanBeRemove()){
-                Gdx.app.log("remove",c.toString());
+            if (!(c instanceof Group) && c.isCanBeRemove()) {
+                Gdx.app.log("remove", c.toString());
                 c.remove();
             }
         }
@@ -47,13 +55,15 @@ public class Group<T extends Character> extends Character {
             character.parent.removeCharacter(character, false);
         }
         children.add(character);
+
         character.setParent(this);
         character.setModel(getModel());
         character.setId(No.getNo());
 
-        character.setQueue(getQueue());
+//        character.setQueue(getQueue());
+        //将消息推送出去
+        getModel().getQueue().pushCharacterEvent(Event.born(TAG,character));
 
-        getQueue().born(character,0);
 
     }
 
@@ -62,7 +72,7 @@ public class Group<T extends Character> extends Character {
         if (index == -1) return false;
         removeActorAt(index, unfocus);
         //TODO 移除了一头
-        getQueue().beRemove(actor,0);
+        getModel().getQueue().pushCharacterEvent(Event.beRemove(TAG,actor));
         return true;
     }
 
@@ -84,30 +94,29 @@ public class Group<T extends Character> extends Character {
      * @param group
      * @param container
      */
-    private  void flat(Group<T> group,Array<T> container) {
+    private void flat(Group<T> group, Array<T> container) {
         if (group.children != null) {
 
             for (T child : group.children) {
                 if (child instanceof Group) {
                     flat((Group) child, container);
-                }else {
+                } else {
                     container.addAll(child);
                 }
             }
         }
     }
 
-    public void flat(Array<T> container){
-         flat(this,container);
+    public void flat(Array<T> container) {
+        flat(this, container);
     }
 
 
-
-    public void clear(){
+    public void clear() {
         for (T child : this.children) {
             child.setParent(null);
             child.setModel(null);
-            child.setQueue(null);
+//            child.setQueue(null);
         }
 
         this.children.clear();
@@ -117,7 +126,7 @@ public class Group<T extends Character> extends Character {
         return children;
     }
 
-    static class No{
+    static class No {
         private static int no;
 
         synchronized public static int getNo() {

@@ -21,7 +21,7 @@ public class Enemy extends Character {
     public static float maxVelocityMinX = 4f, maxVelocityMaxX = 8.5f, maxVelocityAirX = 19f;
     public static float hpWeak = 1, hpSmall = 2, hpNormal = 3, hpStrong = 5, hpBecomesBig = 8, hpBig = 20;
     public static float damageWeak = 0.2f, damageSmall = 0.4f, damageNormal = 0.6f, damageStrong = 1f, damageBecomesBig = 0.4f, damageBig = 1f;
-    public static float corpseTime = 5 , fadeTime = 3;
+    public static float corpseTime = 5, fadeTime = 3;
     public static float jumpDistanceNormal = 20, jumpDelayNormal = 1.6f, jumpVelocityNormal = 12, jumpVelocityBig = 18;
     public static float sizeSmall = 0.5f, sizeBig = 2.5f, sizeStrong = 1.3f, bigDuration = 2, smallCount = 14;
     public static float normalKnockbackX = 19, normalKnockbackY = 9, bigKnockbackX = 12, bigKnockbackY = 6;
@@ -43,6 +43,7 @@ public class Enemy extends Character {
     public int collisions;
     public float knockbackX = normalKnockbackX;
     public float knockbackY = normalKnockbackY;
+
 
     // This is here for convenience, the model should never touch the view.
 //	public EnemyActor view;
@@ -97,7 +98,7 @@ public class Enemy extends Character {
 
     public void update(float delta) {
         stateChanged = false;
-        //死亡时
+        //TODO 要把死亡的关键帧传出去
         if (state == CharacterState.death) {
             if (enemyType == EnemyType.becomesBig && size == 1) {
                 bigTimer = bigDuration;
@@ -114,8 +115,7 @@ public class Enemy extends Character {
             }
         }
 
-        // Enemy grows to a big enemy.
-        //怪物变大尺寸跟变大时间挂钩
+        //TODO 死亡时 怪物变大尺寸跟变大时间挂钩 变大不是关键帧
         if (bigTimer > 0) {
             bigTimer -= delta;
             size = 1 + (sizeBig - 1) * (1 - Math.max(0, bigTimer / bigDuration));
@@ -123,21 +123,19 @@ public class Enemy extends Character {
             rect.height = height * size * 0.7f;
         }
 
-        // Big enemy explodes into small ones.
-        //大怪物产生小怪物
+        //TODO 死亡时 大怪物产生小怪物
         if (spawnSmallsTimer > 0) {
             spawnSmallsTimer -= delta;
-            if (spawnSmallsTimer < 0) {
-                for (int i = 0; i < smallCount; i++) {
-                    Enemy small = new Enemy(EnemyType.small);
-                    small.position.set(position.x, position.y + 2);
-                    small.velocity.x = MathUtils.random(5, 15) * (MathUtils.randomBoolean() ? 1 : -1);
-                    small.velocity.y = MathUtils.random(10, 25);
-                    small.setGrounded(false);
-                    parent.addCharacter(small);
-                }
-            }
         }
+        if (collisionTimer > 0) {
+            collisionTimer -= delta;
+        }
+
+
+        if (state == CharacterState.death) {
+            deathTimer -= delta;
+        }
+
 
         // Nearly dead enemies jump at the player right away.
         //濒临死亡的敌人设置他的跳跃时间
@@ -150,38 +148,6 @@ public class Enemy extends Character {
             hp = 0;
         }
 
-        // Simple enemy AI.
-        boolean grounded = isGrounded();
-        if (grounded) move = true;
-        collisionTimer -= delta;
-        maxVelocityX = grounded ? maxVelocityGroundX : maxVelocityAirX;
-        if (state == CharacterState.death)
-            deathTimer -= delta;
-        else if (collisionTimer < 0) {
-
-                //跳向目标方向
-                if (grounded && (forceJump || Math.abs(targetPosition.x - position.x) < jumpDistance)) {
-                    jumpDelayTimer -= delta;
-                    //跳跃的定时器
-                    if (state != CharacterState.jumping && jumpDelayTimer < 0 && position.y <= targetPosition.y) {
-                        jump();
-                        jumpDelayTimer = MathUtils.random(0, jumpDelay);
-                        forceJump = false;
-                    }
-                }
-                //朝着目标的方向移动
-                if (move) {
-                    if (targetPosition.x > position.x) {
-                        if (velocity.x >= 0) moveRight(delta);
-                    } else if (velocity.x <= 0) //
-                        moveLeft(delta);
-                }
-
-        }
-
-        int previousCollision = collisions;
-        if (!grounded || collisions == previousCollision) collisions = 0;
-
 
     }
 
@@ -192,6 +158,7 @@ public class Enemy extends Character {
             jumpDelayTimer = MathUtils.random(0, jumpDelay);
         }
     }
+
 
     @Override
     public boolean isCanBeRemove() {
@@ -233,35 +200,35 @@ public class Enemy extends Character {
         Enemy enemy = new Enemy(proto.getEnemyType());
         Character father = Character.parserProto(proto);
         Character.copyToSon(father, enemy);
-        enemy.deathTimer = proto.getDeathTimer()/100f;
-        enemy.size = proto.getSize()/100f;
-        enemy.bigTimer = proto.getBigTimer()/100f;
+        enemy.deathTimer = proto.getDeathTimer() / 100f;
+        enemy.size = proto.getSize() / 100f;
+        enemy.bigTimer = proto.getBigTimer() / 100f;
         return enemy;
     }
 
     public static Enemy parseFromBytes(byte[] bytes) throws Exception {
         Character father = Character.parseFromBytes(bytes);
-        Enemy enemy = new Enemy( EnemyType.valueOf(bytes[27]));
+        Enemy enemy = new Enemy(EnemyType.valueOf(bytes[27]));
         Character.copyToSon(father, enemy);
-        byte[] deathTimer = {bytes[23],bytes[24]};
-        enemy.deathTimer =  org.cbzmq.game.MathUtils.byteArrayToShort(deathTimer)/100f;
-        byte[] bigTimer = {bytes[25],bytes[26]};
-        enemy.bigTimer = org.cbzmq.game.MathUtils.byteArrayToShort(bigTimer)/100f;
-        enemy.size = bytes[28]/100f;
+        byte[] deathTimer = {bytes[23], bytes[24]};
+        enemy.deathTimer = org.cbzmq.game.MathUtils.byteArrayToShort(deathTimer) / 100f;
+        byte[] bigTimer = {bytes[25], bytes[26]};
+        enemy.bigTimer = org.cbzmq.game.MathUtils.byteArrayToShort(bigTimer) / 100f;
+        enemy.size = bytes[28] / 100f;
         return enemy;
     }
 
 
-    public  CharacterIntProto.Character.Builder toCharacterIntProto() {
+    public CharacterIntProto.Character.Builder toCharacterIntProto() {
         CharacterIntProto.Character.Builder builder = super.toCharacterIntProto();
 
         return builder.setType(CharacterType.enemy)
-                .setDeathTimer((int)(this.deathTimer*100f))
+                .setDeathTimer((int) (this.deathTimer * 100f))
 //				.setMaxVelocityGroundX(enemy.maxVelocityGroundX)
 //				.setJumpDelayTimer(enemy.jumpDelayTimer)
                 .setEnemyType(this.enemyType)
-                .setSize((int)(this.size*100f))
-                .setBigTimer((int)(this.bigTimer*100f))
+                .setSize((int) (this.size * 100f))
+                .setBigTimer((int) (this.bigTimer * 100f))
 //				.setSpawnSmallsTimer(enemy.spawnSmallsTimer)
 //				.setMove(enemy.move)
 //				.setForceJump(enemy.forceJump)
@@ -272,7 +239,7 @@ public class Enemy extends Character {
     }
 
 
-    public  CharacterProto.Character.Builder toCharacterProto() {
+    public CharacterProto.Character.Builder toCharacterProto() {
         CharacterProto.Character.Builder builder = super.toCharacterProto();
 
         return builder.setType(CharacterType.enemy)
@@ -295,10 +262,10 @@ public class Enemy extends Character {
     public ByteArray toCharacterBytes() {
         ByteArray byteArray = super.toCharacterBytes();
 
-        byteArray.addShort((short) (this.deathTimer*100));
-        byteArray.addShort((short) (this.bigTimer*100));
+        byteArray.addShort((short) (this.deathTimer * 100));
+        byteArray.addShort((short) (this.bigTimer * 100));
         byteArray.addByte((byte) this.enemyType.getNumber());
-        byteArray.addByte((byte) (this.size*100));
+        byteArray.addByte((byte) (this.size * 100));
 
 //        byte[] deathTimer = org.cbzmq.game.MathUtils.shortToByteArray((short) (this.deathTimer*100));
 //        byte[] bigTimer = org.cbzmq.game.MathUtils.shortToByteArray((short) (this.bigTimer*100));
@@ -332,7 +299,7 @@ public class Enemy extends Character {
         this.knockbackY = father.knockbackY;
     }
 
-    public Enemy copy(Character father,Character son){
+    public Enemy copy(Character father, Character son) {
         return null;
     }
 }

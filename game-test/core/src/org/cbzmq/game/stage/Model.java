@@ -1,7 +1,6 @@
 package org.cbzmq.game.stage;
 
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Queue;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Map;
 import org.cbzmq.game.model.*;
@@ -33,5 +32,10 @@ public interface Model {
 
     Array<Observer> getListeners();
     EventQueue getQueue();
+    /**用户发起的请求**/
+    public void onCharacterEvent(Event.OneCharacterEvent event);
 
+    public void save();
+
+    public void quit();
 }

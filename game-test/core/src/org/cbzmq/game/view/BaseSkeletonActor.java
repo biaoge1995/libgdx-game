@@ -44,6 +44,8 @@ import org.cbzmq.game.Assets;
 import org.cbzmq.game.GameCamera;
 import org.cbzmq.game.StateAnimation;
 import org.cbzmq.game.model.Character;
+import org.cbzmq.game.model.Event;
+import org.cbzmq.game.model.ObserverAdapter;
 
 /**
  * The view class for an enemy or player that moves around the map.
@@ -67,6 +69,25 @@ public class BaseSkeletonActor<T extends Character> extends SkeletonActor {
         SkeletonRenderer skeletonRenderer = new SkeletonRenderer();
         skeletonRenderer.setPremultipliedAlpha(true);
         setRenderer(skeletonRenderer);
+        model.addListen(new ObserverAdapter(){
+            @Override
+            public boolean onOneObserverEvent(Event.OneCharacterEvent event) {
+
+                return super.onOneObserverEvent(event);
+            }
+
+            @Override
+            public boolean onTwoObserverEvent(Event.TwoObserverEvent event) {
+                Character a = event.getA();
+                Character b = event.getB();
+                switch (event.getEventType()) {
+                    case hit:
+                        beHit();
+                        break;
+                }
+                return super.onTwoObserverEvent(event);
+            }
+        });
 
     }
 

@@ -286,10 +286,10 @@ public class UI extends Stage {
         if (!hasSplash && debugButton.isChecked()) {
             shapes.setTransformMatrix(view.batch.getTransformMatrix());
             shapes.setProjectionMatrix(view.batch.getProjectionMatrix());
-
-            for (BaseSkeletonActor value : view.modelAndViewMap.values()) {
-                value.drawDebug(skeletonRendererDebug);
-            }
+        //TODO
+//            for (BaseSkeletonActor value : view.model.getAll()) {
+//                value.drawDebug(skeletonRendererDebug);
+//            }
 
 //			shapes.begin(ShapeType.Line);
 //			shapes.setColor(Color.GREEN);
@@ -458,7 +458,6 @@ public class UI extends Stage {
 
     @Override
     public boolean scrolled(float amountX, float amountY) {
-        Gdx.app.log("scrolled", "scrolled " + amountX + "," + amountY);
 
         if (amountY == 1.0f && cameraZoom<=2) {
             cameraZoom *= 1.1f;

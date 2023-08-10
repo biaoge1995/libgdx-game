@@ -89,14 +89,20 @@ public class Character implements Observer {
     public float damage;
 
 
-    private EventQueue queue;
+    private final EventQueue queue;
+
+    private final Array<Observer> observers;
 
 
     public Character() {
+        this("Character");
     }
 
     public Character(String name) {
         this.name = name;
+        this.queue = new EventQueue();
+        this.observers = new Array<>();
+        queue.setObservers(observers);
 
     }
 
@@ -118,24 +124,32 @@ public class Character implements Observer {
         }
     }
 
+    public boolean updateHp(float hp){
+        this.hp = hp;
+        return true;
+    }
+
     @Override
-    public void onOneObserverEvent(Event.OneObserverEvent event) {
+    public boolean onOneObserverEvent(Event.OneCharacterEvent event) {
         //判断当前事件是
-        if (!(event.getCharacter() == this)) return;
+        if (!(event.getCharacter() == this)) return false;
+        if (hp == 0) return false;
         switch (event.getEventType()) {
             case jump:
-                jump();
-                break;
+               if (isGrounded()) {
+                    return jump();
+                }
             case moveLeft:
-                moveLeft(event.getFloatData());
-                break;
+                return moveLeft(event.getFloatData());
             case moveRight:
-                moveRight(event.getFloatData());
-                break;
+                return moveRight(event.getFloatData());
             case bloodUpdate:
-                hp = event.getFloatData();
-                break;
+                return updateHp(event.getFloatData());
             case attack:
+                return attack();
+            case aimPoint:
+                aimPoint.set(event.getVector());
+                return true;
             case born:
             case win:
             case dispose:
@@ -144,18 +158,18 @@ public class Character implements Observer {
             case lose:
                 Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), event.getCharacter().toString());
                 break;
-            case aimPoint:
-                aimPoint.set(event.getVector());
             case frameEnd:
             case collisionMap:
-                //TODO
                 break;
+
         }
+        return true;
     }
 
     @Override
-    public void onTwoObserverEvent(Event.TwoObserverEvent event) {
+    public boolean onTwoObserverEvent(Event.TwoObserverEvent event) {
         Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), event.getA() + "->" + event.getB());
+        return false;
     }
 
     //是否可以被从parent中清除掉
@@ -175,16 +189,13 @@ public class Character implements Observer {
 
 
     public void beDeath() {
-        if (this.state != CharacterState.death) {
-            this.hp = 0;
-            this.state = CharacterState.death;
-            if (queue != null) queue.beDeath(this);
-        }
+        state = CharacterState.death;
     }
 
-    public void attack(){
-
+    public boolean attack() {
+        return false;
     }
+
     public void setState(CharacterState newState) {
         if ((state == newState && state != CharacterState.falling) || state == CharacterState.death) return;
         state = newState;
@@ -193,7 +204,7 @@ public class Character implements Observer {
     }
 
 
-    public void moveLeft(float delta) {
+    public boolean moveLeft(float delta) {
         float adjust;
         if (isGrounded()) {
             adjust = runGroundX;
@@ -202,10 +213,10 @@ public class Character implements Observer {
             adjust = velocity.x <= 0 ? runAirSame : runAirOpposite;
         if (velocity.x > -maxVelocityX) velocity.x = Math.max(velocity.x - adjust * delta, -maxVelocityX);
         dir = -1;
-
+        return true;
     }
 
-    public void moveRight(float delta) {
+    public boolean moveRight(float delta) {
         float adjust;
         if (isGrounded()) {
             adjust = runGroundX;
@@ -214,7 +225,7 @@ public class Character implements Observer {
             adjust = velocity.x >= 0 ? runAirSame : runAirOpposite;
         if (velocity.x < maxVelocityX) velocity.x = Math.min(velocity.x + adjust * delta, maxVelocityX);
         dir = 1;
-
+        return true;
     }
 
     /**
@@ -317,7 +328,7 @@ public class Character implements Observer {
 //        son.isWin = father.isWin;
         son.damage = father.damage;
         son.collisionTimer = father.collisionTimer;
-        son.setQueue(father.getQueue());
+//        son.setQueue(father.getQueue());
         son.parent = father.parent;
     }
 
@@ -437,7 +448,7 @@ public class Character implements Observer {
 
     public <T extends Character> void updateByCharacter(T character) {
 
-        this.id = character.id;
+//        this.id = character.id;
         this.name = character.name;
         this.position = character.position;
         this.targetPosition = character.targetPosition;
@@ -503,10 +514,9 @@ public class Character implements Observer {
         return queue;
     }
 
-    public void setQueue(EventQueue queue) {
-        this.queue = queue;
-
-    }
+//    public void setQueue(EventQueue queue) {
+//        this.queue = queue;
+//    }
 
     public CharacterType getCharacterType() {
         return characterType;
@@ -527,6 +537,10 @@ public class Character implements Observer {
         // The character is considered grounded for a short time after leaving the ground, making jumping over gaps easier.
         //角色离开地面后会被视为短暂停飞，从而更容易跳过空隙
         return airTime < groundedTime;
+    }
+
+    public void addListen(Observer observer){
+        this.observers.add(observer);
     }
 
     public void setGrounded(boolean grounded) {

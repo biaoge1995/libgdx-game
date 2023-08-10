@@ -8,6 +8,6 @@ package org.cbzmq.game.model;
  * @Version 1.0
  **/
 public interface Observer {
-    void onOneObserverEvent(Event.OneObserverEvent event);
-    void onTwoObserverEvent(Event.TwoObserverEvent event);
+    boolean onOneObserverEvent(Event.OneCharacterEvent event);
+    boolean onTwoObserverEvent(Event.TwoObserverEvent event);
 }

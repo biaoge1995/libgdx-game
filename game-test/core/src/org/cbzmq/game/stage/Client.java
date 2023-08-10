@@ -93,7 +93,7 @@ public class Client implements Model {
             characterMap.put(character.getId(), character);
             orderCharacterList.add(character);
             character.setModel(this);
-            character.setQueue(queue);
+//            character.setQueue(queue);
         } else if (character != null) {
             characterMap.get(character.getId()).updateByCharacter(character);
 
@@ -230,6 +230,21 @@ public class Client implements Model {
     @Override
     public EventQueue getQueue() {
         return null;
+    }
+
+    @Override
+    public void onCharacterEvent(Event.OneCharacterEvent event) {
+
+    }
+
+    @Override
+    public void save() {
+
+    }
+
+    @Override
+    public void quit() {
+
     }
 
 }

@@ -15,8 +15,8 @@ public class Bullet extends Character {
     public Player player;
 
 
-    public Bullet(Player player,float startX, float startY, float vx, float vy) {
-        super( "bullet");
+    public Bullet(Player player, float startX, float startY, float vx, float vy) {
+        super("bullet");
         position.set(startX, startY);
         velocity.set(vx, vy);
         damage = 1;
@@ -42,13 +42,12 @@ public class Bullet extends Character {
     public void beCollide() {
         hp = 0;
         beDeath();
-        state = CharacterState.death;
     }
 
     @Override
     public void update(float delta) {
 
-       super.update(delta);
+        super.update(delta);
 
     }
 
@@ -90,7 +89,7 @@ public class Bullet extends Character {
     }
 
 
-    public  CharacterProto.Character.Builder toCharacterProto() {
+    public CharacterProto.Character.Builder toCharacterProto() {
         CharacterProto.Character.Builder builder = super.toCharacterProto();
         return builder.setType(CharacterType.bullet);
 
@@ -103,7 +102,7 @@ public class Bullet extends Character {
     }
 
 
-    public  void updateByCharacter(Bullet father) {
+    public void updateByCharacter(Bullet father) {
         super.updateByCharacter(father);
         this.player = father.player;
     }

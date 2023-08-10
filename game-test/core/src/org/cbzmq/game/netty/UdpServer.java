@@ -61,18 +61,19 @@ public final class UdpServer extends ObserverAdapter {
     }
 
     @Override
-    public void onTwoObserverEvent(Event.TwoObserverEvent event) {
-        if (!(event.getA() instanceof Character && event.getB() instanceof Character)) return;
+    public boolean onTwoObserverEvent(Event.TwoObserverEvent event) {
+        if (!(event.getA() instanceof Character && event.getB() instanceof Character)) return false;
         switch (event.getEventType()) {
             case hit:
             case beKilled:
             case collisionCharacter:
                 break;
         }
+        return false;
     }
 
     @Override
-    public void onOneObserverEvent(Event.OneObserverEvent event) {
+    public boolean onOneObserverEvent(Event.OneCharacterEvent event) {
         Character one = event.getCharacter();
         switch (event.getEventType()) {
             case win:
@@ -141,6 +142,7 @@ public final class UdpServer extends ObserverAdapter {
                 }
 
         }
+        return true;
     }
 
     public void syncAllCharacter(Group root ){

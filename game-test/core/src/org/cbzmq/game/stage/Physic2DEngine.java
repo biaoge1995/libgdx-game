@@ -36,7 +36,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Map;
-import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
 
@@ -48,6 +47,7 @@ import org.cbzmq.game.model.Character;
 public class Physic2DEngine {
     //物理参数
     //重力参数
+    private static final String TAG = Physic2DEngine.class.getName();
     public static final float minVelocityX = 0.001f, maxVelocityY = 20f;
     //x方向 地板阻尼 空气阻尼 碰撞阻尼
     public static final float dampingGroundX = 36, dampingAirX = 15, collideDampingX = 0.7f;
@@ -218,7 +218,9 @@ public class Physic2DEngine {
         for (Rectangle tile : map.getCollisionTiles(x, startY, x, endY)) {
             if (!character.rect.overlaps(tile)) continue;
             if (queue != null) {
-                queue.collisionMap(character, tile);
+                //推送碰撞消息
+                queue.pushCharacterEvent(Event.collisionMap(TAG,character, tile));
+//                queue.collisionMap(character, tile);
             }
             if (character.velocity.x >= 0)
                 character.position.x = tile.x - character.rect.width;
@@ -287,14 +289,15 @@ public class Physic2DEngine {
                 else {
                     // 撞击
                     if (a.rect.overlaps(b.rect)) {
-                        queue.collisionCharacter(a, b);
+                        queue.pushTwoCharacterEvent(Event.collisionCharacter(TAG,a,b));
+//                        queue.collisionCharacter(a, b);
 
                         //TODO 扣血 这块可以放到游戏主逻辑中做 不参与物理引擎运行
                         float dirX = a.position.x + a.rect.width / 2 < b.position.x + b.rect.width / 2 ? -1 : 1;
                         if (a.collisionTimer < 0) {
                             a.beCollide();
-
-                            queue.hit(a, b);
+                            queue.pushTwoCharacterEvent(Event.hit(TAG,a,b));
+//                            queue.hit(a, b);
                         }
 
                         //判断x轴击退的量

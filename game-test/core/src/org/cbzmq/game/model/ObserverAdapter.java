@@ -11,10 +11,12 @@ public class ObserverAdapter implements Observer {
 
 
     @Override
-    public void onOneObserverEvent(Event.OneObserverEvent event) {
+    public boolean onOneObserverEvent(Event.OneCharacterEvent event) {
+        return true;
     }
 
     @Override
-    public void onTwoObserverEvent(Event.TwoObserverEvent event) {
+    public boolean onTwoObserverEvent(Event.TwoObserverEvent event) {
+        return true;
     }
 }

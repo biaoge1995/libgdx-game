@@ -69,13 +69,21 @@ public enum OneBodyEventType
    */
   bloodUpdate(6, 13),
   /**
+   * <code>stateUpdate = 15;</code>
+   *
+   * <pre>
+   *状态更新
+   * </pre>
+   */
+  stateUpdate(7, 15),
+  /**
    * <code>aimPoint = 14;</code>
    *
    * <pre>
    *瞄准
    * </pre>
    */
-  aimPoint(7, 14),
+  aimPoint(8, 14),
   /**
    * <code>dispose = 4;</code>
    *
@@ -83,7 +91,7 @@ public enum OneBodyEventType
    *销毁
    * </pre>
    */
-  dispose(8, 4),
+  dispose(9, 4),
   /**
    * <code>beRemove = 5;</code>
    *
@@ -91,7 +99,7 @@ public enum OneBodyEventType
    *移除
    * </pre>
    */
-  beRemove(9, 5),
+  beRemove(10, 5),
   /**
    * <code>lose = 6;</code>
    *
@@ -99,7 +107,7 @@ public enum OneBodyEventType
    *失败
    * </pre>
    */
-  lose(10, 6),
+  lose(11, 6),
   /**
    * <code>win = 7;</code>
    *
@@ -107,7 +115,7 @@ public enum OneBodyEventType
    *胜利
    * </pre>
    */
-  win(11, 7),
+  win(12, 7),
   /**
    * <code>collisionMap = 8;</code>
    *
@@ -115,7 +123,7 @@ public enum OneBodyEventType
    *碰撞到地图
    * </pre>
    */
-  collisionMap(12, 8),
+  collisionMap(13, 8),
   /**
    * <code>frameEnd = 9;</code>
    *
@@ -123,7 +131,7 @@ public enum OneBodyEventType
    *帧结束
    * </pre>
    */
-  frameEnd(13, 9),
+  frameEnd(14, 9),
   ;
 
   /**
@@ -182,6 +190,14 @@ public enum OneBodyEventType
    * </pre>
    */
   public static final int bloodUpdate_VALUE = 13;
+  /**
+   * <code>stateUpdate = 15;</code>
+   *
+   * <pre>
+   *状态更新
+   * </pre>
+   */
+  public static final int stateUpdate_VALUE = 15;
   /**
    * <code>aimPoint = 14;</code>
    *
@@ -251,6 +267,7 @@ public enum OneBodyEventType
       case 11: return moveRight;
       case 12: return moveLeft;
       case 13: return bloodUpdate;
+      case 15: return stateUpdate;
       case 14: return aimPoint;
       case 4: return dispose;
       case 5: return beRemove;

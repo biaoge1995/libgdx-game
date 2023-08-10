@@ -22,9 +22,9 @@ public interface Engine2DObserver{
     public abstract void collisionObserver (Character Character, Character other);
 
     /** 事件 **/
-    public abstract void event (Character Character, Event.OneObserverEvent event);
+    public abstract void event (Character Character, Event.OneCharacterEvent event);
 
-    public abstract void eventOneObserver (Event.OneObserverEvent event);
+    public abstract void eventOneObserver (Event.OneCharacterEvent event);
 
     public abstract void eventTwoObserver (Event.TwoObserverEvent event);
 }

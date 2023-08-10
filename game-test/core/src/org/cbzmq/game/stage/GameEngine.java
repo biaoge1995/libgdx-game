@@ -35,10 +35,10 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Queue;
 import org.cbzmq.game.Assets;
 import org.cbzmq.game.Constants;
 import org.cbzmq.game.Map;
+import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.EnemyType;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.model.*;
@@ -50,6 +50,7 @@ import org.cbzmq.game.model.*;
  */
 public class GameEngine implements Model {
 
+    private static final String TAG= GameEngine.class.getName();
     Group<Character> root;
     Player player;
     Map map;
@@ -78,7 +79,7 @@ public class GameEngine implements Model {
         this.collisionLayer = map.collisionLayer;
         this.root = new Group<>();
         this.root.setModel(this);
-        this.root.setQueue(queue);
+//        this.root.setQueue(queue);
         this.queue.setObservers(listener);
         this.physic2DEngine = Physic2DEngine
                 .newBuilder()
@@ -90,23 +91,27 @@ public class GameEngine implements Model {
                 .build();
         addListener(new ObserverAdapter() {
             @Override
-            public void onOneObserverEvent(Event.OneObserverEvent event) {
-                super.onOneObserverEvent(event);
+            public boolean onOneObserverEvent(Event.OneCharacterEvent event) {
+                switch (event.getEventType()) {
+
+                }
+                return super.onOneObserverEvent(event);
             }
 
             @Override
-            public void onTwoObserverEvent(Event.TwoObserverEvent event) {
+            public boolean onTwoObserverEvent(Event.TwoObserverEvent event) {
                 Character a = (event.getA());
                 Character b = (event.getB());
                 switch (event.getEventType()) {
                     case hit:
-                        a.hp -= b.damage;
-                        queue.bloodUpdate(a,a.hp);
+                        float hp = a.hp-b.damage;
+                        onCharacterEvent(Event.bloodUpdate(TAG,a,hp));
                         break;
                     case beKilled:
                     case collisionCharacter:
                         break;
                 }
+                return true;
             }
         });
 
@@ -184,8 +189,11 @@ public class GameEngine implements Model {
         } else {
             player = new Player();
             addListener(player);
+
         }
         playerGroup.addCharacter(player);
+
+
         //给用户添加一个监听
         //TODO 诞生了一个玩家
         player.position.set(4, 8);
@@ -195,6 +203,7 @@ public class GameEngine implements Model {
 
     public void update(float delta) {
         root.update(delta);
+        getAll();
         physic2DEngine.update(delta);
 
         for (Character p : playerGroup.getChildren()) {
@@ -202,18 +211,33 @@ public class GameEngine implements Model {
                 if (p.hp > 0) break;
                 else {
                     gameOverTimer += delta / getTimeScale() * timeScale; // Isn't affected by player death time scaling.
-                    queue.lose(playerGroup);
+                    queue.pushCharacterEvent(Event.lose(TAG,playerGroup));
                     isGameOver = true;
                 }
             }
 
 
         }
-        updateEnemies();
+        updateEnemies(delta);
         updateTriggers();
-        queue.frameEnd(root,delta);
+        queue.pushCharacterEvent(Event.frameEnd(TAG,playerGroup,delta));
         //将事件队列处理掉
         queue.drain();
+    }
+
+    @Override
+    public void onCharacterEvent(Event.OneCharacterEvent event) {
+        event.getCharacter().onOneObserverEvent(event);
+    }
+
+    @Override
+    public void save() {
+
+    }
+
+    @Override
+    public void quit() {
+
     }
 
     public void updateTriggers() {
@@ -233,18 +257,18 @@ public class GameEngine implements Model {
         if (isGameOver) return;
         this.isPlayerWin = isPlayerWin;
         if (isPlayerWin) {
-            queue.win(playerGroup);
-            queue.lose(enemyGroup);
+            queue.pushCharacterEvent(Event.win(TAG,playerGroup));
+            queue.pushCharacterEvent(Event.lose(TAG,enemyGroup));
             isGameOver = true;
         } else {
-            queue.win(playerGroup);
-            queue.lose(enemyGroup);
+            queue.pushCharacterEvent(Event.lose(TAG,playerGroup));
+            queue.pushCharacterEvent(Event.win(TAG,enemyGroup));
             isGameOver = true;
         }
 
     }
 
-    public void updateEnemies() {
+    public void updateEnemies(float delta) {
         int alive = 0;
         for (int i = enemyGroup.getChildren().size - 1; i >= 0; i--) {
             Enemy enemy = enemyGroup.getChildren().get(i);
@@ -258,9 +282,58 @@ public class GameEngine implements Model {
             if (enemy.hp > 0 || (enemy.hp <= 0 || enemy.deathTimer > 0)) {
                 alive++;
             }
+            //设置攻击目标
             if (enemy.hp > 0 && player.hp > 0) {
                 enemy.setTargetPosition(player.position);
             }
+
+            //产生小怪物
+            if (enemy.spawnSmallsTimer < 0) {
+                for (int j = 0; j < Enemy.smallCount; j++) {
+                    Enemy small = new Enemy(EnemyType.small);
+                    small.position.set(enemy.position.x, enemy.position.y + 2);
+                    small.velocity.x = MathUtils.random(5, 15) * (MathUtils.randomBoolean() ? 1 : -1);
+                    small.velocity.y = MathUtils.random(10, 25);
+                    small.setGrounded(false);
+                    enemyGroup.addCharacter(small);
+                }
+            }
+
+            // Simple enemy AI.
+            boolean grounded = enemy.isGrounded();
+            if (grounded) enemy.move = true;
+
+            enemy.maxVelocityX = grounded ? enemy.maxVelocityGroundX : Enemy.maxVelocityAirX;
+
+             if (enemy.state!=CharacterState.death && enemy.collisionTimer < 0) {
+
+                //跳向目标方向
+                if (grounded && (enemy.forceJump || Math.abs(enemy.targetPosition.x - enemy.position.x) < enemy.jumpDistance)) {
+                    enemy.jumpDelayTimer -= delta;
+                    //跳跃的定时器
+                    if (enemy.state != CharacterState.jumping && enemy.jumpDelayTimer < 0 && enemy.position.y <= enemy.targetPosition.y) {
+//                        enemy.jump();
+                        //TODO 关键帧 跳跃
+                        onCharacterEvent(Event.jump(TAG,enemy));
+                        enemy.jumpDelayTimer = MathUtils.random(0, enemy.jumpDelay);
+                        enemy.forceJump = false;
+                    }
+                }
+                //朝着目标的方向移动
+                if (enemy.move) {
+                    if (enemy.targetPosition.x > enemy.position.x) {
+                        if (enemy.velocity.x >= 0)
+                            //TODO 关键帧
+                            onCharacterEvent(Event.moveRight(TAG,enemy,delta));
+                    } else if (enemy.velocity.x <= 0)
+                        //TODO 关键帧
+                        onCharacterEvent(Event.moveLeft(TAG,enemy,delta));
+                }
+
+            }
+
+            int previousCollision = enemy.collisions;
+            if (!grounded || enemy.collisions == previousCollision) enemy.collisions = 0;
 
         }
 
@@ -268,8 +341,6 @@ public class GameEngine implements Model {
             if (!isGameOver) {
                 gameResult(true);
             }
-
-
         }
     }
 
@@ -316,6 +387,8 @@ public class GameEngine implements Model {
     public EventQueue getQueue() {
         return queue;
     }
+
+
 
     static class Trigger {
         float x;
