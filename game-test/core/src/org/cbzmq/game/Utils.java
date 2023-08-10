@@ -3,7 +3,7 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
-public class MathUtils {
+public class Utils {
 
     public static final int maxSize = 40960;
 
@@ -46,7 +46,7 @@ public class MathUtils {
         }
 
         compresser.end();
-//        System.out.println("压缩前数据量大小"+data.length+",压缩后数据量大小"+compressedDataLength);
+        System.out.println("压缩前数据量大小"+data.length+",压缩后数据量大小"+compressedDataLength);
         compressData.output = result2;
         return compressData;
     }
@@ -69,7 +69,7 @@ public class MathUtils {
             result2[i] = result[i];
         }
 
-//        System.out.println("压缩包数据量大小"+compressData.length+",解压后数据量大小"+resultLength);
+        System.out.println("压缩包数据量大小"+compressData.length+",解压后数据量大小"+resultLength);
 
         return result2;
     }
@@ -114,6 +114,51 @@ public class MathUtils {
                 + ((b[1] & 0xFF) << 16)
                 + ((b[2] & 0xFF) << 8)
                 + (b[3] & 0xFF);
+    }
+
+    public static Counter createCounter(int initNum){
+        return new Counter(initNum);
+    }
+
+    public static class Counter{
+        int counter=0;
+        private final int initNum;
+
+        public Counter(int initNum) {
+            this.initNum = initNum;
+            this.counter = initNum;
+        }
+        synchronized public boolean reduce(){
+            if(counter==0){
+                return true;
+            }else {
+                counter--;
+                return false;
+            }
+        }
+        synchronized public void reset(){
+            this.counter = initNum;
+        }
+    }
+    public static class Timer{
+        float time=0;
+        private final float initTimer;
+
+        public Timer(float initTimer) {
+            this.initTimer = initTimer;
+            this.time = initTimer;
+        }
+        synchronized public boolean reduce(float delta){
+            if(time<=0){
+                return true;
+            }else {
+                time-=delta;
+                return false;
+            }
+        }
+        synchronized public void reset(){
+            this.time = initTimer;
+        }
     }
 
 }

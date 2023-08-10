@@ -1,10 +1,8 @@
 package org.cbzmq.game.model;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.Array;
-import com.esotericsoftware.spine.Event;
-import com.esotericsoftware.spine.EventData;
 import org.cbzmq.game.Constants;
+import org.cbzmq.game.Utils;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.enums.EnemyType;
@@ -21,6 +19,7 @@ public class Enemy extends Character {
     public static float maxVelocityMinX = 4f, maxVelocityMaxX = 8.5f, maxVelocityAirX = 19f;
     public static float hpWeak = 1, hpSmall = 2, hpNormal = 3, hpStrong = 5, hpBecomesBig = 8, hpBig = 20;
     public static float damageWeak = 0.2f, damageSmall = 0.4f, damageNormal = 0.6f, damageStrong = 1f, damageBecomesBig = 0.4f, damageBig = 1f;
+    public static int hitCountWeak = 0, hitSmall = 0, hitNormal = 1, hitStrong = 2, hitBecomesBig = 2, hitBig = 4;
     public static float corpseTime = 5, fadeTime = 3;
     public static float jumpDistanceNormal = 20, jumpDelayNormal = 1.6f, jumpVelocityNormal = 12, jumpVelocityBig = 18;
     public static float sizeSmall = 0.5f, sizeBig = 2.5f, sizeStrong = 1.3f, bigDuration = 2, smallCount = 14;
@@ -28,6 +27,8 @@ public class Enemy extends Character {
     public static float collisionDelay = 0.3f;
     //TODO view会用到
     public float deathTimer = corpseTime;
+
+
     public float maxVelocityGroundX;
     public float jumpDelayTimer, jumpDistance, jumpDelay;
     //TODO view会用到
@@ -44,6 +45,7 @@ public class Enemy extends Character {
     public float knockbackX = normalKnockbackX;
     public float knockbackY = normalKnockbackY;
 
+    public Utils.Counter counter;
 
     // This is here for convenience, the model should never touch the view.
 //	public EnemyActor view;
@@ -61,7 +63,6 @@ public class Enemy extends Character {
         jumpDelay = jumpDelayNormal;
         jumpDistance = jumpDistanceNormal;
 
-
         if (enemyType == EnemyType.big) {
             size = sizeBig;
             rect.width = width * size * 0.7f;
@@ -70,27 +71,38 @@ public class Enemy extends Character {
             knockbackX = normalKnockbackX;
             knockbackY = normalKnockbackY;
             damage = damageBig;
+            counter = Utils.createCounter(hitBig);
         } else if (enemyType == EnemyType.small) {
             size = sizeSmall;
             rect.width = width * size;
             rect.height = height * size;
             hp = hpSmall;
             damage = damageSmall;
+            counter = Utils.createCounter(hitSmall);
+
         } else if (enemyType == EnemyType.weak) {
             hp = hpWeak;
             damage = damageWeak;
+            counter = Utils.createCounter(hitCountWeak);
+
         } else if (enemyType == EnemyType.becomesBig) {
             hp = hpBecomesBig;
             damage = damageBecomesBig;
+            counter = Utils.createCounter(hitBecomesBig);
+
         } else if (enemyType == EnemyType.strong) {
             hp = hpStrong;
             size = sizeStrong;
             jumpVelocity *= 1.5f;
             jumpDistance *= 1.4f;
             damage = damageStrong;
+            counter = Utils.createCounter(hitStrong);
+
         } else {
             hp = hpNormal;
             damage = 0.5f;
+            counter = Utils.createCounter(hitNormal);
+
         }
 
         jumpDelayTimer = MathUtils.random(0, jumpDelay);
@@ -98,7 +110,8 @@ public class Enemy extends Character {
 
     public void update(float delta) {
         stateChanged = false;
-        //TODO 要把死亡的关键帧传出去
+
+        //死亡时
         if (state == CharacterState.death) {
             if (enemyType == EnemyType.becomesBig && size == 1) {
                 bigTimer = bigDuration;
@@ -115,7 +128,8 @@ public class Enemy extends Character {
             }
         }
 
-        //TODO 死亡时 怪物变大尺寸跟变大时间挂钩 变大不是关键帧
+        // Enemy grows to a big enemy.
+        //怪物变大尺寸跟变大时间挂钩
         if (bigTimer > 0) {
             bigTimer -= delta;
             size = 1 + (sizeBig - 1) * (1 - Math.max(0, bigTimer / bigDuration));
@@ -123,32 +137,21 @@ public class Enemy extends Character {
             rect.height = height * size * 0.7f;
         }
 
-        //TODO 死亡时 大怪物产生小怪物
-        if (spawnSmallsTimer > 0) {
-            spawnSmallsTimer -= delta;
+        collisionTimer -= delta;
+
+        if (state == CharacterState.death) deathTimer -= delta;
+
+        super.update(delta);
+
+    }
+
+    public boolean beHit(){
+        if(counter.reduce()){
+            counter.reset();
+            return true;
+        }else {
+            return false;
         }
-        if (collisionTimer > 0) {
-            collisionTimer -= delta;
-        }
-
-
-        if (state == CharacterState.death) {
-            deathTimer -= delta;
-        }
-
-
-        // Nearly dead enemies jump at the player right away.
-        //濒临死亡的敌人设置他的跳跃时间
-        if (hp == 1 && enemyType != EnemyType.weak && enemyType != EnemyType.small) jumpDelayTimer = 0;
-
-        // Kill enemies stuck in the map or those that have somehow fallen out of the map.
-        //将hp小于0的怪物变成死亡的状态，以及那些卡在地图上的怪物
-        if (state != CharacterState.death && (hp <= 0 || position.y < -100 || collisions > 100)) {
-            state = CharacterState.death;
-            hp = 0;
-        }
-
-
     }
 
     public void beCollide() {
@@ -158,7 +161,6 @@ public class Enemy extends Character {
             jumpDelayTimer = MathUtils.random(0, jumpDelay);
         }
     }
-
 
     @Override
     public boolean isCanBeRemove() {
@@ -211,9 +213,9 @@ public class Enemy extends Character {
         Enemy enemy = new Enemy(EnemyType.valueOf(bytes[27]));
         Character.copyToSon(father, enemy);
         byte[] deathTimer = {bytes[23], bytes[24]};
-        enemy.deathTimer = org.cbzmq.game.MathUtils.byteArrayToShort(deathTimer) / 100f;
+        enemy.deathTimer = Utils.byteArrayToShort(deathTimer) / 100f;
         byte[] bigTimer = {bytes[25], bytes[26]};
-        enemy.bigTimer = org.cbzmq.game.MathUtils.byteArrayToShort(bigTimer) / 100f;
+        enemy.bigTimer = Utils.byteArrayToShort(bigTimer) / 100f;
         enemy.size = bytes[28] / 100f;
         return enemy;
     }

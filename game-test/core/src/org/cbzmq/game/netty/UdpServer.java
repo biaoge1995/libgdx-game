@@ -11,8 +11,9 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.SocketUtils;
-import org.cbzmq.game.MathUtils;
+import org.cbzmq.game.Utils;
 import org.cbzmq.game.enums.CharacterState;
+import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.enums.MsgHeader;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
@@ -38,7 +39,7 @@ public final class UdpServer extends ObserverAdapter {
 
     private static final int PORT = Integer.parseInt(System.getProperty("port", "7686"));
     private Channel ch;
-    private static long counter=0;
+    private static long counter = 0;
     private static final Array<CharacterProto.Character> characterProtos = new Array<>();
 
     private final Array<Character> container = new Array<>();
@@ -74,24 +75,28 @@ public final class UdpServer extends ObserverAdapter {
 
     @Override
     public boolean onOneObserverEvent(Event.OneCharacterEvent event) {
-        Character one = event.getCharacter();
+
         switch (event.getEventType()) {
-            case win:
-            case born:
+            case aimPoint:
             case attack:
-            case lose:
+            case born:
+            case jump:
             case beDeath:
-                MsgProto.Event.Builder builder1 = MsgProto.Event.newBuilder();
-                MsgProto.Event protoEvent = builder1.setOne(one.toCharacterProto().build())
-                        .setOneBodyEvent(event.getEventType())
-                        .build();
-                protoEvents.add(protoEvent);
+            case beRemove:
+            case win:
+            case moveLeft:
+            case moveRight:
+            case bloodUpdate:
+            case stateUpdate:
+                if(event.getCharacter().getCharacterType()== CharacterType.unknown)return false;
+                protoEvents.add(event.toMsgProtoEvent());
                 break;
             case frameEnd:
                 Group root = (Group) (event.getCharacter());
-                byte[] bytes;
+                byte[] bytes=null;
                 //没60个轮训给客户端同步一次数据
-                if(counter%60==0){
+//                counter % 60 == 0
+                if (false) {
                     syncAllCharacter(root);
                     MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
                     MsgProto.Msg msg = builder
@@ -102,7 +107,7 @@ public final class UdpServer extends ObserverAdapter {
                             .build();
 
                     bytes = msg.toByteArray();
-                }else {
+                } else if(protoEvents.size>0) {
                     MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
                     MsgProto.Msg msg = builder
                             .setId(counter)
@@ -112,13 +117,12 @@ public final class UdpServer extends ObserverAdapter {
                             .build();
 
                     bytes = msg.toByteArray();
-                    Gdx.app.log("events",msg.toString());
+//                    Gdx.app.log("events", msg.toString());
                 }
 
-
-
+                if(bytes==null) return false;
                 //二次压缩
-                MathUtils.CompressData compress = MathUtils.compress(bytes);
+                Utils.CompressData compress = Utils.compress(bytes);
                 ByteBuf byteBuf = Unpooled.copiedBuffer(compress.getOutput());
 
 //              System.out.println("元素数量" + msg.getCharacterDataList().size());
@@ -128,14 +132,15 @@ public final class UdpServer extends ObserverAdapter {
                 try {
                     ch.writeAndFlush(new DatagramPacket(
                             byteBuf,
-                        SocketUtils.socketAddress("127.0.0.1", 8088)
+                            SocketUtils.socketAddress("127.0.0.1", 8088)
 //                            SocketUtils.socketAddress("192.168.2.145", 8088)
                     )).sync();
-                    if(counter==Long.MAX_VALUE){
+                    if (counter == Long.MAX_VALUE) {
 
-                        counter=0;
-                    }else {
-//                        counter++;
+                        counter = 0;
+                    } else {
+                        counter++;
+                        protoEvents.clear();
                     }
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -145,7 +150,7 @@ public final class UdpServer extends ObserverAdapter {
         return true;
     }
 
-    public void syncAllCharacter(Group root ){
+    public void syncAllCharacter(Group root) {
         container.clear();
         characterProtos.clear();
         root.flat(container);

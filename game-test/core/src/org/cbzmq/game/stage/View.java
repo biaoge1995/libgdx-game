@@ -232,7 +232,7 @@ public class View extends Stage {
             model.onCharacterEvent(Event.moveRight(TAG,player, delta));
         } else if (player.state == CharacterState.running) {
             //TODO
-            model.onCharacterEvent(Event.stateUpdate(TAG,player, CharacterState.idle));
+//            model.onCharacterEvent(Event.stateUpdate(TAG,player, CharacterState.idle));
         }
 
 

@@ -1,12 +1,8 @@
 package org.cbzmq.game.model;
 
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.enums.CharacterState;
-import org.cbzmq.game.enums.EnemyType;
 import org.cbzmq.game.stage.Model;
 
 /**
@@ -43,8 +39,8 @@ public class Group<T extends Character> extends Character {
             }
             c.update(delta);
             if (!(c instanceof Group) && c.isCanBeRemove()) {
-                Gdx.app.log("remove", c.toString());
                 c.remove();
+                model.removeListener(c);
             }
         }
     }
@@ -55,7 +51,7 @@ public class Group<T extends Character> extends Character {
             character.parent.removeCharacter(character, false);
         }
         children.add(character);
-
+        model.addListener(character);
         character.setParent(this);
         character.setModel(getModel());
         character.setId(No.getNo());
@@ -85,6 +81,7 @@ public class Group<T extends Character> extends Character {
         }
         character.setParent(null);
         character.setModel(null);
+
         return character;
     }
 

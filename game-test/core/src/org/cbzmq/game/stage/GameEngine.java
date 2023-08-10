@@ -31,6 +31,7 @@
 package org.cbzmq.game.stage;
 
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
@@ -50,7 +51,7 @@ import org.cbzmq.game.model.*;
  */
 public class GameEngine implements Model {
 
-    private static final String TAG= GameEngine.class.getName();
+    private static final String TAG = GameEngine.class.getName();
     Group<Character> root;
     Player player;
     Map map;
@@ -93,7 +94,12 @@ public class GameEngine implements Model {
             @Override
             public boolean onOneObserverEvent(Event.OneCharacterEvent event) {
                 switch (event.getEventType()) {
-
+                    case aimPoint:
+                    case frameEnd:
+                        break;
+                    default:
+                        Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), event.getCharacter().toString());
+                        break;
                 }
                 return super.onOneObserverEvent(event);
             }
@@ -104,11 +110,11 @@ public class GameEngine implements Model {
                 Character b = (event.getB());
                 switch (event.getEventType()) {
                     case hit:
-                        float hp = a.hp-b.damage;
-                        onCharacterEvent(Event.bloodUpdate(TAG,a,hp));
-                        break;
+                        float hp = a.hp - b.damage;
+                        onCharacterEvent(Event.bloodUpdate(TAG, a, hp));
                     case beKilled:
                     case collisionCharacter:
+                        Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), a+"->"+b);
                         break;
                 }
                 return true;
@@ -178,8 +184,8 @@ public class GameEngine implements Model {
         addTrigger(246, 220, 23, EnemyType.becomesBig, 3);
         addTrigger(246, 220, 23, EnemyType.becomesBig, 3);
         // Setup triggers to spawn enemies based on the x coordinate of the player.
-//        triggers.clear();
-//        addTrigger(10, 10, 8, EnemyType.becomesBig, 1);
+        triggers.clear();
+        addTrigger(10, 10, 8, EnemyType.becomesBig, 1);
 
     }
 
@@ -188,7 +194,7 @@ public class GameEngine implements Model {
             player.updateByCharacter(new Player());
         } else {
             player = new Player();
-            addListener(player);
+
 
         }
         playerGroup.addCharacter(player);
@@ -211,7 +217,7 @@ public class GameEngine implements Model {
                 if (p.hp > 0) break;
                 else {
                     gameOverTimer += delta / getTimeScale() * timeScale; // Isn't affected by player death time scaling.
-                    queue.pushCharacterEvent(Event.lose(TAG,playerGroup));
+                    queue.pushCharacterEvent(Event.lose(TAG, playerGroup));
                     isGameOver = true;
                 }
             }
@@ -220,14 +226,18 @@ public class GameEngine implements Model {
         }
         updateEnemies(delta);
         updateTriggers();
-        queue.pushCharacterEvent(Event.frameEnd(TAG,playerGroup,delta));
+        queue.pushCharacterEvent(Event.frameEnd(TAG, playerGroup, delta));
         //将事件队列处理掉
         queue.drain();
     }
 
     @Override
     public void onCharacterEvent(Event.OneCharacterEvent event) {
-        event.getCharacter().onOneObserverEvent(event);
+      if(  event.getCharacter().onOneObserverEvent(event)){
+          queue.pushCharacterEvent(event);
+      }
+
+
     }
 
     @Override
@@ -257,12 +267,12 @@ public class GameEngine implements Model {
         if (isGameOver) return;
         this.isPlayerWin = isPlayerWin;
         if (isPlayerWin) {
-            queue.pushCharacterEvent(Event.win(TAG,playerGroup));
-            queue.pushCharacterEvent(Event.lose(TAG,enemyGroup));
+            queue.pushCharacterEvent(Event.win(TAG, playerGroup));
+            queue.pushCharacterEvent(Event.lose(TAG, enemyGroup));
             isGameOver = true;
         } else {
-            queue.pushCharacterEvent(Event.lose(TAG,playerGroup));
-            queue.pushCharacterEvent(Event.win(TAG,enemyGroup));
+            queue.pushCharacterEvent(Event.lose(TAG, playerGroup));
+            queue.pushCharacterEvent(Event.win(TAG, enemyGroup));
             isGameOver = true;
         }
 
@@ -288,16 +298,26 @@ public class GameEngine implements Model {
             }
 
             //产生小怪物
-            if (enemy.spawnSmallsTimer < 0) {
-                for (int j = 0; j < Enemy.smallCount; j++) {
-                    Enemy small = new Enemy(EnemyType.small);
-                    small.position.set(enemy.position.x, enemy.position.y + 2);
-                    small.velocity.x = MathUtils.random(5, 15) * (MathUtils.randomBoolean() ? 1 : -1);
-                    small.velocity.y = MathUtils.random(10, 25);
-                    small.setGrounded(false);
-                    enemyGroup.addCharacter(small);
+            if (enemy.spawnSmallsTimer > 0) {
+                enemy.spawnSmallsTimer -= delta;
+
+                if (enemy.spawnSmallsTimer < 0) {
+                    for (int j = 0; j < Enemy.smallCount; j++) {
+                        Enemy small = new Enemy(EnemyType.small);
+                        small.position.set(enemy.position.x, enemy.position.y + 2);
+                        small.velocity.x = MathUtils.random(5, 15) * (MathUtils.randomBoolean() ? 1 : -1);
+                        small.velocity.y = MathUtils.random(10, 25);
+                        small.setGrounded(false);
+                        enemyGroup.addCharacter(small);
+                    }
                 }
             }
+
+            if (enemy.state != CharacterState.death && (enemy.hp <= 0 || enemy.position.y < -100 || enemy.collisions > 100)) {
+                enemy.state = CharacterState.death;
+                enemy.hp = 0;
+            }
+
 
             // Simple enemy AI.
             boolean grounded = enemy.isGrounded();
@@ -305,7 +325,7 @@ public class GameEngine implements Model {
 
             enemy.maxVelocityX = grounded ? enemy.maxVelocityGroundX : Enemy.maxVelocityAirX;
 
-             if (enemy.state!=CharacterState.death && enemy.collisionTimer < 0) {
+            if (enemy.state != CharacterState.death && enemy.collisionTimer < 0) {
 
                 //跳向目标方向
                 if (grounded && (enemy.forceJump || Math.abs(enemy.targetPosition.x - enemy.position.x) < enemy.jumpDistance)) {
@@ -314,7 +334,7 @@ public class GameEngine implements Model {
                     if (enemy.state != CharacterState.jumping && enemy.jumpDelayTimer < 0 && enemy.position.y <= enemy.targetPosition.y) {
 //                        enemy.jump();
                         //TODO 关键帧 跳跃
-                        onCharacterEvent(Event.jump(TAG,enemy));
+                        onCharacterEvent(Event.jump(TAG, enemy));
                         enemy.jumpDelayTimer = MathUtils.random(0, enemy.jumpDelay);
                         enemy.forceJump = false;
                     }
@@ -324,10 +344,10 @@ public class GameEngine implements Model {
                     if (enemy.targetPosition.x > enemy.position.x) {
                         if (enemy.velocity.x >= 0)
                             //TODO 关键帧
-                            onCharacterEvent(Event.moveRight(TAG,enemy,delta));
+                            onCharacterEvent(Event.moveRight(TAG, enemy, delta));
                     } else if (enemy.velocity.x <= 0)
                         //TODO 关键帧
-                        onCharacterEvent(Event.moveLeft(TAG,enemy,delta));
+                        onCharacterEvent(Event.moveLeft(TAG, enemy, delta));
                 }
 
             }
@@ -389,7 +409,6 @@ public class GameEngine implements Model {
     }
 
 
-
     static class Trigger {
         float x;
         Array<Enemy> enemies = new Array();
@@ -411,6 +430,9 @@ public class GameEngine implements Model {
         this.listener.add(listener);
     }
 
+    public void removeListener(Observer listener) {
+        this.listener.removeValue(listener,false);
+    }
 
     @Override
     public Array<Enemy> getEnemies() {

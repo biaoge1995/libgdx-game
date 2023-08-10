@@ -122,6 +122,7 @@ public class Character implements Observer {
         if (isGrounded() && state == CharacterState.jumping) {
             setState(CharacterState.idle);
         }
+        queue.drain();
     }
 
     public boolean updateHp(float hp){
@@ -139,6 +140,7 @@ public class Character implements Observer {
                if (isGrounded()) {
                     return jump();
                 }
+               return false;
             case moveLeft:
                 return moveLeft(event.getFloatData());
             case moveRight:
@@ -150,26 +152,39 @@ public class Character implements Observer {
             case aimPoint:
                 aimPoint.set(event.getVector());
                 return true;
+            case beDeath:
+                beDeath();
+                return true;
             case born:
             case win:
             case dispose:
             case beRemove:
-            case beDeath:
+
             case lose:
-                Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), event.getCharacter().toString());
-                break;
             case frameEnd:
             case collisionMap:
-                break;
-
+                return true;
         }
         return true;
     }
 
     @Override
     public boolean onTwoObserverEvent(Event.TwoObserverEvent event) {
+        Character a = event.getA();
+        Character b = event.getB();
+        if(event.getA()!=this) return false;
+        switch (event.getEventType()) {
+            case hit:
+                if(beHit())  queue.pushTwoCharacterEvent(event);
+                break;
+        }
         Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), event.getA() + "->" + event.getB());
         return false;
+    }
+
+
+    public boolean beHit(){
+        return true;
     }
 
     //是否可以被从parent中清除掉

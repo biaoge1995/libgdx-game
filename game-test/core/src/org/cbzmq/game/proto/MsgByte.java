@@ -1,7 +1,7 @@
 package org.cbzmq.game.proto;
 
 import com.badlogic.gdx.utils.Array;
-import org.cbzmq.game.MathUtils;
+import org.cbzmq.game.Utils;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.enums.EnemyType;
@@ -86,7 +86,7 @@ public class MsgByte {
         byte[] bytes2 = new byte[bytes.size + 5];
 
         bytes2[0] = (byte) msgHeader.getNumber();
-        byte[] time = MathUtils.intToByteArray((int) (timeStamp / 1000));
+        byte[] time = Utils.intToByteArray((int) (timeStamp / 1000));
         bytes2[1] = time[0];
         bytes2[2] = time[1];
         bytes2[3] = time[2];
@@ -102,7 +102,7 @@ public class MsgByte {
     public static MsgByte parseFromBytes(byte[] bytes) throws Exception {
         MsgHeader msgHeader1 = MsgHeader.valueOf(bytes[0]);
         byte[] timeBytes = {bytes[1], bytes[2], bytes[3], bytes[4]};
-        int time = MathUtils.byteArrayToInt(timeBytes);
+        int time = Utils.byteArrayToInt(timeBytes);
         Array<Character> characters = new Array<>();
         int index = 5;
         byte[] tmp = new byte[29];

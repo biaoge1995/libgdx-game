@@ -17,6 +17,7 @@ public interface Model {
     Player getPlayer();
     Map getMap();
     void addListener(Observer listener);
+    void removeListener(Observer listener);
     Array<Enemy> getEnemies();
     Assets getAssets();
     void update(float delta);

@@ -1,10 +1,7 @@
 package org.cbzmq.game.proto;
 
 import com.badlogic.gdx.utils.Array;
-import org.cbzmq.game.MathUtils;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.cbzmq.game.Utils;
 
 /**
  * @ClassName ByteArray
@@ -48,13 +45,13 @@ public class ByteArray {
 
 
     public void addShort(short num){
-        byte[] numBytes = MathUtils.shortToByteArray(num);
+        byte[] numBytes = Utils.shortToByteArray(num);
         bytes.add(numBytes[0]);
         bytes.add(numBytes[1]);
         types.add(Type.SHORT);
     }
     public void addInt(int num){
-        byte[] numBytes = MathUtils.intToByteArray(num);
+        byte[] numBytes = Utils.intToByteArray(num);
         bytes.add(numBytes[0]);
         bytes.add(numBytes[1]);
         bytes.add(numBytes[2]);
@@ -111,11 +108,11 @@ public class ByteArray {
     }
     public int popInt() throws Exception {
         checkType(Type.INT);
-        return MathUtils.byteArrayToInt(pop());
+        return Utils.byteArrayToInt(pop());
     }
     public short popShort() throws Exception {
         checkType(Type.SHORT);
-        return (short)MathUtils.byteArrayToShort(pop());
+        return (short) Utils.byteArrayToShort(pop());
     }
     public byte popByte() throws Exception {
         checkType(Type.BYTE);

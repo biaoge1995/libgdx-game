@@ -287,9 +287,11 @@ public class UI extends Stage {
             shapes.setTransformMatrix(view.batch.getTransformMatrix());
             shapes.setProjectionMatrix(view.batch.getProjectionMatrix());
         //TODO
-//            for (BaseSkeletonActor value : view.model.getAll()) {
-//                value.drawDebug(skeletonRendererDebug);
-//            }
+            for (Actor child : view.getRoot().getChildren()) {
+                ((BaseSkeletonActor)child).drawDebug(skeletonRendererDebug);
+            }
+
+
 
 //			shapes.begin(ShapeType.Line);
 //			shapes.setColor(Color.GREEN);

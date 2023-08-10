@@ -290,6 +290,7 @@ public class Physic2DEngine {
                     // 撞击
                     if (a.rect.overlaps(b.rect)) {
                         queue.pushTwoCharacterEvent(Event.collisionCharacter(TAG,a,b));
+//                        queue.pushTwoCharacterEvent(Event.collisionCharacter(TAG,b,a));
 //                        queue.collisionCharacter(a, b);
 
                         //TODO 扣血 这块可以放到游戏主逻辑中做 不参与物理引擎运行

@@ -70,7 +70,9 @@ public class EnemyActor extends BaseSkeletonActor<Enemy> {
         getSkeleton().setX(getModel().position.x + Enemy.width / 2);
         getSkeleton().setY(getModel().position.y);
 
-        if (!setAnimation(getAssets().enemyStates.get(getModel().state), getModel().stateChanged)) getAnimationState().update(delta);
+        if (!setAnimation(getAssets().enemyStates.get(getModel().state), getModel().stateChanged)) {
+            getAnimationState().update(delta);
+        }
         getAnimationState().apply(getSkeleton());
 
         Bone root = getSkeleton().getRootBone();
@@ -85,8 +87,10 @@ public class EnemyActor extends BaseSkeletonActor<Enemy> {
     @Override
     public void draw(Batch batch, float parentAlpha) {
 //		super.draw(batch, parentAlpha);
-        getSkeleton().getColor().a = Math.min(1, getModel().deathTimer / Enemy.fadeTime);
-        getRenderer().draw(batch, getSkeleton());
+        Skeleton skeleton = getSkeleton();
+        skeleton.getColor().a = Math.min(1, getModel().deathTimer / Enemy.fadeTime);
+        getRenderer().draw(batch, skeleton);
+
 
     }
 
