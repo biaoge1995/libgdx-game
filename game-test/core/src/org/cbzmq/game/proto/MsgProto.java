@@ -1519,6 +1519,40 @@ public final class MsgProto {
      * <code>optional .Character other = 5;</code>
      */
     org.cbzmq.game.proto.CharacterProto.CharacterOrBuilder getOtherOrBuilder();
+
+    // optional float floatData = 6;
+    /**
+     * <code>optional float floatData = 6;</code>
+     */
+    boolean hasFloatData();
+    /**
+     * <code>optional float floatData = 6;</code>
+     */
+    float getFloatData();
+
+    // optional .Vector2 vector = 7;
+    /**
+     * <code>optional .Vector2 vector = 7;</code>
+     */
+    boolean hasVector();
+    /**
+     * <code>optional .Vector2 vector = 7;</code>
+     */
+    org.cbzmq.game.proto.CharacterProto.Vector2 getVector();
+    /**
+     * <code>optional .Vector2 vector = 7;</code>
+     */
+    org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder getVectorOrBuilder();
+
+    // optional .CharacterState state = 8;
+    /**
+     * <code>optional .CharacterState state = 8;</code>
+     */
+    boolean hasState();
+    /**
+     * <code>optional .CharacterState state = 8;</code>
+     */
+    org.cbzmq.game.enums.CharacterState getState();
   }
   /**
    * Protobuf type {@code Event}
@@ -1617,6 +1651,35 @@ public final class MsgProto {
                 other_ = subBuilder.buildPartial();
               }
               bitField0_ |= 0x00000008;
+              break;
+            }
+            case 53: {
+              bitField0_ |= 0x00000010;
+              floatData_ = input.readFloat();
+              break;
+            }
+            case 58: {
+              org.cbzmq.game.proto.CharacterProto.Vector2.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000020) == 0x00000020)) {
+                subBuilder = vector_.toBuilder();
+              }
+              vector_ = input.readMessage(org.cbzmq.game.proto.CharacterProto.Vector2.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(vector_);
+                vector_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000020;
+              break;
+            }
+            case 64: {
+              int rawValue = input.readEnum();
+              org.cbzmq.game.enums.CharacterState value = org.cbzmq.game.enums.CharacterState.valueOf(rawValue);
+              if (value == null) {
+                unknownFields.mergeVarintField(8, rawValue);
+              } else {
+                bitField0_ |= 0x00000040;
+                state_ = value;
+              }
               break;
             }
           }
@@ -1735,11 +1798,68 @@ public final class MsgProto {
       return other_;
     }
 
+    // optional float floatData = 6;
+    public static final int FLOATDATA_FIELD_NUMBER = 6;
+    private float floatData_;
+    /**
+     * <code>optional float floatData = 6;</code>
+     */
+    public boolean hasFloatData() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional float floatData = 6;</code>
+     */
+    public float getFloatData() {
+      return floatData_;
+    }
+
+    // optional .Vector2 vector = 7;
+    public static final int VECTOR_FIELD_NUMBER = 7;
+    private org.cbzmq.game.proto.CharacterProto.Vector2 vector_;
+    /**
+     * <code>optional .Vector2 vector = 7;</code>
+     */
+    public boolean hasVector() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional .Vector2 vector = 7;</code>
+     */
+    public org.cbzmq.game.proto.CharacterProto.Vector2 getVector() {
+      return vector_;
+    }
+    /**
+     * <code>optional .Vector2 vector = 7;</code>
+     */
+    public org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder getVectorOrBuilder() {
+      return vector_;
+    }
+
+    // optional .CharacterState state = 8;
+    public static final int STATE_FIELD_NUMBER = 8;
+    private org.cbzmq.game.enums.CharacterState state_;
+    /**
+     * <code>optional .CharacterState state = 8;</code>
+     */
+    public boolean hasState() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <code>optional .CharacterState state = 8;</code>
+     */
+    public org.cbzmq.game.enums.CharacterState getState() {
+      return state_;
+    }
+
     private void initFields() {
       oneBodyEvent_ = org.cbzmq.game.enums.OneBodyEventType.born;
       towBodyEvent_ = org.cbzmq.game.enums.TwoBodyEventType.collisionCharacter;
       one_ = org.cbzmq.game.proto.CharacterProto.Character.getDefaultInstance();
       other_ = org.cbzmq.game.proto.CharacterProto.Character.getDefaultInstance();
+      floatData_ = 0F;
+      vector_ = org.cbzmq.game.proto.CharacterProto.Vector2.getDefaultInstance();
+      state_ = org.cbzmq.game.enums.CharacterState.idle;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1754,6 +1874,12 @@ public final class MsgProto {
       }
       if (hasOther()) {
         if (!getOther().isInitialized()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
+      }
+      if (hasVector()) {
+        if (!getVector().isInitialized()) {
           memoizedIsInitialized = 0;
           return false;
         }
@@ -1776,6 +1902,15 @@ public final class MsgProto {
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeMessage(5, other_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeFloat(6, floatData_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeMessage(7, vector_);
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        output.writeEnum(8, state_.getNumber());
       }
       getUnknownFields().writeTo(output);
     }
@@ -1801,6 +1936,18 @@ public final class MsgProto {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(5, other_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFloatSize(6, floatData_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(7, vector_);
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(8, state_.getNumber());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1912,6 +2059,7 @@ public final class MsgProto {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getOneFieldBuilder();
           getOtherFieldBuilder();
+          getVectorFieldBuilder();
         }
       }
       private static Builder create() {
@@ -1936,6 +2084,16 @@ public final class MsgProto {
           otherBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000008);
+        floatData_ = 0F;
+        bitField0_ = (bitField0_ & ~0x00000010);
+        if (vectorBuilder_ == null) {
+          vector_ = org.cbzmq.game.proto.CharacterProto.Vector2.getDefaultInstance();
+        } else {
+          vectorBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000020);
+        state_ = org.cbzmq.game.enums.CharacterState.idle;
+        bitField0_ = (bitField0_ & ~0x00000040);
         return this;
       }
 
@@ -1988,6 +2146,22 @@ public final class MsgProto {
         } else {
           result.other_ = otherBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.floatData_ = floatData_;
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
+        }
+        if (vectorBuilder_ == null) {
+          result.vector_ = vector_;
+        } else {
+          result.vector_ = vectorBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+          to_bitField0_ |= 0x00000040;
+        }
+        result.state_ = state_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -2016,6 +2190,15 @@ public final class MsgProto {
         if (other.hasOther()) {
           mergeOther(other.getOther());
         }
+        if (other.hasFloatData()) {
+          setFloatData(other.getFloatData());
+        }
+        if (other.hasVector()) {
+          mergeVector(other.getVector());
+        }
+        if (other.hasState()) {
+          setState(other.getState());
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
@@ -2029,6 +2212,12 @@ public final class MsgProto {
         }
         if (hasOther()) {
           if (!getOther().isInitialized()) {
+            
+            return false;
+          }
+        }
+        if (hasVector()) {
+          if (!getVector().isInitialized()) {
             
             return false;
           }
@@ -2361,6 +2550,192 @@ public final class MsgProto {
         return otherBuilder_;
       }
 
+      // optional float floatData = 6;
+      private float floatData_ ;
+      /**
+       * <code>optional float floatData = 6;</code>
+       */
+      public boolean hasFloatData() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional float floatData = 6;</code>
+       */
+      public float getFloatData() {
+        return floatData_;
+      }
+      /**
+       * <code>optional float floatData = 6;</code>
+       */
+      public Builder setFloatData(float value) {
+        bitField0_ |= 0x00000010;
+        floatData_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional float floatData = 6;</code>
+       */
+      public Builder clearFloatData() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        floatData_ = 0F;
+        onChanged();
+        return this;
+      }
+
+      // optional .Vector2 vector = 7;
+      private org.cbzmq.game.proto.CharacterProto.Vector2 vector_ = org.cbzmq.game.proto.CharacterProto.Vector2.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          org.cbzmq.game.proto.CharacterProto.Vector2, org.cbzmq.game.proto.CharacterProto.Vector2.Builder, org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder> vectorBuilder_;
+      /**
+       * <code>optional .Vector2 vector = 7;</code>
+       */
+      public boolean hasVector() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      /**
+       * <code>optional .Vector2 vector = 7;</code>
+       */
+      public org.cbzmq.game.proto.CharacterProto.Vector2 getVector() {
+        if (vectorBuilder_ == null) {
+          return vector_;
+        } else {
+          return vectorBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .Vector2 vector = 7;</code>
+       */
+      public Builder setVector(org.cbzmq.game.proto.CharacterProto.Vector2 value) {
+        if (vectorBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          vector_ = value;
+          onChanged();
+        } else {
+          vectorBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000020;
+        return this;
+      }
+      /**
+       * <code>optional .Vector2 vector = 7;</code>
+       */
+      public Builder setVector(
+          org.cbzmq.game.proto.CharacterProto.Vector2.Builder builderForValue) {
+        if (vectorBuilder_ == null) {
+          vector_ = builderForValue.build();
+          onChanged();
+        } else {
+          vectorBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000020;
+        return this;
+      }
+      /**
+       * <code>optional .Vector2 vector = 7;</code>
+       */
+      public Builder mergeVector(org.cbzmq.game.proto.CharacterProto.Vector2 value) {
+        if (vectorBuilder_ == null) {
+          if (((bitField0_ & 0x00000020) == 0x00000020) &&
+              vector_ != org.cbzmq.game.proto.CharacterProto.Vector2.getDefaultInstance()) {
+            vector_ =
+              org.cbzmq.game.proto.CharacterProto.Vector2.newBuilder(vector_).mergeFrom(value).buildPartial();
+          } else {
+            vector_ = value;
+          }
+          onChanged();
+        } else {
+          vectorBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000020;
+        return this;
+      }
+      /**
+       * <code>optional .Vector2 vector = 7;</code>
+       */
+      public Builder clearVector() {
+        if (vectorBuilder_ == null) {
+          vector_ = org.cbzmq.game.proto.CharacterProto.Vector2.getDefaultInstance();
+          onChanged();
+        } else {
+          vectorBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000020);
+        return this;
+      }
+      /**
+       * <code>optional .Vector2 vector = 7;</code>
+       */
+      public org.cbzmq.game.proto.CharacterProto.Vector2.Builder getVectorBuilder() {
+        bitField0_ |= 0x00000020;
+        onChanged();
+        return getVectorFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .Vector2 vector = 7;</code>
+       */
+      public org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder getVectorOrBuilder() {
+        if (vectorBuilder_ != null) {
+          return vectorBuilder_.getMessageOrBuilder();
+        } else {
+          return vector_;
+        }
+      }
+      /**
+       * <code>optional .Vector2 vector = 7;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          org.cbzmq.game.proto.CharacterProto.Vector2, org.cbzmq.game.proto.CharacterProto.Vector2.Builder, org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder> 
+          getVectorFieldBuilder() {
+        if (vectorBuilder_ == null) {
+          vectorBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              org.cbzmq.game.proto.CharacterProto.Vector2, org.cbzmq.game.proto.CharacterProto.Vector2.Builder, org.cbzmq.game.proto.CharacterProto.Vector2OrBuilder>(
+                  vector_,
+                  getParentForChildren(),
+                  isClean());
+          vector_ = null;
+        }
+        return vectorBuilder_;
+      }
+
+      // optional .CharacterState state = 8;
+      private org.cbzmq.game.enums.CharacterState state_ = org.cbzmq.game.enums.CharacterState.idle;
+      /**
+       * <code>optional .CharacterState state = 8;</code>
+       */
+      public boolean hasState() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
+      }
+      /**
+       * <code>optional .CharacterState state = 8;</code>
+       */
+      public org.cbzmq.game.enums.CharacterState getState() {
+        return state_;
+      }
+      /**
+       * <code>optional .CharacterState state = 8;</code>
+       */
+      public Builder setState(org.cbzmq.game.enums.CharacterState value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000040;
+        state_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional .CharacterState state = 8;</code>
+       */
+      public Builder clearState() {
+        bitField0_ = (bitField0_ & ~0x00000040);
+        state_ = org.cbzmq.game.enums.CharacterState.idle;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:Event)
     }
 
@@ -2396,11 +2771,13 @@ public final class MsgProto {
       "header\030\002 \002(\0162\n.MsgHeader\022\021\n\ttimeStamp\030\003 " +
       "\002(\003\022\023\n\004code\030\004 \001(\0162\005.Code\022!\n\rcharacterDat" +
       "a\030\005 \003(\0132\n.Character\022\026\n\006events\030\006 \003(\0132\006.Ev" +
-      "ent\"\215\001\n\005Event\022\'\n\014oneBodyEvent\030\002 \001(\0162\021.On" +
+      "ent\"\332\001\n\005Event\022\'\n\014oneBodyEvent\030\002 \001(\0162\021.On" +
       "eBodyEventType\022\'\n\014towBodyEvent\030\003 \001(\0162\021.T" +
       "woBodyEventType\022\027\n\003one\030\004 \001(\0132\n.Character" +
-      "\022\031\n\005other\030\005 \001(\0132\n.CharacterB\"\n\024org.cbzmq" +
-      ".game.protoB\010MsgProtoP\000"
+      "\022\031\n\005other\030\005 \001(\0132\n.Character\022\021\n\tfloatData" +
+      "\030\006 \001(\002\022\030\n\006vector\030\007 \001(\0132\010.Vector2\022\036\n\005stat",
+      "e\030\010 \001(\0162\017.CharacterStateB\"\n\024org.cbzmq.ga" +
+      "me.protoB\010MsgProtoP\000"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -2418,7 +2795,7 @@ public final class MsgProto {
           internal_static_Event_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_Event_descriptor,
-              new java.lang.String[] { "OneBodyEvent", "TowBodyEvent", "One", "Other", });
+              new java.lang.String[] { "OneBodyEvent", "TowBodyEvent", "One", "Other", "FloatData", "Vector", "State", });
           return null;
         }
       };

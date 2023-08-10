@@ -30,6 +30,9 @@ message Event {
     optional TwoBodyEventType towBodyEvent = 3;
     optional Character one=4;
     optional Character other=5;
+    optional float floatData=6;
+    optional Vector2 vector=7;
+    optional CharacterState state=8;
 }
 
 
