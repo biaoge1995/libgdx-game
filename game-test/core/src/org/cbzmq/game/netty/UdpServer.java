@@ -48,7 +48,6 @@ public final class UdpServer extends ObserverAdapter {
 
     public UdpServer() throws InterruptedException {
         EventLoopGroup group = new NioEventLoopGroup();
-
         Bootstrap b = new Bootstrap();
         b.group(group)
                 .channel(NioDatagramChannel.class)
@@ -88,6 +87,8 @@ public final class UdpServer extends ObserverAdapter {
             case moveRight:
             case bloodUpdate:
             case stateUpdate:
+            case jumpDamping:
+            case lose:
                 if(event.getCharacter().getCharacterType()== CharacterType.unknown)return false;
                 protoEvents.add(event.toMsgProtoEvent());
                 break;

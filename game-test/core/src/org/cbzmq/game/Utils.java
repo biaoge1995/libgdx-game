@@ -41,12 +41,15 @@ public class Utils {
         compressData.compressedDataLength = compressedDataLength;
 
         byte[] result2 = new byte[compressedDataLength];
-        for (int i = 0; i < compressedDataLength; i++) {
-            result2[i] = compressData.output[i];
-        }
+
+        System.arraycopy(compressData.output,0,result2,0,compressedDataLength);
+//
+//        for (int i = 0; i < compressedDataLength; i++) {
+//            result2[i] = compressData.output[i];
+//        }
 
         compresser.end();
-        System.out.println("压缩前数据量大小"+data.length+",压缩后数据量大小"+compressedDataLength);
+//        System.out.println("压缩前数据量大小"+data.length+",压缩后数据量大小"+compressedDataLength);
         compressData.output = result2;
         return compressData;
     }
@@ -65,11 +68,9 @@ public class Utils {
         int resultLength = decompresser.inflate(result);
         decompresser.end();
         byte[] result2 = new byte[resultLength];
-        for (int i = 0; i < resultLength; i++) {
-            result2[i] = result[i];
-        }
+        System.arraycopy(result,0,result2,0,resultLength);
 
-        System.out.println("压缩包数据量大小"+compressData.length+",解压后数据量大小"+resultLength);
+//        System.out.println("压缩包数据量大小"+compressData.length+",解压后数据量大小"+resultLength);
 
         return result2;
     }

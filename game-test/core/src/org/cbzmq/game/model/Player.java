@@ -141,13 +141,6 @@ public class Player extends Character{
 		return player;
 	}
 
-	public static Player parserProto(CharacterIntProto.Character proto) {
-		Player player = new Player();
-		Character father = Character.parserProto(proto);
-		Character.copyToSon(father,player);
-		player.shootTimer = proto.getShootTimer()/100f;
-		return player;
-	}
 
 	public static Player parseFromBytes(byte[] bytes) throws Exception {
 		Character father = Character.parseFromBytes(bytes);
@@ -168,14 +161,7 @@ public class Player extends Character{
 				;
 	}
 
-	public  CharacterIntProto.Character.Builder toCharacterIntProto() {
-		CharacterIntProto.Character.Builder builder = super.toCharacterIntProto();
 
-		return builder.setType(CharacterType.player)
-				.setShootTimer((int)(this.shootTimer*100f))
-//				.setHpTimer(player.hpTimer)
-				;
-	}
 
 	//25
 	public ByteArray toCharacterBytes() {

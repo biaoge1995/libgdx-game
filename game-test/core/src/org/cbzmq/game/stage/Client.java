@@ -1,23 +1,22 @@
 package org.cbzmq.game.stage;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import org.cbzmq.game.Assets;
-import org.cbzmq.game.Map;
 import org.cbzmq.game.Utils;
-import org.cbzmq.game.model.*;
+import org.cbzmq.game.enums.OneBodyEventType;
 import org.cbzmq.game.model.Character;
+import org.cbzmq.game.model.*;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.proto.MsgProto;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -27,53 +26,17 @@ import java.util.Set;
  * @Date 2023/7/28 1:03 上午
  * @Version 1.0
  **/
-public class Client implements Model {
+public class Client extends AbstractEngine {
 
-    Player player;
-    final Map map;
-    final Group<Character> root;
-    final Group<Character> playerGroup;
-
-    final Group<Character> enemyGroup;
     final Set<Integer> existsId = new HashSet<>();
-    final Array<Character> container = new Array<>();
-    final java.util.Map<Integer, Character> characterMap = new HashMap<>();
-    final Array<Enemy> enemies = new Array<>();
-    final Array<Observer> listeners = new Array<>();
-    final EventQueue queue = new EventQueue();
-    final Assets assets;
-    final Physic2DEngine physic2DEngine;
-    boolean isPlayerWin = false;
-    boolean isGameOver = false;
+    final Map<Integer, Character> characterMap = new HashMap<>();
     Channel ch;
-    boolean isStartSynced = false;
     private int msgMaxId = 0;
 
 
     public Client() throws InterruptedException {
-        this.assets = new Assets();
-        this.map = new Map(assets.tiledMap);
-        this.player = new Player();
-        this.player.position.set(4, 8);
-        this.root = new Group<>();
-        this.root.setModel(this);
-        this.playerGroup = new Group<>();
-        this.enemyGroup = new Group<>();
-        this.root.addCharacter(playerGroup);
-        this.root.addCharacter(enemyGroup);
-        playerGroup.addCharacter(player);
-
-        this.queue.setObservers(listeners);
-
-        this.physic2DEngine = Physic2DEngine
-                .newBuilder()
-                .setAssets(assets)
-                .setMap(map)
-                .setCollisionLayer(map.collisionLayer)
-                .setQueue(queue)
-                .setRoot(container)
-                .build();
-
+        super();
+        restart();
         EventLoopGroup group = new NioEventLoopGroup();
 //        try {
         Bootstrap b = new Bootstrap();
@@ -84,73 +47,68 @@ public class Client implements Model {
         ChannelFuture f = b.bind(8088).sync();
 
         ch = f.channel();
-        f.channel().closeFuture();//如果端口连接不上就关闭监听
-//            ch.closeFuture().await();
-//        }  finally {
-//            group.shutdownGracefully();
-//        }
+        f.channel().closeFuture();
+        //如果端口连接不上就关闭监听
+        //            ch.closeFuture().await();
+        //        }  finally {
+        //            group.shutdownGracefully();
+        //        }
 
     }
 
-    public boolean isStartSynced() {
-        return isStartSynced;
-    }
 
-    public void setStartSynced(boolean startSynced) {
-        isStartSynced = startSynced;
-    }
 
-    public void addCharacter(Character character) {
+    public void upsertCharacter(Character character,boolean isUpdateDetail) {
         if (character == null) return;
         if (!characterMap.containsKey(character.getId())) {
             characterMap.put(character.getId(), character);
-//            orderCharacterList.add(character);
             character.setModel(this);
-        } else {
+
+            switch (character.getCharacterType()) {
+                case player:
+                case bullet:
+                    playerGroup.addCharacter(character);
+                    break;
+                case enemy:
+                    enemyGroup.addCharacter((Enemy) character);
+                    break;
+            }
+
+        } else if(isUpdateDetail){
             characterMap.get(character.getId()).updateByCharacter(character);
-
         }
 
-        switch (character.getCharacterType()) {
-            case player:
-                player.updateByCharacter(character);
-                player.setId(character.id);
-                characterMap.put(player.getId(), player);
-                break;
-            case bullet:
-                playerGroup.addCharacter(character);
-                break;
-            case enemy:
-                enemyGroup.addCharacter(character);
-                break;
-
-        }
 
     }
 
+    public Character getCharacterByIndex(int index) throws Exception {
+        if(!characterMap.containsKey(index)){
+            throw new Exception("can not find index "+index);
+        }
+        return characterMap.get(index);
+    }
 
-    public void syncEvent(MsgProto.Msg msgProto) {
+    public void syncEvent(MsgProto.Msg msgProto) throws Exception {
         switch (msgProto.getHeader()) {
             case SYNC_CHARACTERS_EVENT:
                 for (MsgProto.Event event : msgProto.getEventsList()) {
                     Character character = parse(event.getOne());
-                    Event.OneCharacterEvent oneCharacterEvent = new Event.OneCharacterEvent(Client.class.getName(), msgProto.getTimeStamp(), event.getOneBodyEvent(), character);
+
+
+                    upsertCharacter(character,true);
+
+                    character = getCharacterByIndex(event.getOne().getId());
+
+                    Event.OneCharacterEvent oneCharacterEvent
+                            = new Event.OneCharacterEvent(Client.class.getName()
+                            , msgProto.getTimeStamp()
+                            , event.getOneBodyEvent()
+                            , character);
                     oneCharacterEvent.setVector(new Vector2(event.getVector().getX(), event.getVector().getY()));
                     oneCharacterEvent.setFloatData(event.getFloatData());
                     oneCharacterEvent.setState(event.getState());
-                    switch (event.getOneBodyEvent()) {
-                        case born:
-                            addCharacter(character);
-                            break;
-//                        case aimPoint:
-//                            character.onOneObserverEvent(oneCharacterEvent);
-//                            break;
-                        default:
-                            character.onOneObserverEvent(oneCharacterEvent);
-                            break;
 
-                    }
-//                    queue.pushCharacterEvent(oneCharacterEvent);
+                    updateByEvent(oneCharacterEvent);
                 }
         }
     }
@@ -176,14 +134,11 @@ public class Client implements Model {
     public void sync(MsgProto.Msg msgProto) {
         //如果消息是乱序到达则丢弃掉id小于当前id的消息
         if (msgProto.getId() < msgMaxId) return;
-
-        isStartSynced = false;
         existsId.clear();
-
         for (CharacterProto.Character proto : msgProto.getCharacterDataList()) {
             existsId.add(proto.getId());
             Character parse = parse(proto);
-            addCharacter(parse);
+            upsertCharacter(parse,true);
         }
 
         //默认没有从服务器更新的元素全部置为死亡
@@ -199,95 +154,31 @@ public class Client implements Model {
 
 
         }
-
-
     }
 
     @Override
     public void update(float delta) {
-        root.update(delta);
-        container.clear();
-        root.flat(container);
-        physic2DEngine.update(delta);
-    }
-
-    @Override
-    public Player getPlayer() {
-        return player;
-    }
-
-    @Override
-    public Map getMap() {
-        return map;
-    }
-
-
-    @Override
-    public void addListener(Observer listener) {
-        listeners.add(listener);
-    }
-
-    @Override
-    public void removeListener(Observer listener) {
-        listeners.removeValue(listener, false);
-    }
-
-
-    @Override
-    public Array<Enemy> getEnemies() {
-        return enemies;
-    }
-
-    @Override
-    public Assets getAssets() {
-        return assets;
-    }
-
-
-    @Override
-    public float getTimeScale() {
-        return 1;
-    }
-
-    @Override
-    public void setTimeScale(float timeScale) {
-
+        super.update(delta);
+        super.frameEnd(delta);
     }
 
     @Override
     public void restart() {
-
+        super.restart();
+        characterMap.clear();
+        characterMap.put(player.getId(),player);
     }
 
 
+
     @Override
-    public boolean isPlayerWin() {
-        return isPlayerWin;
+    public void updateByEvent(Event.OneCharacterEvent event) {
+        super.updateByEvent(event);
     }
 
     @Override
-    public boolean isGameOver() {
-        return isGameOver;
-    }
-
-    @Override
-    public Array<Character> getAll() {
-        return container;
-    }
-
-    @Override
-    public Array<Observer> getListeners() {
-        return listeners;
-    }
-
-    @Override
-    public EventQueue getQueue() {
-        return queue;
-    }
-
-    @Override
-    public void onCharacterEvent(Event.OneCharacterEvent event) {
-
+    public void updateBy2CharacterEvent(Event.TwoObserverEvent event) {
+        super.updateBy2CharacterEvent(event);
     }
 
     @Override
@@ -319,7 +210,7 @@ class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
         byte[] decompress = Utils.decompress(bytes);
 
-        System.out.println("msg byte length :" + bytes.length + "byte");
+//        System.out.println("msg byte length :" + bytes.length + "byte");
 //        MsgProto.Msg msgProto = MsgProto.Msg.parseFrom(decompress);
         MsgProto.Msg msg1 = MsgProto.Msg.parseFrom(decompress);
 

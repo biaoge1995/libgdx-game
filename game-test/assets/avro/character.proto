@@ -36,7 +36,7 @@ message Character {
     //角色的矩阵
     required Rectangle rect =9;
     //是否状态改变
-    required bool stateChanged=11;
+    optional bool stateChanged=11;
     //雪条
     required  float hp=12;
     //最大x方向上的位移

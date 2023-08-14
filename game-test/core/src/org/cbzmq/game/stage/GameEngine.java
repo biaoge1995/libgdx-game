@@ -32,116 +32,38 @@ package org.cbzmq.game.stage;
 
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
-import org.cbzmq.game.Assets;
-import org.cbzmq.game.Constants;
-import org.cbzmq.game.Map;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.EnemyType;
 import org.cbzmq.game.model.Character;
-import org.cbzmq.game.model.*;
+import org.cbzmq.game.model.Enemy;
+import org.cbzmq.game.model.Event;
+import org.cbzmq.game.model.Player;
 
 /**
  * The core of the game logic. The model manages all game information but knows nothing about the view, ie it knows nothing about
  * how this information might be drawn to the screen. This model-view separation is a clean way to organize the code.
  * 游戏逻辑的核心。模型管理着所有的游戏信息，但对视图一无所知（不用管如何将这些信息绘制到屏幕上）。这种模型视图分离是组织代码的一种干净方法。
  */
-public class GameEngine implements Model {
+public class GameEngine extends AbstractEngine {
 
-    private static final String TAG = GameEngine.class.getName();
-    Group<Character> root;
-    Player player;
-    Map map;
-    TiledMapTileLayer collisionLayer;
-    final Array<Character> container = new Array<>();
-    final Array<Observer> listener = new Array<>();
-    private final EventQueue queue = new EventQueue();
-
-    float timeScale = 1;
-    Array<Trigger> triggers = new Array<>();
-
-    Group<Enemy> enemyGroup;
-    Group<Player> playerGroup;
-    float gameOverTimer;
-    Assets assets;
-    Physic2DEngine physic2DEngine;
-
-    boolean isGameOver;
-
-    boolean isPlayerWin;
-
+    //触发器
+    Array<Trigger> triggers;
 
     public GameEngine() {
-        this.assets = new Assets();
-        this.map = new Map(assets.tiledMap);
-        this.collisionLayer = map.collisionLayer;
-        this.root = new Group<>();
-        this.root.setModel(this);
-//        this.root.setQueue(queue);
-        this.queue.setObservers(listener);
-        this.physic2DEngine = Physic2DEngine
-                .newBuilder()
-                .setAssets(assets)
-                .setMap(map)
-                .setCollisionLayer(collisionLayer)
-                .setQueue(queue)
-                .setRoot(container)
-                .build();
-        addListener(new ObserverAdapter() {
-            @Override
-            public boolean onOneObserverEvent(Event.OneCharacterEvent event) {
-                switch (event.getEventType()) {
-                    case aimPoint:
-                    case frameEnd:
-                        break;
-                    default:
-                        Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), event.getCharacter().toString());
-                        break;
-                }
-                return super.onOneObserverEvent(event);
-            }
-
-            @Override
-            public boolean onTwoObserverEvent(Event.TwoObserverEvent event) {
-                Character a = (event.getA());
-                Character b = (event.getB());
-                switch (event.getEventType()) {
-                    case hit:
-                        float hp = a.hp - b.damage;
-                        onCharacterEvent(Event.bloodUpdate(TAG, a, hp));
-                    case beKilled:
-                    case collisionCharacter:
-                        Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), a+"->"+b);
-                        break;
-                }
-                return true;
-            }
-        });
-
-        //初始化
-        init();
-    }
-
-    public void init() {
-
-        enemyGroup = new Group<>("enemyGroup");
-        playerGroup = new Group<>("playerGroup");
-
-        this.root.addCharacter(playerGroup);
-        this.root.addCharacter(enemyGroup);
+        super();
+        triggers = new Array<>();
         restart();
     }
 
-    public void restart() {
-        isGameOver = false;
-        playerGroup.clear();
-        enemyGroup.clear();
-        initPlayer();
+    static class Trigger {
+        float x;
+        Array<Enemy> enemies = new Array();
+    }
 
-        gameOverTimer = 0;
+    public void restart() {
+        super.restart();
 
         // Setup triggers to spawn enemies based on the x coordinate of the player.
         triggers.clear();
@@ -189,35 +111,17 @@ public class GameEngine implements Model {
 
     }
 
-    public void initPlayer() {
-        if (player != null) {
-            player.updateByCharacter(new Player());
-        } else {
-            player = new Player();
-
-
-        }
-        playerGroup.addCharacter(player);
-
-
-        //给用户添加一个监听
-        //TODO 诞生了一个玩家
-        player.position.set(4, 8);
-
-    }
 
 
     public void update(float delta) {
-        root.update(delta);
-        getAll();
-        physic2DEngine.update(delta);
+        super.update(delta);
 
         for (Character p : playerGroup.getChildren()) {
             if (p instanceof Player) {
                 if (p.hp > 0) break;
                 else {
                     gameOverTimer += delta / getTimeScale() * timeScale; // Isn't affected by player death time scaling.
-                    queue.pushCharacterEvent(Event.lose(TAG, playerGroup));
+                    updateByEvent(Event.lose(TAG, playerGroup));
                     isGameOver = true;
                 }
             }
@@ -226,28 +130,32 @@ public class GameEngine implements Model {
         }
         updateEnemies(delta);
         updateTriggers();
-        queue.pushCharacterEvent(Event.frameEnd(TAG, playerGroup, delta));
-        //将事件队列处理掉
-        queue.drain();
-    }
 
-    @Override
-    public void onCharacterEvent(Event.OneCharacterEvent event) {
-      if(  event.getCharacter().onOneObserverEvent(event)){
-          queue.pushCharacterEvent(event);
-      }
-
+        //当前帧结束
+        frameEnd(delta);
 
     }
 
+    /**
+     * 消息集散中心
+     *
+     * @param event
+     */
     @Override
-    public void save() {
-
+    public void updateByEvent(Event.OneCharacterEvent event) {
+        super.updateByEvent(event);
     }
 
     @Override
-    public void quit() {
-
+    public void updateBy2CharacterEvent(Event.TwoObserverEvent event) {
+        super.updateBy2CharacterEvent(event);
+        Character a = (event.getA());
+        Character b = (event.getB());
+        switch (event.getEventType()) {
+            case hit:
+                float hp = a.hp - b.damage;
+                updateByEvent(Event.bloodUpdate(TAG, a, hp));
+        }
     }
 
     public void updateTriggers() {
@@ -263,20 +171,8 @@ public class GameEngine implements Model {
         }
     }
 
-    public void gameResult(boolean isPlayerWin) {
-        if (isGameOver) return;
-        this.isPlayerWin = isPlayerWin;
-        if (isPlayerWin) {
-            queue.pushCharacterEvent(Event.win(TAG, playerGroup));
-            queue.pushCharacterEvent(Event.lose(TAG, enemyGroup));
-            isGameOver = true;
-        } else {
-            queue.pushCharacterEvent(Event.lose(TAG, playerGroup));
-            queue.pushCharacterEvent(Event.win(TAG, enemyGroup));
-            isGameOver = true;
-        }
 
-    }
+
 
     public void updateEnemies(float delta) {
         int alive = 0;
@@ -284,11 +180,9 @@ public class GameEngine implements Model {
             Enemy enemy = enemyGroup.getChildren().get(i);
             //怪物胜利
             if (player.hp == 0 && enemy.hp > 0) {
-                enemy.win();
                 gameResult(false);
                 break;
             }
-
             if (enemy.hp > 0 || (enemy.hp <= 0 || enemy.deathTimer > 0)) {
                 alive++;
             }
@@ -312,7 +206,6 @@ public class GameEngine implements Model {
                     }
                 }
             }
-
             if (enemy.state != CharacterState.death && (enemy.hp <= 0 || enemy.position.y < -100 || enemy.collisions > 100)) {
                 enemy.state = CharacterState.death;
                 enemy.hp = 0;
@@ -323,8 +216,6 @@ public class GameEngine implements Model {
             boolean grounded = enemy.isGrounded();
             if (grounded) enemy.move = true;
 
-            enemy.maxVelocityX = grounded ? enemy.maxVelocityGroundX : Enemy.maxVelocityAirX;
-
             if (enemy.state != CharacterState.death && enemy.collisionTimer < 0) {
 
                 //跳向目标方向
@@ -334,7 +225,7 @@ public class GameEngine implements Model {
                     if (enemy.state != CharacterState.jumping && enemy.jumpDelayTimer < 0 && enemy.position.y <= enemy.targetPosition.y) {
 //                        enemy.jump();
                         //TODO 关键帧 跳跃
-                        onCharacterEvent(Event.jump(TAG, enemy));
+                        updateByEvent(Event.jump(TAG, enemy));
                         enemy.jumpDelayTimer = MathUtils.random(0, enemy.jumpDelay);
                         enemy.forceJump = false;
                     }
@@ -344,10 +235,10 @@ public class GameEngine implements Model {
                     if (enemy.targetPosition.x > enemy.position.x) {
                         if (enemy.velocity.x >= 0)
                             //TODO 关键帧
-                            onCharacterEvent(Event.moveRight(TAG, enemy, delta));
+                            updateByEvent(Event.moveRight(TAG, enemy, delta));
                     } else if (enemy.velocity.x <= 0)
                         //TODO 关键帧
-                        onCharacterEvent(Event.moveLeft(TAG, enemy, delta));
+                        updateByEvent(Event.moveLeft(TAG, enemy, delta));
                 }
 
             }
@@ -380,79 +271,14 @@ public class GameEngine implements Model {
         }
     }
 
+    @Override
+    public void save() {
 
-    public float getTimeScale() {
-        if (player.hp == 0)
-            return timeScale * Interpolation.pow2In.apply(0, 1, MathUtils.clamp(gameOverTimer / Constants.gameOverSlowdown, 0.01f, 1));
-        return timeScale;
     }
 
     @Override
-    public void setTimeScale(float timeScale) {
-        this.timeScale = timeScale;
-    }
+    public void quit() {
 
-    public Array<Character> getAll() {
-        container.clear();
-        root.flat(container);
-        return container;
-    }
-
-    @Override
-    public Array<Observer> getListeners() {
-        return listener;
-    }
-
-    @Override
-    public EventQueue getQueue() {
-        return queue;
-    }
-
-
-    static class Trigger {
-        float x;
-        Array<Enemy> enemies = new Array();
-    }
-
-
-    @Override
-    public Player getPlayer() {
-        return player;
-    }
-
-    @Override
-    public Map getMap() {
-        return map;
-    }
-
-
-    public void addListener(Observer listener) {
-        this.listener.add(listener);
-    }
-
-    public void removeListener(Observer listener) {
-        this.listener.removeValue(listener,false);
-    }
-
-    @Override
-    public Array<Enemy> getEnemies() {
-        return enemyGroup.getChildren();
-    }
-
-    @Override
-    public Assets getAssets() {
-        return assets;
-    }
-
-
-    @Override
-    public boolean isPlayerWin() {
-        return isPlayerWin;
-    }
-
-    @Override
-    public boolean isGameOver() {
-        return isGameOver;
     }
 
 

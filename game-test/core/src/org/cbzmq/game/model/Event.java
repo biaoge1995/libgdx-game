@@ -33,6 +33,10 @@ public class Event {
         return OneCharacterEvent.createEvent(sourceName, OneBodyEventType.jump, character);
     }
 
+    public static OneCharacterEvent jumpDamping(String sourceName, Character character) {
+        return OneCharacterEvent.createEvent(sourceName, OneBodyEventType.jumpDamping, character);
+    }
+
     public static OneCharacterEvent moveRight(String sourceName, Character character, float delta) {
         OneCharacterEvent event = OneCharacterEvent.createEvent(sourceName, OneBodyEventType.moveRight, character);
         event.setFloatData(delta);

@@ -64,17 +64,6 @@ public class Bullet extends Character {
         return bullet;
     }
 
-    public static Bullet parserProto(CharacterIntProto.Character proto) {
-        Bullet bullet = new Bullet(
-                null
-                , proto.getPosition().getX()
-                , proto.getPosition().getY()
-                , proto.getVelocity().getX()
-                , proto.getVelocity().getY());
-        Character father = Character.parserProto(proto);
-        Character.copyToSon(father, bullet);
-        return bullet;
-    }
 
     public static Bullet parseFromBytes(byte[] bytes) throws Exception {
         Character father = Character.parseFromBytes(bytes);
@@ -95,11 +84,7 @@ public class Bullet extends Character {
 
     }
 
-    public CharacterIntProto.Character.Builder toCharacterIntProto() {
-        CharacterIntProto.Character.Builder builder = super.toCharacterIntProto();
-        return builder.setType(CharacterType.bullet);
 
-    }
 
 
     public void updateByCharacter(Bullet father) {

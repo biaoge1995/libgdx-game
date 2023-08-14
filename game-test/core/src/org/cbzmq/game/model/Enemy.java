@@ -141,6 +141,8 @@ public class Enemy extends Character {
 
         if (state == CharacterState.death) deathTimer -= delta;
 
+        maxVelocityX = isGrounded() ? maxVelocityGroundX : Enemy.maxVelocityAirX;
+
         super.update(delta);
 
     }
@@ -198,15 +200,7 @@ public class Enemy extends Character {
         return enemy;
     }
 
-    public static Enemy parserProto(CharacterIntProto.Character proto) {
-        Enemy enemy = new Enemy(proto.getEnemyType());
-        Character father = Character.parserProto(proto);
-        Character.copyToSon(father, enemy);
-        enemy.deathTimer = proto.getDeathTimer() / 100f;
-        enemy.size = proto.getSize() / 100f;
-        enemy.bigTimer = proto.getBigTimer() / 100f;
-        return enemy;
-    }
+
 
     public static Enemy parseFromBytes(byte[] bytes) throws Exception {
         Character father = Character.parseFromBytes(bytes);
@@ -282,26 +276,4 @@ public class Enemy extends Character {
 
     }
 
-
-    public void updateByCharacter(Enemy father) {
-        super.updateByCharacter(father);
-        this.deathTimer = father.deathTimer;
-        this.maxVelocityGroundX = father.maxVelocityGroundX;
-        this.jumpDelayTimer = father.jumpDelayTimer;
-        this.jumpDistance = father.jumpDistance;
-        this.jumpDelay = father.jumpDelay;
-        this.enemyType = father.enemyType;
-        this.size = father.size;
-        this.bigTimer = father.bigTimer;
-        this.spawnSmallsTimer = father.spawnSmallsTimer;
-        this.move = father.move;
-        this.forceJump = father.forceJump;
-        this.collisions = father.collisions;
-        this.knockbackX = father.knockbackX;
-        this.knockbackY = father.knockbackY;
-    }
-
-    public Enemy copy(Character father, Character son) {
-        return null;
-    }
 }

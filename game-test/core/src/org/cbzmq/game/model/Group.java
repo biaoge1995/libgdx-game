@@ -3,7 +3,7 @@ package org.cbzmq.game.model;
 
 import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.enums.CharacterState;
-import org.cbzmq.game.stage.Model;
+import org.cbzmq.game.stage.AbstractEngine;
 
 /**
  * @ClassName Group
@@ -26,6 +26,18 @@ public class Group<T extends Character> extends Character {
     }
 
     @Override
+    public boolean onOneObserverEvent(Event.OneCharacterEvent event) {
+        if (!(event.getCharacter() == this)) return false;
+        switch (event.getEventType()) {
+            case win:
+                for (T child : children) {
+                    child.setWin(true);
+                }
+        }
+        return true;
+    }
+
+    @Override
     public void update(float delta) {
         Array.ArrayIterator<T> iterator = children.iterator();
         while (iterator.hasNext()) {
@@ -40,7 +52,7 @@ public class Group<T extends Character> extends Character {
             c.update(delta);
             if (!(c instanceof Group) && c.isCanBeRemove()) {
                 c.remove();
-                model.removeListener(c);
+                abstractEngine.removeListener(c);
             }
         }
     }
@@ -51,7 +63,7 @@ public class Group<T extends Character> extends Character {
             character.parent.removeCharacter(character, false);
         }
         children.add(character);
-        model.addListener(character);
+//        abstractEngine.addListener(character);
         character.setParent(this);
         character.setModel(getModel());
         character.setId(No.getNo());
@@ -75,8 +87,8 @@ public class Group<T extends Character> extends Character {
 
     public Character removeActorAt(int index, boolean unfocus) {
         Character character = children.removeIndex(index);
-        Model model = getModel();
-        if (model != null) {
+        AbstractEngine abstractEngine = getModel();
+        if (abstractEngine != null) {
             //TODO model的逻辑
         }
         character.setParent(null);

@@ -80,6 +80,7 @@ enum OneBodyEventType{
     beDeath=2;//死亡
     attack=3;//攻击
     jump=10;//跳跃
+    jumpDamping=16;//跳跃阻尼
     moveRight=11;//向右边
     moveLeft=12;//向左边
     bloodUpdate=13;//血条更新

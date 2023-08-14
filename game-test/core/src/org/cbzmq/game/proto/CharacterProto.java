@@ -197,9 +197,9 @@ public final class CharacterProto {
      */
     org.cbzmq.game.proto.CharacterProto.RectangleOrBuilder getRectOrBuilder();
 
-    // required bool stateChanged = 11;
+    // optional bool stateChanged = 11;
     /**
-     * <code>required bool stateChanged = 11;</code>
+     * <code>optional bool stateChanged = 11;</code>
      *
      * <pre>
      *是否状态改变
@@ -207,7 +207,7 @@ public final class CharacterProto {
      */
     boolean hasStateChanged();
     /**
-     * <code>required bool stateChanged = 11;</code>
+     * <code>optional bool stateChanged = 11;</code>
      *
      * <pre>
      *是否状态改变
@@ -1129,11 +1129,11 @@ public final class CharacterProto {
       return rect_;
     }
 
-    // required bool stateChanged = 11;
+    // optional bool stateChanged = 11;
     public static final int STATECHANGED_FIELD_NUMBER = 11;
     private boolean stateChanged_;
     /**
-     * <code>required bool stateChanged = 11;</code>
+     * <code>optional bool stateChanged = 11;</code>
      *
      * <pre>
      *是否状态改变
@@ -1143,7 +1143,7 @@ public final class CharacterProto {
       return ((bitField0_ & 0x00000200) == 0x00000200);
     }
     /**
-     * <code>required bool stateChanged = 11;</code>
+     * <code>optional bool stateChanged = 11;</code>
      *
      * <pre>
      *是否状态改变
@@ -1699,10 +1699,6 @@ public final class CharacterProto {
         return false;
       }
       if (!hasRect()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasStateChanged()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -2571,10 +2567,6 @@ public final class CharacterProto {
           return false;
         }
         if (!hasRect()) {
-          
-          return false;
-        }
-        if (!hasStateChanged()) {
           
           return false;
         }
@@ -3486,10 +3478,10 @@ public final class CharacterProto {
         return rectBuilder_;
       }
 
-      // required bool stateChanged = 11;
+      // optional bool stateChanged = 11;
       private boolean stateChanged_ ;
       /**
-       * <code>required bool stateChanged = 11;</code>
+       * <code>optional bool stateChanged = 11;</code>
        *
        * <pre>
        *是否状态改变
@@ -3499,7 +3491,7 @@ public final class CharacterProto {
         return ((bitField0_ & 0x00000200) == 0x00000200);
       }
       /**
-       * <code>required bool stateChanged = 11;</code>
+       * <code>optional bool stateChanged = 11;</code>
        *
        * <pre>
        *是否状态改变
@@ -3509,7 +3501,7 @@ public final class CharacterProto {
         return stateChanged_;
       }
       /**
-       * <code>required bool stateChanged = 11;</code>
+       * <code>optional bool stateChanged = 11;</code>
        *
        * <pre>
        *是否状态改变
@@ -3522,7 +3514,7 @@ public final class CharacterProto {
         return this;
       }
       /**
-       * <code>required bool stateChanged = 11;</code>
+       * <code>optional bool stateChanged = 11;</code>
        *
        * <pre>
        *是否状态改变
@@ -5978,7 +5970,7 @@ public final class CharacterProto {
       " \002(\0132\010.Vector2\022\036\n\005state\030\005 \002(\0162\017.Characte" +
       "rState\022\021\n\tstateTime\030\006 \001(\002\022\013\n\003dir\030\007 \002(\002\022\017" +
       "\n\007airTime\030\010 \001(\002\022\030\n\004rect\030\t \002(\0132\n.Rectangl" +
-      "e\022\024\n\014stateChanged\030\013 \002(\010\022\n\n\002hp\030\014 \002(\002\022\024\n\014m" +
+      "e\022\024\n\014stateChanged\030\013 \001(\010\022\n\n\002hp\030\014 \002(\002\022\024\n\014m" +
       "axVelocityX\030\r \001(\002\022\030\n\020collisionOffsetY\030\016 " +
       "\001(\002\022\024\n\014jumpVelocity\030\017 \001(\002\022\016\n\006damage\030\020 \001(",
       "\002\022\026\n\016collisionTimer\030\021 \001(\002\022\022\n\nshootTimer\030" +

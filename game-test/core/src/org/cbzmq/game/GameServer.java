@@ -35,7 +35,7 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.Vector2;
 import org.cbzmq.game.netty.UdpServer;
 import org.cbzmq.game.stage.GameEngine;
-import org.cbzmq.game.stage.Model;
+import org.cbzmq.game.stage.AbstractEngine;
 import org.cbzmq.game.stage.View;
 import org.cbzmq.game.stage.UI;
 
@@ -48,7 +48,7 @@ public class GameServer extends Game {
 	static Vector2 temp = new Vector2();
 
 	View view;
-	Model model;
+	AbstractEngine abstractEngine;
 	Screen screen;
 	UdpServer udpServer;
 
@@ -79,16 +79,16 @@ public class GameServer extends Game {
 	}
 
 	public void create () {
-		model = new GameEngine();
+		abstractEngine = new GameEngine();
 		try {
 			udpServer = new UdpServer();
-			model.addListener(udpServer);
+			abstractEngine.addListener(udpServer);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			System.exit(-1);
 		}
 
-		view = new View(model);
+		view = new View(abstractEngine);
 //		view.gameRestart();
 		screen = new Screen(view, view.ui);
 		setScreen(screen);
@@ -97,13 +97,13 @@ public class GameServer extends Game {
 	}
 
 	public void render () {
-		float delta = Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f) * model.getTimeScale();
+		float delta = Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f) * abstractEngine.getTimeScale();
 		time+=delta;
 //		if ((int)time%2==0) {
 //			model.update(delta);0
 //		}
 		if(delta>0){
-			model.update(delta);
+			abstractEngine.update(delta);
 //			try {
 //
 //			} catch (InterruptedException e) {

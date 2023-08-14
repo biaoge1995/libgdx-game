@@ -45,13 +45,21 @@ public enum OneBodyEventType
    */
   jump(3, 10),
   /**
+   * <code>jumpDamping = 16;</code>
+   *
+   * <pre>
+   *跳跃阻尼
+   * </pre>
+   */
+  jumpDamping(4, 16),
+  /**
    * <code>moveRight = 11;</code>
    *
    * <pre>
    *向右边
    * </pre>
    */
-  moveRight(4, 11),
+  moveRight(5, 11),
   /**
    * <code>moveLeft = 12;</code>
    *
@@ -59,7 +67,7 @@ public enum OneBodyEventType
    *向左边
    * </pre>
    */
-  moveLeft(5, 12),
+  moveLeft(6, 12),
   /**
    * <code>bloodUpdate = 13;</code>
    *
@@ -67,7 +75,7 @@ public enum OneBodyEventType
    *血条更新
    * </pre>
    */
-  bloodUpdate(6, 13),
+  bloodUpdate(7, 13),
   /**
    * <code>stateUpdate = 15;</code>
    *
@@ -75,7 +83,7 @@ public enum OneBodyEventType
    *状态更新
    * </pre>
    */
-  stateUpdate(7, 15),
+  stateUpdate(8, 15),
   /**
    * <code>aimPoint = 14;</code>
    *
@@ -83,7 +91,7 @@ public enum OneBodyEventType
    *瞄准
    * </pre>
    */
-  aimPoint(8, 14),
+  aimPoint(9, 14),
   /**
    * <code>dispose = 4;</code>
    *
@@ -91,7 +99,7 @@ public enum OneBodyEventType
    *销毁
    * </pre>
    */
-  dispose(9, 4),
+  dispose(10, 4),
   /**
    * <code>beRemove = 5;</code>
    *
@@ -99,7 +107,7 @@ public enum OneBodyEventType
    *移除
    * </pre>
    */
-  beRemove(10, 5),
+  beRemove(11, 5),
   /**
    * <code>lose = 6;</code>
    *
@@ -107,7 +115,7 @@ public enum OneBodyEventType
    *失败
    * </pre>
    */
-  lose(11, 6),
+  lose(12, 6),
   /**
    * <code>win = 7;</code>
    *
@@ -115,7 +123,7 @@ public enum OneBodyEventType
    *胜利
    * </pre>
    */
-  win(12, 7),
+  win(13, 7),
   /**
    * <code>collisionMap = 8;</code>
    *
@@ -123,7 +131,7 @@ public enum OneBodyEventType
    *碰撞到地图
    * </pre>
    */
-  collisionMap(13, 8),
+  collisionMap(14, 8),
   /**
    * <code>frameEnd = 9;</code>
    *
@@ -131,7 +139,7 @@ public enum OneBodyEventType
    *帧结束
    * </pre>
    */
-  frameEnd(14, 9),
+  frameEnd(15, 9),
   ;
 
   /**
@@ -166,6 +174,14 @@ public enum OneBodyEventType
    * </pre>
    */
   public static final int jump_VALUE = 10;
+  /**
+   * <code>jumpDamping = 16;</code>
+   *
+   * <pre>
+   *跳跃阻尼
+   * </pre>
+   */
+  public static final int jumpDamping_VALUE = 16;
   /**
    * <code>moveRight = 11;</code>
    *
@@ -264,6 +280,7 @@ public enum OneBodyEventType
       case 2: return beDeath;
       case 3: return attack;
       case 10: return jump;
+      case 16: return jumpDamping;
       case 11: return moveRight;
       case 12: return moveLeft;
       case 13: return bloodUpdate;

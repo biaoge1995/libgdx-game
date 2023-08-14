@@ -116,8 +116,10 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
         getSkeleton().setX(getModel().position.x + Player.width / 2);
         getSkeleton().setY(getModel().position.y);
 
-        if (!setAnimation(getAssets().playerStates.get(getModel().state), getModel().stateChanged))
+        if (!setAnimation(getAssets().playerStates.get(getModel().state), getModel().stateChanged)){
             getAnimationState().update(delta);
+        }
+
         getAnimationState().apply(getSkeleton());
 
         Vector2 aimPoint = getModel().aimPoint;

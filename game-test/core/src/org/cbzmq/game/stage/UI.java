@@ -57,8 +57,6 @@ import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.esotericsoftware.spine.SkeletonRendererDebug;
 import org.cbzmq.game.Assets;
-import org.cbzmq.game.model.Bullet;
-import org.cbzmq.game.model.Enemy;
 import org.cbzmq.game.GameCamera;
 import org.cbzmq.game.model.Player;
 import org.cbzmq.game.Constants;
@@ -66,7 +64,6 @@ import org.cbzmq.game.view.BaseSkeletonActor;
 
 import static com.badlogic.gdx.math.Interpolation.*;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
-import static org.cbzmq.game.Constants.scale;
 
 /**
  * The user interface displayed on top of the game (menu, health bar, splash screens).
@@ -74,7 +71,7 @@ import static org.cbzmq.game.Constants.scale;
 public class UI extends Stage {
     static final Color gray = new Color(0.15f, 0.15f, 0.15f, 1);
     View view;
-    Model model;
+    AbstractEngine abstractEngine;
     ShapeRenderer shapes;
     SkeletonRendererDebug skeletonRendererDebug;
     Skin skin;
@@ -97,7 +94,7 @@ public class UI extends Stage {
     UI(final View view) {
         super(new ScreenViewport());
         this.view = view;
-        this.model = view.model;
+        this.abstractEngine = view.abstractEngine;
 
         shapes = new ShapeRenderer();
 
@@ -268,7 +265,7 @@ public class UI extends Stage {
         final TextButton button = button((int) (speed * 100) + "%", true);
         button.addListener(new ChangeListener() {
             public void changed(ChangeEvent event, Actor actor) {
-                if (button.isChecked()) model.setTimeScale(speed);
+                if (button.isChecked()) abstractEngine.setTimeScale(speed);
             }
         });
         return button;
@@ -282,42 +279,21 @@ public class UI extends Stage {
 
     @Override
     public void draw() {
-        //如果开启debug模式
-        if (!hasSplash && debugButton.isChecked()) {
-            shapes.setTransformMatrix(view.batch.getTransformMatrix());
-            shapes.setProjectionMatrix(view.batch.getProjectionMatrix());
-        //TODO
-            for (Actor child : view.getRoot().getChildren()) {
-                ((BaseSkeletonActor)child).drawDebug(skeletonRendererDebug);
-            }
 
-
-
-//			shapes.begin(ShapeType.Line);
-//			shapes.setColor(Color.GREEN);
-//
-//
-//			for (Bullet bullet : model.getBullets()) {
-//				shapes.x(bullet.position.x, bullet.position.y, 10 * scale);
-//			}
-//
-//
-//			for (Enemy enemy : model.getEnemies()) {
-//				Rectangle rect = enemy.rect;
-//				shapes.rect(rect.x, rect.y, rect.width, rect.height);
-//			}
-//
-//			Rectangle rect = model.getPlayer().rect;
-//			shapes.rect(rect.x, rect.y, rect.width, rect.height);
-//
-//			shapes.end();
-//
-//			skeletonRendererDebug.draw(view.playerView.getSkeleton());
-//			for (Enemy enemy : model.getEnemies()) {
-//				BaseSkeletonActor view = this.view.modelAndViewMap.get(enemy);
-//				skeletonRendererDebug.draw(view.getSkeleton());
-//			}
+        shapes.setTransformMatrix(view.batch.getTransformMatrix());
+        shapes.setProjectionMatrix(view.batch.getProjectionMatrix());
+        for (Actor child : view.getRoot().getChildren()) {
+            ((BaseSkeletonActor) child).drawDebug(skeletonRendererDebug);
         }
+
+        //如果开启debug模式
+//        if (!hasSplash && debugButton.isChecked()) {
+//            shapes.setTransformMatrix(view.batch.getTransformMatrix());
+//            shapes.setProjectionMatrix(view.batch.getProjectionMatrix());
+//            for (Actor child : view.getRoot().getChildren()) {
+//                ((BaseSkeletonActor)child).drawDebug(skeletonRendererDebug);
+//            }
+//        }
         //正常模式
         this.getViewport().apply(true);
         super.draw();
@@ -360,13 +336,13 @@ public class UI extends Stage {
             shapes.begin(ShapeType.Filled);
             float w = view.viewport.getWorldWidth(), h = view.viewport.getWorldHeight();
             int x = (int) (view.camera.position.x - w / 2), y = (int) (view.camera.position.y - h / 2);
-            for (Rectangle rect : model.getMap().getCollisionTiles(x, y, x + (int) (w + 0.5f), y + (int) (h + 0.5f))) {
+            for (Rectangle rect : abstractEngine.getMap().getCollisionTiles(x, y, x + (int) (w + 0.5f), y + (int) (h + 0.5f))) {
                 shapes.rect(rect.x, rect.y, rect.width, rect.height);
             }
             shapes.end();
         }
 
-        healthBar.setValue(Player.hpStart - model.getPlayer().hp);
+        healthBar.setValue(Player.hpStart - abstractEngine.getPlayer().hp);
 
         SpriteCache spriteCache = view.mapRenderer.getSpriteCache();
         int renderCalls = view.batch.totalRenderCalls + spriteCache.totalRenderCalls;
@@ -461,11 +437,11 @@ public class UI extends Stage {
     @Override
     public boolean scrolled(float amountX, float amountY) {
 
-        if (amountY == 1.0f && cameraZoom<=2) {
+        if (amountY == 1.0f && cameraZoom <= 2) {
             cameraZoom *= 1.1f;
             Gdx.app.log("scrolled", "拉远视角" + cameraZoom);
 
-        } else if(amountY == -1.0f && cameraZoom>=0.4f){
+        } else if (amountY == -1.0f && cameraZoom >= 0.4f) {
             cameraZoom *= 0.9f;
             Gdx.app.log("scrolled", "拉近视角" + cameraZoom);
 

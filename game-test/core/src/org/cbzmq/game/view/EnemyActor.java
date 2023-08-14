@@ -71,7 +71,9 @@ public class EnemyActor extends BaseSkeletonActor<Enemy> {
         getSkeleton().setY(getModel().position.y);
 
         if (!setAnimation(getAssets().enemyStates.get(getModel().state), getModel().stateChanged)) {
-            getAnimationState().update(delta);
+            AnimationState animationState = getAnimationState();
+            animationState.update(delta);
+
         }
         getAnimationState().apply(getSkeleton());
 

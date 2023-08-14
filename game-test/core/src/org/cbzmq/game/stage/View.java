@@ -47,9 +47,6 @@ import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.view.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
 
 /**
  * The core of the view logic. The view knows about the model and manages everything needed to draw to the screen.
@@ -65,7 +62,7 @@ public class View extends Stage {
     
     ActorFactory actorFactory;
 
-    public Model model;
+    public AbstractEngine abstractEngine;
     public Player player;
     public PlayerActor playerView;
     public GameCamera camera;
@@ -81,7 +78,7 @@ public class View extends Stage {
 //    Group bulletGroup;
 
 
-    public View(Model model) {
+    public View(AbstractEngine abstractEngine) {
         camera = new GameCamera();
         batch = (SpriteBatch) getBatch();
         viewport = new ExtendViewport(GameCamera.cameraMinWidth
@@ -93,13 +90,13 @@ public class View extends Stage {
 
         setViewport(viewport);
 
-        this.model = model;
-        mapRenderer = new OrthoCachedTiledMapRenderer(model.getMap().tiledMap, Constants.scale, 3000);
+        this.abstractEngine = abstractEngine;
+        mapRenderer = new OrthoCachedTiledMapRenderer(abstractEngine.getMap().tiledMap, Constants.scale, 3000);
         mapRenderer.setOverCache(0.6f);
         mapRenderer.setMaxTileSize(512, 512);
-        assets = model.getAssets();
+        assets = abstractEngine.getAssets();
         ui = new UI(this);
-        model.addListener(new ObserverAdapter() {
+        abstractEngine.addListener(new ObserverAdapter() {
 
             @Override
             public boolean onOneObserverEvent(Event.OneCharacterEvent event) {
@@ -133,14 +130,14 @@ public class View extends Stage {
     }
 
     public void gameRestart() {
-        model.restart();
+        abstractEngine.restart();
         this.restart();
     }
 
     private void restart() {
 
         clear();
-        player = model.getPlayer();
+        player = abstractEngine.getPlayer();
         playerView = new PlayerActor(player);
         addActor(playerView);
         camera.lookahead = 0;
@@ -175,7 +172,7 @@ public class View extends Stage {
         super.act(delta);
         updateInput(delta);
         updateCamera(delta);
-        if (model.isGameOver()) eventGameOver(model.isPlayerWin());
+        if (abstractEngine.isGameOver()) eventGameOver(abstractEngine.isPlayerWin());
 
         updateAimPoint();
     }
@@ -218,7 +215,7 @@ public class View extends Stage {
         mouse.set(Gdx.input.getX(), Gdx.input.getY());
         //将指定的屏幕坐标系转换为世界坐标系
         getViewport().unproject(mouse);
-        model.onCharacterEvent(Event.aimPoint(TAG,player, mouse));
+        abstractEngine.updateByEvent(Event.aimPoint(TAG,player, mouse));
     }
 
     public void updateInput(float delta) {
@@ -226,10 +223,10 @@ public class View extends Stage {
 
         if (playerView.isLeftPressed()) {
             //TODO
-            model.onCharacterEvent(Event.moveLeft(TAG,player, delta));
+            abstractEngine.updateByEvent(Event.moveLeft(TAG,player, delta));
         } else if (playerView.isRightPressed()) {
             //TODO
-            model.onCharacterEvent(Event.moveRight(TAG,player, delta));
+            abstractEngine.updateByEvent(Event.moveRight(TAG,player, delta));
         } else if (player.state == CharacterState.running) {
             //TODO
 //            model.onCharacterEvent(Event.stateUpdate(TAG,player, CharacterState.idle));
@@ -237,8 +234,8 @@ public class View extends Stage {
 
 
         if (playerView.isShootPressed()) {
-            if (model.getQueue() != null && playerView.shoot()) {
-                model.onCharacterEvent(Event.attack(TAG,player));
+            if (abstractEngine.getQueue() != null && playerView.shoot()) {
+                abstractEngine.updateByEvent(Event.attack(TAG,player));
 
             }
         }
@@ -249,9 +246,9 @@ public class View extends Stage {
         if (player.hp > 0) {
             // Reduce camera lookahead based on distance of enemies behind the player.
             float enemyBehindDistance = 0;
-            for (int i = 0; i < model.getEnemies().size; i++) {
+            for (int i = 0; i < abstractEngine.getEnemies().size; i++) {
 
-                Array<Enemy> enemies = model.getEnemies();
+                Array<Enemy> enemies = abstractEngine.getEnemies();
                 Enemy enemy = enemies.get(i);
                 float dist = enemy.position.x - player.position.x;
                 if (enemy.hp > 0 && Math.signum(dist) == -player.dir) {
@@ -332,7 +329,7 @@ public class View extends Stage {
             case Keys.W:
             case Keys.UP:
             case Keys.SPACE:
-                model.onCharacterEvent(Event.jump(TAG,player));
+                abstractEngine.updateByEvent(Event.jump(TAG,player));
                 return true;
             case Keys.A:
             case Keys.LEFT:
@@ -354,7 +351,7 @@ public class View extends Stage {
                 if (player.hp == 0) return false;
                 // Releasing jump on the way up reduces jump height.
                 //如果快速松开空格时候可以实现小的跳跃，长时间按空格可以大跳
-                player.jumpDamping();
+                abstractEngine.updateByEvent(Event.jumpDamping(TAG,player));
                 playerView.setJumpPressed(false);
                 return true;
             case Keys.A:

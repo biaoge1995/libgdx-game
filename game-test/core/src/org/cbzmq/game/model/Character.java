@@ -10,7 +10,7 @@ import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.proto.ByteArray;
 import org.cbzmq.game.proto.CharacterIntProto;
 import org.cbzmq.game.proto.CharacterProto;
-import org.cbzmq.game.stage.Model;
+import org.cbzmq.game.stage.AbstractEngine;
 
 
 /**
@@ -60,7 +60,7 @@ public class Character implements Observer {
     Group<Character> parent;
 
     @Null
-    Model model;
+    AbstractEngine abstractEngine;
 
     //默认的动画状态
     //TODO view会用到
@@ -93,6 +93,8 @@ public class Character implements Observer {
 
     private final Array<Observer> observers;
 
+    private boolean isWin = false;
+
 
     public Character() {
         this("Character");
@@ -119,15 +121,32 @@ public class Character implements Observer {
             setState(CharacterState.idle);
 
         }
+
+//        if (dir*velocity.x > 0 && velocity.y == 0 && isGrounded()) {
+//            setState(CharacterState.running);
+//
+//        }
+
         if (isGrounded() && state == CharacterState.jumping) {
             setState(CharacterState.idle);
+        }
+        if (isWin) {
+            win();
         }
         queue.drain();
     }
 
-    public boolean updateHp(float hp){
+    public boolean updateHp(float hp) {
         this.hp = hp;
         return true;
+    }
+
+    public boolean isWin() {
+        return isWin;
+    }
+
+    public void setWin(boolean win) {
+        isWin = win;
     }
 
     @Override
@@ -137,10 +156,10 @@ public class Character implements Observer {
         if (hp == 0) return false;
         switch (event.getEventType()) {
             case jump:
-               if (isGrounded()) {
+                if (isGrounded()) {
                     return jump();
                 }
-               return false;
+                return false;
             case moveLeft:
                 return moveLeft(event.getFloatData());
             case moveRight:
@@ -155,11 +174,13 @@ public class Character implements Observer {
             case beDeath:
                 beDeath();
                 return true;
+            case jumpDamping:
+                jumpDamping();
+                return true;
             case born:
             case win:
             case dispose:
             case beRemove:
-
             case lose:
             case frameEnd:
             case collisionMap:
@@ -170,20 +191,24 @@ public class Character implements Observer {
 
     @Override
     public boolean onTwoObserverEvent(Event.TwoObserverEvent event) {
+        //a就是自己
         Character a = event.getA();
         Character b = event.getB();
-        if(event.getA()!=this) return false;
+        if (event.getA() != this) return false;
         switch (event.getEventType()) {
+            case collisionCharacter:
+                beCollide();
+                break;
             case hit:
-                if(beHit())  queue.pushTwoCharacterEvent(event);
+                if (beHit()) queue.pushTwoCharacterEvent(event);
                 break;
         }
         Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), event.getA() + "->" + event.getB());
-        return false;
+        return true;
     }
 
 
-    public boolean beHit(){
+    public boolean beHit() {
         return true;
     }
 
@@ -326,25 +351,25 @@ public class Character implements Observer {
 
     public static <T extends Character> void copyToSon(Character father, T son) {
         son.id = father.id;
-        son.name = father.name;
+//        son.name = father.name;
         son.position = father.position;
-        son.targetPosition = father.targetPosition;
+//        son.targetPosition = father.targetPosition;
         son.velocity = father.velocity;
         son.state = father.state;
 //        son.stateTime = father.stateTime;
         son.dir = father.dir;
-        son.airTime = father.airTime;
+//        son.airTime = father.airTime;
         son.rect = father.rect;
         son.stateChanged = father.stateChanged;
         son.hp = father.hp;
-        son.maxVelocityX = father.maxVelocityX;
-        son.collisionOffsetY = father.collisionOffsetY;
-        son.jumpVelocity = father.jumpVelocity;
+//        son.maxVelocityX = father.maxVelocityX;
+//        son.collisionOffsetY = father.collisionOffsetY;
+//        son.jumpVelocity = father.jumpVelocity;
 //        son.isWin = father.isWin;
         son.damage = father.damage;
-        son.collisionTimer = father.collisionTimer;
+//        son.collisionTimer = father.collisionTimer;
 //        son.setQueue(father.getQueue());
-        son.parent = father.parent;
+//        son.parent = father.parent;
     }
 
     public static Character parserProto(CharacterProto.Character proto) {
@@ -352,30 +377,12 @@ public class Character implements Observer {
         character.setId(proto.getId());
         character.position.set(proto.getPosition().getX(), proto.getPosition().getY());
         character.velocity.set(proto.getVelocity().getX(), proto.getVelocity().getY());
-        character.state = proto.getState();
+        character.setState(proto.getState()); ;
         character.dir = proto.getDir();
         character.rect.set(proto.getRect().getX(), proto.getRect().getY(), proto.getRect().getWidth(), proto.getRect().getHeight());
-        character.stateChanged = proto.getStateChanged();
+//        character.stateChanged = proto.getStateChanged();
         character.hp = proto.getHp();
         character.collisionTimer = proto.getCollisionTimer();
-        return character;
-
-    }
-
-    public static Character parserProto(CharacterIntProto.Character proto) {
-        Character character = new Character("unknown");
-        character.setId(proto.getId());
-        character.position.set(proto.getPosition().getX() / 100f, proto.getPosition().getY() / 100f);
-        character.velocity.set(proto.getVelocity().getX() / 100f, proto.getVelocity().getY() / 100f);
-        character.state = proto.getState();
-        character.dir = proto.getDir();
-        character.rect.set(proto.getRect().getX() / 100f
-                , proto.getRect().getY() / 100f
-                , proto.getRect().getWidth() / 100f
-                , proto.getRect().getHeight() / 100f);
-        character.stateChanged = proto.getStateChanged();
-        character.hp = proto.getHp() / 100f;
-        character.collisionTimer = proto.getCollisionTimer() / 100f;
         return character;
 
     }
@@ -406,7 +413,7 @@ public class Character implements Observer {
                         .setY(this.rect.y)
                         .setWidth(this.rect.width)
                         .setHeight(this.rect.height))
-                .setStateChanged(this.stateChanged)
+//                .setStateChanged(this.stateChanged)
                 .setHp(this.hp)
 //                .setMaxVelocityX(character.maxVelocityX)
 //                .setCollisionOffsetY(character.collisionOffsetY)
@@ -446,13 +453,13 @@ public class Character implements Observer {
                         .setY((int) this.rect.y * 100)
                         .setWidth((int) this.rect.width * 100)
                         .setHeight((int) this.rect.height * 100))
-                .setStateChanged(this.stateChanged)
-                .setHp((int) this.hp * 100)
+//                .setStateChanged(this.stateChanged)
+                .setHp((int) this.hp * 100);
 //                .setMaxVelocityX(character.maxVelocityX)
 //                .setCollisionOffsetY(character.collisionOffsetY)
 //                .setJumpVelocity(character.jumpVelocity)
 //                .setDamage(character.damage)
-                .setCollisionTimer((int) this.collisionTimer * 100);
+//                .setCollisionTimer((int) this.collisionTimer * 100);
 //                .setTargetPosition(tartgetPositionProto
 //                        .setX(character.targetPosition.x)
 //                        .setY(character.targetPosition.y)
@@ -464,23 +471,23 @@ public class Character implements Observer {
     public <T extends Character> void updateByCharacter(T character) {
 
 //        this.id = character.id;
-        this.name = character.name;
+//        this.name = character.name;
         this.position = character.position;
-        this.targetPosition = character.targetPosition;
+//        this.targetPosition = character.targetPosition;
         this.velocity = character.velocity;
-        this.state = character.state;
+        this.setState(character.state);
 //        this.stateTime = character.stateTime;
         this.dir = character.dir;
-        this.airTime = character.airTime;
+//        this.airTime = character.airTime;
         this.rect = character.rect;
-        this.stateChanged = character.stateChanged;
+//        this.stateChanged = character.stateChanged;
         this.hp = character.hp;
-        this.maxVelocityX = character.maxVelocityX;
-        this.collisionOffsetY = character.collisionOffsetY;
-        this.jumpVelocity = character.jumpVelocity;
+//        this.maxVelocityX = character.maxVelocityX;
+//        this.collisionOffsetY = character.collisionOffsetY;
+//        this.jumpVelocity = character.jumpVelocity;
 //        this.isWin = character.isWin;
         this.damage = character.damage;
-        this.collisionTimer = character.collisionTimer;
+//        this.collisionTimer = character.collisionTimer;
 //        this.setQueue(character.getQueue());
 //        this.parent = character.parent;
     }
@@ -501,8 +508,8 @@ public class Character implements Observer {
         this.parent = parent;
     }
 
-    public Model getModel() {
-        return model;
+    public AbstractEngine getModel() {
+        return abstractEngine;
     }
 
     public void setTargetPosition(Vector2 targetPosition) {
@@ -510,8 +517,8 @@ public class Character implements Observer {
     }
 
 
-    public void setModel(Model model) {
-        this.model = model;
+    public void setModel(AbstractEngine abstractEngine) {
+        this.abstractEngine = abstractEngine;
     }
 
 
@@ -554,7 +561,7 @@ public class Character implements Observer {
         return airTime < groundedTime;
     }
 
-    public void addListen(Observer observer){
+    public void addListen(Observer observer) {
         this.observers.add(observer);
     }
 

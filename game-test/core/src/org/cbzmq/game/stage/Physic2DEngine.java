@@ -31,6 +31,7 @@
 package org.cbzmq.game.stage;
 
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
@@ -59,9 +60,9 @@ public class Physic2DEngine {
     private final Map map;
     private final TiledMapTileLayer collisionLayer;
     private Array<? extends Character> container;
-    private final EventQueue queue;
     //是否开启同组内不检测碰撞
     private boolean isGroupNoCollision = true;
+    private final AbstractEngine abstractEngine;
 
     static class Builder {
 
@@ -71,9 +72,9 @@ public class Physic2DEngine {
         private Assets assets;
         private Map map;
         private TiledMapTileLayer collisionLayer;
-        private EventQueue queue;
         //是否开启同组内不检测碰撞
         private boolean isGroupNoCollision = true;
+        private AbstractEngine abstractEngine;
 
         Physic2DEngine build() {
             return new Physic2DEngine(this);
@@ -99,9 +100,8 @@ public class Physic2DEngine {
             return this;
         }
 
-
-        public Builder setQueue(EventQueue queue) {
-            this.queue = queue;
+        public Builder setGameEngine(AbstractEngine abstractEngine) {
+            this.abstractEngine = abstractEngine;
 
             return this;
         }
@@ -122,8 +122,8 @@ public class Physic2DEngine {
         this.assets = builder.assets;
         this.map = builder.map;
         this.collisionLayer = builder.collisionLayer;
-        this.queue = builder.queue;
         this.isGroupNoCollision = builder.isGroupNoCollision;
+        this.abstractEngine = builder.abstractEngine;
 //        this.queue.setObservers(this.container);
     }
 
@@ -135,7 +135,7 @@ public class Physic2DEngine {
         //检测碰撞
         collision();
 
-        queue.drain();
+//        queue.drain();
     }
 
 
@@ -217,10 +217,11 @@ public class Physic2DEngine {
         int endY = (int) (character.rect.y + character.rect.height);
         for (Rectangle tile : map.getCollisionTiles(x, startY, x, endY)) {
             if (!character.rect.overlaps(tile)) continue;
-            if (queue != null) {
+            if (abstractEngine != null) {
                 //推送碰撞消息
-                queue.pushCharacterEvent(Event.collisionMap(TAG,character, tile));
+//                queue.pushCharacterEvent(Event.collisionMap(TAG,character, tile));
 //                queue.collisionMap(character, tile);
+                abstractEngine.updateByEvent(Event.collisionMap(TAG,character, tile));
             }
             if (character.velocity.x >= 0)
                 character.position.x = tile.x - character.rect.width;
@@ -289,34 +290,34 @@ public class Physic2DEngine {
                 else {
                     // 撞击
                     if (a.rect.overlaps(b.rect)) {
-                        queue.pushTwoCharacterEvent(Event.collisionCharacter(TAG,a,b));
-//                        queue.pushTwoCharacterEvent(Event.collisionCharacter(TAG,b,a));
-//                        queue.collisionCharacter(a, b);
-
-                        //TODO 扣血 这块可以放到游戏主逻辑中做 不参与物理引擎运行
-                        float dirX = a.position.x + a.rect.width / 2 < b.position.x + b.rect.width / 2 ? -1 : 1;
-                        if (a.collisionTimer < 0) {
-                            a.beCollide();
-                            queue.pushTwoCharacterEvent(Event.hit(TAG,a,b));
-//                            queue.hit(a, b);
-                        }
-
-                        //判断x轴击退的量
-                        float amount = Player.knockbackX * dirX;
-                        a.velocity.x = amount;
-                        a.setGrounded(false);
-                        //判断y轴击退量
-                        float dirY = a.rect.y > b.rect.y + b.rect.height * 0.8f ? 1 : -1;
-                        if (dirY == 1) {
-                            a.velocity.y = Player.headBounceY * dirY;
-                        }
+                        collisionCharacter(a,b);
+                        collisionCharacter(b,a);
                     }
                 }
             }
         }
     }
 
+    public void collisionCharacter(Character a,Character b){
+        if (a instanceof Bullet){
+            Gdx.app.log("tag","bullte");
+        }
+        abstractEngine.updateBy2CharacterEvent(Event.collisionCharacter(TAG,a,b));
 
+        //TODO 扣血 这块可以放到游戏主逻辑中做 不参与物理引擎运行
+        float dirX = a.position.x + a.rect.width / 2 < b.position.x + b.rect.width / 2 ? -1 : 1;
+
+
+        //判断x轴击退的量
+        float amount = Player.knockbackX * dirX;
+        a.velocity.x = amount;
+        a.setGrounded(false);
+        //判断y轴击退量
+        float dirY = a.rect.y > b.rect.y + b.rect.height * 0.8f ? 1 : -1;
+        if (dirY == 1) {
+            a.velocity.y = Player.headBounceY * dirY;
+        }
+    }
 
     public Map getMap() {
         return map;

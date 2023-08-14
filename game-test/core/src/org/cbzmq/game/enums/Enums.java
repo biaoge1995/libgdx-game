@@ -29,15 +29,15 @@ public final class Enums {
       "GAME_ACTION\020\006*Z\n\nGameStatus\022\r\n\tNOT_START",
       "\020\000\022\013\n\007LOADING\020\001\022\t\n\005READY\020\002\022\013\n\007RUNNING\020\003\022" +
       "\r\n\tGAME_OVER\020\004\022\t\n\005PAUSE\020\005*#\n\004Code\022\007\n\002OK\020" +
-      "\310\001\022\022\n\rSERVER_FAILED\020\364\003*\332\001\n\020OneBodyEventT" +
+      "\310\001\022\022\n\rSERVER_FAILED\020\364\003*\353\001\n\020OneBodyEventT" +
       "ype\022\010\n\004born\020\001\022\013\n\007beDeath\020\002\022\n\n\006attack\020\003\022\010" +
-      "\n\004jump\020\n\022\r\n\tmoveRight\020\013\022\014\n\010moveLeft\020\014\022\017\n" +
-      "\013bloodUpdate\020\r\022\017\n\013stateUpdate\020\017\022\014\n\010aimPo" +
-      "int\020\016\022\013\n\007dispose\020\004\022\014\n\010beRemove\020\005\022\010\n\004lose" +
-      "\020\006\022\007\n\003win\020\007\022\020\n\014collisionMap\020\010\022\014\n\010frameEn" +
-      "d\020\t*A\n\020TwoBodyEventType\022\026\n\022collisionChar" +
-      "acter\020\001\022\007\n\003hit\020\002\022\014\n\010beKilled\020\003B\030\n\024org.cb",
-      "zmq.game.enumsP\001"
+      "\n\004jump\020\n\022\017\n\013jumpDamping\020\020\022\r\n\tmoveRight\020\013" +
+      "\022\014\n\010moveLeft\020\014\022\017\n\013bloodUpdate\020\r\022\017\n\013state" +
+      "Update\020\017\022\014\n\010aimPoint\020\016\022\013\n\007dispose\020\004\022\014\n\010b" +
+      "eRemove\020\005\022\010\n\004lose\020\006\022\007\n\003win\020\007\022\020\n\014collisio" +
+      "nMap\020\010\022\014\n\010frameEnd\020\t*A\n\020TwoBodyEventType" +
+      "\022\026\n\022collisionCharacter\020\001\022\007\n\003hit\020\002\022\014\n\010beK",
+      "illed\020\003B\030\n\024org.cbzmq.game.enumsP\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
