@@ -280,29 +280,34 @@ public class UI extends Stage {
     @Override
     public void draw() {
 
-        shapes.setTransformMatrix(view.batch.getTransformMatrix());
-        shapes.setProjectionMatrix(view.batch.getProjectionMatrix());
-        for (Actor child : view.getRoot().getChildren()) {
-            ((BaseSkeletonActor) child).drawDebug(skeletonRendererDebug);
-        }
-
-        //如果开启debug模式
-//        if (!hasSplash && debugButton.isChecked()) {
-//            shapes.setTransformMatrix(view.batch.getTransformMatrix());
-//            shapes.setProjectionMatrix(view.batch.getProjectionMatrix());
-//            for (Actor child : view.getRoot().getChildren()) {
-//                ((BaseSkeletonActor)child).drawDebug(skeletonRendererDebug);
-//            }
+//        shapes.setTransformMatrix(view.batch.getTransformMatrix());
+//        shapes.setProjectionMatrix(view.batch.getProjectionMatrix());
+//        for (Actor child : view.getRoot().getChildren()) {
+//            ((BaseSkeletonActor) child).drawDebug(skeletonRendererDebug);
 //        }
+
+//        如果开启debug模式
+        if (!hasSplash && debugButton.isChecked()) {
+            shapes.setTransformMatrix(view.batch.getTransformMatrix());
+            shapes.setProjectionMatrix(view.batch.getProjectionMatrix());
+            for (Actor child : view.getRoot().getChildren()) {
+                ((BaseSkeletonActor)child).drawDebug(skeletonRendererDebug);
+            }
+        }
         //正常模式
         this.getViewport().apply(true);
         super.draw();
         Batch batch = getBatch();
         batch.setColor(Color.WHITE);
         batch.begin();
-        Vector2 cursor = this.screenToStageCoordinates(temp.set(Gdx.input.getX(), Gdx.input.getY()));
+        int y = Gdx.input.getY();
+        int x = Gdx.input.getX();
+        Vector2 cursor = this.screenToStageCoordinates(temp.set(x,y));
+        Vector2 aimPoint = view.player.getAimPoint();
+        Vector2 screen = new Vector2(aimPoint);
+         screen = view.getViewport().project(screen);
         TextureRegion crosshair = view.assets.crosshair;
-        batch.draw(crosshair, cursor.x - crosshair.getRegionWidth() / 2, cursor.y - crosshair.getRegionHeight() / 2 + 2);
+        batch.draw(crosshair, screen.x - crosshair.getRegionWidth() / 2, screen.y - crosshair.getRegionHeight() / 2 + 2);
         batch.end();
     }
 

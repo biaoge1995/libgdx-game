@@ -215,6 +215,7 @@ public class View extends Stage {
         mouse.set(Gdx.input.getX(), Gdx.input.getY());
         //将指定的屏幕坐标系转换为世界坐标系
         getViewport().unproject(mouse);
+
         abstractEngine.updateByEvent(Event.aimPoint(TAG,player, mouse));
     }
 
