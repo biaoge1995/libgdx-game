@@ -154,14 +154,6 @@ public class Physic2DEngine {
 
     private void move(Character character, float delta) {
 
-//        body2D.stateTime += delta;
-        // If moving downward, change state to fall.
-        //如果角色在往下移动则设置该角色的状态为fll
-//        if (character.velocity.y < 0 && character.state != CharacterState.jumping && character.state != CharacterState.falling) {
-//            character.setState(CharacterState.falling);
-//            character.setGrounded(false);
-//        }
-
         // Apply gravity.
         //设置重力加速度
         character.velocity.y -= gravity * delta;
@@ -218,9 +210,6 @@ public class Physic2DEngine {
         for (Rectangle tile : map.getCollisionTiles(x, startY, x, endY)) {
             if (!character.rect.overlaps(tile)) continue;
             if (abstractEngine != null) {
-                //推送碰撞消息
-//                queue.pushCharacterEvent(Event.collisionMap(TAG,character, tile));
-//                queue.collisionMap(character, tile);
                 abstractEngine.updateByEvent(Event.collisionMap(TAG,character, tile));
             }
             if (character.velocity.x >= 0)
@@ -253,15 +242,11 @@ public class Physic2DEngine {
         Array<Rectangle> collisionTiles = map.getCollisionTiles(startX, y, endX, y);
         for (Rectangle tile : collisionTiles) {
             if (!character.rect.overlaps(tile)) continue;
-//            if (queue != null) {
-//                queue.collisionMap(body2D, tile);
-//            }
 
             if (character.velocity.y > 0)
                 character.position.y = tile.y - character.rect.height;
             else {
                 character.position.y = tile.y + tile.height;
-//                if (character.state == CharacterState.jumping) character.setState(CharacterState.idle);
                 character.setGrounded(true);
             }
             character.velocity.y = 0;

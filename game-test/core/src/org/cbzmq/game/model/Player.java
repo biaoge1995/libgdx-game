@@ -30,14 +30,10 @@ package org.cbzmq.game.model;
  *****************************************************************************/
 
 
-
 import com.badlogic.gdx.math.Vector2;
 import org.cbzmq.game.Constants;
-import org.cbzmq.game.Utils;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
-import org.cbzmq.game.proto.ByteArray;
-import org.cbzmq.game.proto.CharacterIntProto;
 import org.cbzmq.game.proto.CharacterProto;
 
 
@@ -142,14 +138,6 @@ public class Player extends Character{
 	}
 
 
-	public static Player parseFromBytes(byte[] bytes) throws Exception {
-		Character father = Character.parseFromBytes(bytes);
-		Player player = new Player();
-		byte[] shoot = {bytes[23],bytes[24]};
-		player.shootTimer = Utils.byteArrayToShort(shoot)/100f;
-		Character.copyToSon(father, player);
-		return player;
-	}
 
 
 	public  CharacterProto.Character.Builder toCharacterProto() {
@@ -163,12 +151,6 @@ public class Player extends Character{
 
 
 
-	//25
-	public ByteArray toCharacterBytes() {
-		ByteArray byteArray = super.toCharacterBytes();
-		byteArray.addShort((short) (this.shootTimer*100));
-		return byteArray;
-	}
 
 
 	public void updateByCharacter(Player father) {

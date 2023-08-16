@@ -1,8 +1,6 @@
 package org.cbzmq.game.model;
 
-import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
-import org.cbzmq.game.proto.CharacterIntProto;
 import org.cbzmq.game.proto.CharacterProto;
 
 public class Bullet extends Character {
@@ -65,17 +63,7 @@ public class Bullet extends Character {
     }
 
 
-    public static Bullet parseFromBytes(byte[] bytes) throws Exception {
-        Character father = Character.parseFromBytes(bytes);
-        Bullet bullet = new Bullet(
-                null
-                , father.position.x
-                , father.position.y
-                , father.velocity.x
-                , father.velocity.y);
-        Character.copyToSon(father, bullet);
-        return bullet;
-    }
+
 
 
     public CharacterProto.Character.Builder toCharacterProto() {

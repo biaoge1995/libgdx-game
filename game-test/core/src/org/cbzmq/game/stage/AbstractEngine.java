@@ -189,16 +189,19 @@ public abstract class AbstractEngine {
     public  void updateBy2CharacterEvent(Event.TwoObserverEvent event){
         Character a = (event.getA());
         Character b = (event.getB());
-        //确定event更新成功后向外部 把消息推入队列
-        if (event.getA().onTwoObserverEvent(event)) {
-            queue.pushTwoCharacterEvent(event);
-        }
+
+
 
         switch (event.getEventType()) {
             //如果碰撞到了则发布一条击退信息
             case collisionCharacter:
                 if (a.collisionTimer < 0) {
+                    queue.pushTwoCharacterEvent(event);
                     updateBy2CharacterEvent(Event.hit(TAG, a, b));
+                }
+            default:
+                if (event.getA().onTwoObserverEvent(event)) {
+                    queue.pushTwoCharacterEvent(event);
                 }
         }
     }

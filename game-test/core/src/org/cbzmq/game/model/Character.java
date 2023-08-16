@@ -7,8 +7,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Null;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
-import org.cbzmq.game.proto.ByteArray;
-import org.cbzmq.game.proto.CharacterIntProto;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.stage.AbstractEngine;
 
@@ -18,7 +16,6 @@ import org.cbzmq.game.stage.AbstractEngine;
  */
 public class Character implements Observer {
 
-    private static final Array<ByteArray.Type> types;
     public CharacterType characterType = CharacterType.unknown;
     public int id;
 
@@ -286,67 +283,8 @@ public class Character implements Observer {
     }
 
 
-    public static Character parseFromBytes(byte[] bytes) throws Exception {
 
-        Array<Byte> bytes1 = new Array<>();
-        for (byte aByte : bytes) {
-            bytes1.add(aByte);
-        }
-        ByteArray byteArray = new ByteArray(bytes1, types);
-        Character character = new Character("unknown");
-        character.characterType = CharacterType.valueOf(byteArray.popByte());
-        character.state = CharacterState.valueOf(byteArray.popByte());
-        character.dir = byteArray.popByte();
-        character.hp = byteArray.popByte();
-        character.id = byteArray.popShort();
-        character.position.set(byteArray.popShort(), byteArray.popShort());
-        character.collisionTimer = byteArray.popShort() / 100f;
-        character.velocity.set(byteArray.popShort(), byteArray.popShort());
-        character.rect.set(byteArray.popShort(), byteArray.popShort(), byteArray.popByte(), byteArray.popByte());
-        character.stateChanged = byteArray.popBoolean();
-        return character;
-    }
 
-    static {
-        types = Array.with(ByteArray.Type.BYTE,
-                ByteArray.Type.BYTE,
-                ByteArray.Type.BYTE,
-                ByteArray.Type.BYTE,
-                ByteArray.Type.SHORT,
-                ByteArray.Type.SHORT,
-                ByteArray.Type.SHORT,
-                ByteArray.Type.SHORT,
-                ByteArray.Type.SHORT,
-                ByteArray.Type.SHORT,
-                ByteArray.Type.SHORT,
-                ByteArray.Type.SHORT,
-                ByteArray.Type.BYTE,
-                ByteArray.Type.BYTE,
-                ByteArray.Type.BOOLEAN
-        );
-    }
-
-    //23个字节
-    public ByteArray toCharacterBytes() {
-        ByteArray byteArray = new ByteArray();
-        byteArray.addByte((byte) this.characterType.getNumber());
-        byteArray.addByte((byte) this.state.getNumber());
-        byteArray.addByte((byte) this.dir);
-        byteArray.addByte((byte) this.hp);
-        byteArray.addShort((short) this.getId());
-        byteArray.addShort((short) this.position.x);
-        byteArray.addShort((short) this.position.y);
-        byteArray.addShort((short) (this.collisionTimer * 100));
-        byteArray.addShort((short) this.velocity.x);
-        byteArray.addShort((short) this.velocity.y);
-        byteArray.addShort((short) this.rect.x);
-        byteArray.addShort((short) this.rect.y);
-        byteArray.addByte((byte) this.rect.width);
-        byteArray.addByte((byte) this.rect.height);
-        byteArray.addBool(this.stateChanged);
-        return byteArray;
-
-    }
 
 
     public static <T extends Character> void copyToSon(Character father, T son) {
@@ -380,7 +318,6 @@ public class Character implements Observer {
         character.setState(proto.getState()); ;
         character.dir = proto.getDir();
         character.rect.set(proto.getRect().getX(), proto.getRect().getY(), proto.getRect().getWidth(), proto.getRect().getHeight());
-//        character.stateChanged = proto.getStateChanged();
         character.hp = proto.getHp();
         character.collisionTimer = proto.getCollisionTimer();
         return character;
@@ -392,7 +329,6 @@ public class Character implements Observer {
         CharacterProto.Character.Builder builder = CharacterProto.Character.newBuilder();
         CharacterProto.Vector2.Builder positionProto = CharacterProto.Vector2.newBuilder();
         CharacterProto.Vector2.Builder velocityProto = CharacterProto.Vector2.newBuilder();
-//        CharacterProto.Vector2.Builder tartgetPositionProto = CharacterProto.Vector2.newBuilder();
         CharacterProto.Rectangle.Builder rectProto = CharacterProto.Rectangle.newBuilder();
         builder.setType(CharacterType.unknown)
                 .setId(this.getId())
@@ -405,67 +341,18 @@ public class Character implements Observer {
                         .setY(this.velocity.y)
                         .build())
                 .setState(this.state)
-//                .setStateTime(character.stateTime)
                 .setDir(this.dir)
-//                .setAirTime(character.airTime)
                 .setRect(rectProto
                         .setX(this.rect.x)
                         .setY(this.rect.y)
                         .setWidth(this.rect.width)
                         .setHeight(this.rect.height))
-//                .setStateChanged(this.stateChanged)
                 .setHp(this.hp)
-//                .setMaxVelocityX(character.maxVelocityX)
-//                .setCollisionOffsetY(character.collisionOffsetY)
-//                .setJumpVelocity(character.jumpVelocity)
-//                .setDamage(character.damage)
                 .setCollisionTimer(this.collisionTimer);
-//                .setTargetPosition(tartgetPositionProto
-//                        .setX(character.targetPosition.x)
-//                        .setY(character.targetPosition.y)
-//                        .build());
+
         return builder;
     }
 
-
-    public CharacterIntProto.Character.Builder toCharacterIntProto() {
-        CharacterIntProto.Character.Builder builder = CharacterIntProto.Character.newBuilder();
-        CharacterIntProto.Vector2.Builder positionProto = CharacterIntProto.Vector2.newBuilder();
-        CharacterIntProto.Vector2.Builder velocityProto = CharacterIntProto.Vector2.newBuilder();
-//        CharacterProto.Vector2.Builder tartgetPositionProto = CharacterProto.Vector2.newBuilder();
-        CharacterIntProto.Rectangle.Builder rectProto = CharacterIntProto.Rectangle.newBuilder();
-        builder.setType(CharacterType.unknown)
-                .setId(this.getId())
-                .setPosition(positionProto
-                        .setX((int) this.position.x * 100)
-                        .setY((int) this.position.y * 100)
-                        .build())
-                .setVelocity(velocityProto
-                        .setX((int) this.velocity.x * 100)
-                        .setY((int) this.velocity.y * 100)
-                        .build())
-                .setState(this.state)
-//                .setStateTime(character.stateTime)
-                .setDir((int) this.dir)
-//                .setAirTime(character.airTime)
-                .setRect(rectProto
-                        .setX((int) this.rect.x * 100)
-                        .setY((int) this.rect.y * 100)
-                        .setWidth((int) this.rect.width * 100)
-                        .setHeight((int) this.rect.height * 100))
-//                .setStateChanged(this.stateChanged)
-                .setHp((int) this.hp * 100);
-//                .setMaxVelocityX(character.maxVelocityX)
-//                .setCollisionOffsetY(character.collisionOffsetY)
-//                .setJumpVelocity(character.jumpVelocity)
-//                .setDamage(character.damage)
-//                .setCollisionTimer((int) this.collisionTimer * 100);
-//                .setTargetPosition(tartgetPositionProto
-//                        .setX(character.targetPosition.x)
-//                        .setY(character.targetPosition.y)
-//                        .build());
-        return builder;
-    }
 
 
     public <T extends Character> void updateByCharacter(T character) {
@@ -532,13 +419,8 @@ public class Character implements Observer {
         return name + getId();
     }
 
-    public EventQueue getQueue() {
-        return queue;
-    }
 
-//    public void setQueue(EventQueue queue) {
-//        this.queue = queue;
-//    }
+
 
     public CharacterType getCharacterType() {
         return characterType;
