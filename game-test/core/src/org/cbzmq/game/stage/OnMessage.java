@@ -13,7 +13,7 @@ import com.iohao.game.external.core.message.ExternalMessageCmdCode;
  * @Version 1.0
  **/
 
-public interface CharacterOnMessage {
+public interface OnMessage {
 
     int getCmdMerge();
 
@@ -30,23 +30,21 @@ public interface CharacterOnMessage {
         // 业务数据
         externalMessage.setData(bytes);
 
-        TankWebsocketClient.me().request(externalMessage);
+        GameWebSocketClient.me().request(externalMessage);
 
         if (runnable != null) {
-            TankWebsocketClient.me().getActionMap().put(this.getCmdMerge(), runnable);
+            GameWebSocketClient.me().getActionMap().put(this.getCmdMerge(), runnable);
         }
     }
 
 
-    private ExternalMessage createExternalMessage() {
+    default ExternalMessage createExternalMessage() {
 
         ExternalMessage request = new ExternalMessage();
         request.setCmdCode(ExternalMessageCmdCode.biz);
         // 协议开关，用于一些协议级别的开关控制，比如 安全加密校验等。 : 0 不校验
         request.setProtocolSwitch(ExternalGlobalConfig.protocolSwitch);
-
         request.setCmdMerge(this.getCmdMerge());
-
         return request;
     }
 

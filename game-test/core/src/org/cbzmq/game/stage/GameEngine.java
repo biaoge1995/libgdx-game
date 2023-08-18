@@ -50,7 +50,7 @@ public class GameEngine extends AbstractEngine {
     //触发器
     Array<Trigger> triggers;
 
-    public GameEngine() {
+    private GameEngine() {
         super();
         triggers = new Array<>();
         restart();
@@ -282,6 +282,13 @@ public class GameEngine extends AbstractEngine {
     @Override
     public void quit() {
 
+    }
+
+    public static GameEngine me() {
+        return GameEngine.Holder.ME;
+    }
+    public static class Holder {
+        static final GameEngine ME= new GameEngine();
     }
 
 

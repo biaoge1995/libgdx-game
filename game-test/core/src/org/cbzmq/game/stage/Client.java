@@ -2,8 +2,6 @@ package org.cbzmq.game.stage;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.iohao.game.common.kit.StrKit;
-import com.sun.jndi.toolkit.url.Uri;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -13,19 +11,19 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.SocketUtils;
-import lombok.var;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ObjectUtils;
 import org.cbzmq.game.Utils;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.enums.MsgHeader;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.proto.CharacterProto;
+import org.cbzmq.game.proto.Move;
 import org.cbzmq.game.proto.MsgProto;
+import org.cbzmq.game.proto.VectorProto;
 import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.drafts.Draft_6455;
-import org.java_websocket.handshake.ServerHandshake;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -36,6 +34,8 @@ import java.util.*;
  * @Date 2023/7/28 1:03 上午
  * @Version 1.0
  **/
+
+@Slf4j
 public class Client extends AbstractEngine {
 
     final Set<Integer> existsId = new HashSet<>();
@@ -43,17 +43,8 @@ public class Client extends AbstractEngine {
     Channel ch;
     private int msgMaxId = 0;
     private final Array<MsgProto.Event> protoEvents = new Array<>();
-    private int counter=0;
-    private  WebSocketClient webSocketClient;
-
-    interface GameConfig {
-        /** 对外服务器 port */
-        int externalPort = 10100;
-        /** 对外服务器 ip */
-        String externalIp = "127.0.0.1";
-        /** http 升级 websocket 协议地址 */
-        String websocketPath = "/websocket";
-    }
+    private int counter = 0;
+    private WebSocketClient webSocketClient;
 
 
     public Client() throws InterruptedException, URISyntaxException {
@@ -71,30 +62,13 @@ public class Client extends AbstractEngine {
 
         ch = f.channel();
         f.channel().closeFuture();
-        var url = "ws://{}:{}" + GameConfig.websocketPath;
-        var wsUrl = StrKit.format(url, GameConfig.externalIp, GameConfig.externalIp);
 
-        webSocketClient = new WebSocketClient(new URI(wsUrl),new Draft_6455()) {
-            @Override
-            public void onOpen(ServerHandshake handshakedata) {
+        try {
+            GameWebSocketClient.me().start();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
 
-            }
-
-            @Override
-            public void onMessage(String message) {
-
-            }
-
-            @Override
-            public void onClose(int code, String reason, boolean remote) {
-
-            }
-
-            @Override
-            public void onError(Exception ex) {
-
-            }
-        };
         //如果端口连接不上就关闭监听
         //            ch.closeFuture().await();
         //        }  finally {
@@ -104,8 +78,12 @@ public class Client extends AbstractEngine {
     }
 
 
+    @Override
+    public void onOneObserverEvent(Event.OneCharacterEvent event) {
+        super.onOneObserverEvent(event);
+    }
 
-    public void upsertCharacter(Character character,boolean isUpdateDetail) {
+    public void upsertCharacter(Character character, boolean isUpdateDetail) {
         if (character == null) return;
         if (!characterMap.containsKey(character.getId())) {
             characterMap.put(character.getId(), character);
@@ -121,9 +99,9 @@ public class Client extends AbstractEngine {
                     break;
             }
 
-        } else if(isUpdateDetail){
+        } else if (isUpdateDetail) {
             characterMap.get(character.getId()).updateByCharacter(character);
-        }else {
+        } else {
             characterMap.get(character.getId()).setAimPoint(character.getAimPoint());
 
         }
@@ -132,8 +110,8 @@ public class Client extends AbstractEngine {
     }
 
     public Character getCharacterByIndex(int index) throws Exception {
-        if(!characterMap.containsKey(index)){
-            throw new Exception("can not find index "+index);
+        if (!characterMap.containsKey(index)) {
+            throw new Exception("can not find index " + index);
         }
         return characterMap.get(index);
     }
@@ -145,7 +123,7 @@ public class Client extends AbstractEngine {
                     Character character = parse(event.getOne());
 
 
-                    upsertCharacter(character,false);
+                    upsertCharacter(character, false);
 
                     character = getCharacterByIndex(event.getOne().getId());
 
@@ -188,7 +166,7 @@ public class Client extends AbstractEngine {
         for (CharacterProto.Character proto : msgProto.getCharacterDataList()) {
             existsId.add(proto.getId());
             Character parse = parse(proto);
-            upsertCharacter(parse,true);
+            upsertCharacter(parse, true);
         }
 
         //默认没有从服务器更新的元素全部置为死亡
@@ -207,7 +185,6 @@ public class Client extends AbstractEngine {
     }
 
 
-
     @Override
     public void update(float delta) {
         super.update(delta);
@@ -218,21 +195,37 @@ public class Client extends AbstractEngine {
     public void restart() {
         super.restart();
         characterMap.clear();
-        characterMap.put(playerA.getId(), playerA);
+        if (Objects.nonNull(playerA))
+            characterMap.put(playerA.getId(), playerA);
     }
-
 
 
     @Override
     public void updateByEvent(Event.OneCharacterEvent event) {
-        super.updateByEvent(event);
-        if (event.getCharacter().getCharacterType()== CharacterType.player
-                || event.getCharacter().getCharacterType()== CharacterType.bullet )
-        switch (event.getEventType()) {
-            case born:
-            case frameEnd:
+        Character character = event.getCharacter();
+        if (event.getCharacter().getCharacterType() == CharacterType.player
+                || event.getCharacter().getCharacterType() == CharacterType.bullet)
+            switch (event.getEventType()) {
+                case born:
+                case frameEnd:
+//                case jump:
+                case moveLeft:
+                    Move move = new Move(character.getId()
+                            , Move.MoveType.moveLeft
+                            , event.getFloatData()
+                            , new VectorProto(character.position.x, character.position.y)
+                            , new VectorProto(character.velocity.x, character.velocity.y));
+                    CharacterOnMsg.MoveOnMessage.me().request(move);
+                case moveRight:
+                     move = new Move(character.getId()
+                            , Move.MoveType.moveRight
+                            , event.getFloatData()
+                            , new VectorProto(character.position.x, character.position.y)
+                            , new VectorProto(character.velocity.x, character.velocity.y));
+                    CharacterOnMsg.MoveOnMessage.me().request(move);
 
-        }
+            }
+        super.updateByEvent(event);
     }
 
     @Override
@@ -251,16 +244,16 @@ public class Client extends AbstractEngine {
     }
 
     public void sync(Event.OneCharacterEvent event) {
-        if (!(event.getCharacter().getCharacterType()== CharacterType.player
-                || event.getCharacter().getCharacterType()== CharacterType.bullet )) return;
+        if (!(event.getCharacter().getCharacterType() == CharacterType.player
+                || event.getCharacter().getCharacterType() == CharacterType.bullet)) return;
         switch (event.getEventType()) {
             case born:
                 protoEvents.add(event.toMsgProtoEvent());
                 break;
             case frameEnd:
                 Group root = (Group) (event.getCharacter());
-                byte[] bytes=null;
-            if(protoEvents.size>0) {
+                byte[] bytes = null;
+                if (protoEvents.size > 0) {
                     MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
                     MsgProto.Msg msg = builder
                             .setId(counter)
@@ -273,12 +266,10 @@ public class Client extends AbstractEngine {
 //                    Gdx.app.log("events", msg.toString());
                 }
 
-                if(bytes==null) return ;
+                if (bytes == null) return;
                 //二次压缩
                 Utils.CompressData compress = Utils.compress(bytes);
                 ByteBuf byteBuf = Unpooled.copiedBuffer(compress.getOutput());
-
-
 
 
                 try {

@@ -37,6 +37,8 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.math.Vector2;
 import org.cbzmq.game.stage.*;
 
+import java.net.URISyntaxException;
+
 /**
  * The controller class for the game. It knows about both the model and view and provides a way for the view to know about events
  * that occur in the model.
@@ -79,6 +81,8 @@ public class GameClient extends Game {
         } catch (InterruptedException e) {
             e.printStackTrace();
             System.exit(-1);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
 
         view = new View(abstractEngine);

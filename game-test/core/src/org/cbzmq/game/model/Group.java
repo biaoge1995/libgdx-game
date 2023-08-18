@@ -5,6 +5,9 @@ import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.stage.AbstractEngine;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * @ClassName Group
  * @Description TODO
@@ -14,6 +17,8 @@ import org.cbzmq.game.stage.AbstractEngine;
  **/
 public class Group<T extends Character> extends Character {
     private final Array<T> children = new Array<>();
+
+    private final Map<Integer,T> childrenMap = new ConcurrentHashMap<>();
     public Group(String name) {
         this.name = name;
     }
@@ -35,6 +40,10 @@ public class Group<T extends Character> extends Character {
                 }
         }
         return true;
+    }
+
+    public T getChildById(int id){
+        return childrenMap.get(id);
     }
 
     @Override
@@ -63,6 +72,7 @@ public class Group<T extends Character> extends Character {
             character.parent.removeCharacter(character, false);
         }
         children.add(character);
+        childrenMap.put(character.getId(),character);
 //        abstractEngine.addListener(character);
         character.setParent(this);
         character.setModel(getModel());
@@ -78,7 +88,8 @@ public class Group<T extends Character> extends Character {
     public boolean removeCharacter(T actor, boolean unfocus) {
         int index = children.indexOf(actor, true);
         if (index == -1) return false;
-        removeActorAt(index, unfocus);
+        Character character = removeActorAt(index, unfocus);
+        childrenMap.remove(character.getId());
         //TODO 移除了一头
         getModel().getQueue().pushCharacterEvent(Event.beRemove(TAG,actor));
         return true;

@@ -79,7 +79,7 @@ public class GameServer extends Game {
 	}
 
 	public void create () {
-		abstractEngine = new GameEngine();
+		abstractEngine =  GameEngine.me();
 		try {
 			udpServer = new UdpServer();
 			abstractEngine.addListener(udpServer);
