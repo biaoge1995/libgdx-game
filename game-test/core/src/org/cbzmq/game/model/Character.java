@@ -464,6 +464,10 @@ public class Character implements Observer {
     public Vector2 getAimPoint() {
         return aimPoint;
     }
+
+    public void setAimPoint(Vector2 aimPoint) {
+        this.aimPoint = aimPoint;
+    }
 }
 
 

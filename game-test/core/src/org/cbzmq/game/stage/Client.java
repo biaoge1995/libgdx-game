@@ -1,23 +1,33 @@
 package org.cbzmq.game.stage;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
+import com.iohao.game.common.kit.StrKit;
+import com.sun.jndi.toolkit.url.Uri;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.util.internal.SocketUtils;
+import lombok.var;
 import org.cbzmq.game.Utils;
-import org.cbzmq.game.enums.OneBodyEventType;
+import org.cbzmq.game.enums.CharacterType;
+import org.cbzmq.game.enums.MsgHeader;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.proto.MsgProto;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft_6455;
+import org.java_websocket.handshake.ServerHandshake;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 
 /**
  * @ClassName RemoteModel
@@ -32,11 +42,24 @@ public class Client extends AbstractEngine {
     final Map<Integer, Character> characterMap = new HashMap<>();
     Channel ch;
     private int msgMaxId = 0;
+    private final Array<MsgProto.Event> protoEvents = new Array<>();
+    private int counter=0;
+    private  WebSocketClient webSocketClient;
+
+    interface GameConfig {
+        /** 对外服务器 port */
+        int externalPort = 10100;
+        /** 对外服务器 ip */
+        String externalIp = "127.0.0.1";
+        /** http 升级 websocket 协议地址 */
+        String websocketPath = "/websocket";
+    }
 
 
-    public Client() throws InterruptedException {
+    public Client() throws InterruptedException, URISyntaxException {
         super();
         restart();
+
         EventLoopGroup group = new NioEventLoopGroup();
 //        try {
         Bootstrap b = new Bootstrap();
@@ -48,6 +71,30 @@ public class Client extends AbstractEngine {
 
         ch = f.channel();
         f.channel().closeFuture();
+        var url = "ws://{}:{}" + GameConfig.websocketPath;
+        var wsUrl = StrKit.format(url, GameConfig.externalIp, GameConfig.externalIp);
+
+        webSocketClient = new WebSocketClient(new URI(wsUrl),new Draft_6455()) {
+            @Override
+            public void onOpen(ServerHandshake handshakedata) {
+
+            }
+
+            @Override
+            public void onMessage(String message) {
+
+            }
+
+            @Override
+            public void onClose(int code, String reason, boolean remote) {
+
+            }
+
+            @Override
+            public void onError(Exception ex) {
+
+            }
+        };
         //如果端口连接不上就关闭监听
         //            ch.closeFuture().await();
         //        }  finally {
@@ -76,6 +123,9 @@ public class Client extends AbstractEngine {
 
         } else if(isUpdateDetail){
             characterMap.get(character.getId()).updateByCharacter(character);
+        }else {
+            characterMap.get(character.getId()).setAimPoint(character.getAimPoint());
+
         }
 
 
@@ -95,7 +145,7 @@ public class Client extends AbstractEngine {
                     Character character = parse(event.getOne());
 
 
-                    upsertCharacter(character,true);
+                    upsertCharacter(character,false);
 
                     character = getCharacterByIndex(event.getOne().getId());
 
@@ -156,6 +206,8 @@ public class Client extends AbstractEngine {
         }
     }
 
+
+
     @Override
     public void update(float delta) {
         super.update(delta);
@@ -166,7 +218,7 @@ public class Client extends AbstractEngine {
     public void restart() {
         super.restart();
         characterMap.clear();
-        characterMap.put(player.getId(),player);
+        characterMap.put(playerA.getId(), playerA);
     }
 
 
@@ -174,6 +226,13 @@ public class Client extends AbstractEngine {
     @Override
     public void updateByEvent(Event.OneCharacterEvent event) {
         super.updateByEvent(event);
+        if (event.getCharacter().getCharacterType()== CharacterType.player
+                || event.getCharacter().getCharacterType()== CharacterType.bullet )
+        switch (event.getEventType()) {
+            case born:
+            case frameEnd:
+
+        }
     }
 
     @Override
@@ -190,6 +249,53 @@ public class Client extends AbstractEngine {
     public void quit() {
 
     }
+
+    public void sync(Event.OneCharacterEvent event) {
+        if (!(event.getCharacter().getCharacterType()== CharacterType.player
+                || event.getCharacter().getCharacterType()== CharacterType.bullet )) return;
+        switch (event.getEventType()) {
+            case born:
+                protoEvents.add(event.toMsgProtoEvent());
+                break;
+            case frameEnd:
+                Group root = (Group) (event.getCharacter());
+                byte[] bytes=null;
+            if(protoEvents.size>0) {
+                    MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
+                    MsgProto.Msg msg = builder
+                            .setId(counter)
+                            .setHeader(MsgHeader.SYNC_CHARACTERS_EVENT)
+                            .addAllEvents(protoEvents)
+                            .setTimeStamp(new Date().getTime())
+                            .build();
+
+                    bytes = msg.toByteArray();
+//                    Gdx.app.log("events", msg.toString());
+                }
+
+                if(bytes==null) return ;
+                //二次压缩
+                Utils.CompressData compress = Utils.compress(bytes);
+                ByteBuf byteBuf = Unpooled.copiedBuffer(compress.getOutput());
+
+
+
+
+                try {
+                    ch.writeAndFlush(new DatagramPacket(
+                            byteBuf,
+//                            SocketUtils.socketAddress("127.0.0.1", 8088)
+                            SocketUtils.socketAddress("192.168.2.145", 8088)
+                    )).sync();
+                    counter++;
+                    protoEvents.clear();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+        }
+    }
+
 
 }
 
@@ -225,4 +331,6 @@ class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         cause.printStackTrace();
         ctx.close();
     }
+
+
 }

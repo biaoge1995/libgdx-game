@@ -71,6 +71,7 @@ public class View extends Stage {
     public OrthoCachedTiledMapRenderer mapRenderer;
     public Assets assets;
     public UI ui;
+    private boolean isObservationMode;
 
     Vector2 mouse = new Vector2();
 //    Group playerGroup;
@@ -87,6 +88,7 @@ public class View extends Stage {
                 , GameCamera.cameraHeight
                 , camera);
         actorFactory = new ActorFactoryImp();
+
 
         setViewport(viewport);
 
@@ -126,7 +128,7 @@ public class View extends Stage {
             }
 
         });
-        restart();
+//        restart();
     }
 
     public void gameRestart() {
@@ -137,13 +139,21 @@ public class View extends Stage {
     private void restart() {
 
         clear();
-        player = abstractEngine.getPlayer();
-        playerView = new PlayerActor(player);
-        addActor(playerView);
-        camera.lookahead = 0;
-        playerView.setShootPressed(false);
+        abstractEngine.join(new Player(),new AbstractEngine.Address("127.0.0.1",8888));
+        player = abstractEngine.getPlayerA();
+        if(player!=null){
+            playerView = new PlayerActor(player);
+            addActor(playerView);
+            camera.lookahead = 0;
+            playerView.setShootPressed(false);
+        }
 
 
+
+    }
+
+    public void setObservationMode(boolean observationMode) {
+        isObservationMode = observationMode;
     }
 
     public void eventGameOver(boolean win) {
@@ -170,11 +180,13 @@ public class View extends Stage {
     @Override
     public void act(float delta) {
         super.act(delta);
+
+        if (abstractEngine.isGameOver()) eventGameOver(abstractEngine.isPlayerWin());
+        if(player==null) return;
+        if(!isObservationMode) updateAimPoint();
         updateInput(delta);
         updateCamera(delta);
-        if (abstractEngine.isGameOver()) eventGameOver(abstractEngine.isPlayerWin());
 
-        updateAimPoint();
     }
 
     @Override
@@ -220,8 +232,7 @@ public class View extends Stage {
     }
 
     public void updateInput(float delta) {
-
-
+        if(playerView==null) return;
         if (playerView.isLeftPressed()) {
             //TODO
             abstractEngine.updateByEvent(Event.moveLeft(TAG,player, delta));
@@ -244,7 +255,8 @@ public class View extends Stage {
     }
 
     public void updateCamera(float delta) {
-        if (player.hp > 0) {
+        if(player==null) return;
+        if ( player.hp > 0) {
             // Reduce camera lookahead based on distance of enemies behind the player.
             float enemyBehindDistance = 0;
             for (int i = 0; i < abstractEngine.getEnemies().size; i++) {
@@ -306,26 +318,29 @@ public class View extends Stage {
 
     public void resize(int width, int height) {
         viewport.update(width, height);
-        camera.position.x = player.position.x;
-        camera.position.y = player.position.y + viewport.getWorldHeight() / 2 - GameCamera.cameraBottom;
+        if(player!=null){
+            camera.position.x = player.position.x;
+            camera.position.y = player.position.y + viewport.getWorldHeight() / 2 - GameCamera.cameraBottom;
+        }
         mapRenderer.setView(camera);
         ui.resize(width, height);
     }
 
 
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-//        playerView.setAimPoint(screenX, screenY);
+        if(playerView!=null)
         playerView.setShootPressed(true);
-//        playerView.shoot();
         return true;
     }
 
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        if(playerView!=null)
         playerView.setShootPressed(false);
         return true;
     }
 
     public boolean keyDown(int keycode) {
+        if(playerView!=null)
         switch (keycode) {
             case Keys.W:
             case Keys.UP:
@@ -345,6 +360,7 @@ public class View extends Stage {
     }
 
     public boolean keyUp(int keycode) {
+        if(playerView!=null)
         switch (keycode) {
             case Keys.W:
             case Keys.UP:

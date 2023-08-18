@@ -299,16 +299,21 @@ public class UI extends Stage {
         super.draw();
         Batch batch = getBatch();
         batch.setColor(Color.WHITE);
-        batch.begin();
-        int y = Gdx.input.getY();
-        int x = Gdx.input.getX();
-        Vector2 cursor = this.screenToStageCoordinates(temp.set(x,y));
-        Vector2 aimPoint = view.player.getAimPoint();
-        Vector2 screen = new Vector2(aimPoint);
-         screen = view.getViewport().project(screen);
-        TextureRegion crosshair = view.assets.crosshair;
-        batch.draw(crosshair, screen.x - crosshair.getRegionWidth() / 2, screen.y - crosshair.getRegionHeight() / 2 + 2);
-        batch.end();
+
+        if(view.player!=null){
+            batch.begin();
+            int y = Gdx.input.getY();
+            int x = Gdx.input.getX();
+            Vector2 cursor = this.screenToStageCoordinates(temp.set(x,y));
+            Vector2 aimPoint = view.player.getAimPoint();
+            Vector2 screen = new Vector2(aimPoint);
+            screen = view.getViewport().project(screen);
+            TextureRegion crosshair = view.assets.crosshair;
+            batch.draw(crosshair, screen.x - crosshair.getRegionWidth() / 2, screen.y - crosshair.getRegionHeight() / 2 + 2);
+            batch.end();
+
+        }
+
     }
 
     @Override
@@ -347,7 +352,7 @@ public class UI extends Stage {
             shapes.end();
         }
 
-        healthBar.setValue(Player.hpStart - abstractEngine.getPlayer().hp);
+        healthBar.setValue(Player.hpStart - ((abstractEngine.getPlayerA()==null)?0:abstractEngine.getPlayerA().hp));
 
         SpriteCache spriteCache = view.mapRenderer.getSpriteCache();
         int renderCalls = view.batch.totalRenderCalls + spriteCache.totalRenderCalls;

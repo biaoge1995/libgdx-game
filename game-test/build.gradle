@@ -20,6 +20,7 @@ buildscript {
     }
 }
 
+
 allprojects {
     apply plugin: "eclipse"
 
@@ -36,6 +37,8 @@ allprojects {
         spineVersion = '3.7.94.1'
         nettyVersion = '4.1.52.Final'
         protobufVersion = '2.5.0'
+        ioGameVersion = '17.1.52'
+        javaWebsocketVersion = '1.5.2'
     }
 
     repositories {
@@ -86,6 +89,10 @@ project(":core") {
         api "com.esotericsoftware.spine:spine-libgdx:$spineVersion"
         api "io.netty:netty-all:$nettyVersion"
         api "com.google.protobuf:protobuf-java:${protobufVersion}"
+        api "com.iohao.game:bolt-run-one:${ioGameVersion}"
+        api "com.iohao.game:light-client:${ioGameVersion}"
+        api "com.iohao.game:run-one-netty:${ioGameVersion}"
+        api "org.java-websocket:Java-WebSocket:${javaWebsocketVersion}"
 
     }
 }

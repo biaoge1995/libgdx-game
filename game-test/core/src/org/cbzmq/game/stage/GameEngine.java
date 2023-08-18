@@ -31,7 +31,6 @@
 package org.cbzmq.game.stage;
 
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.enums.CharacterState;
@@ -161,13 +160,17 @@ public class GameEngine extends AbstractEngine {
     public void updateTriggers() {
         for (int i = 0, n = triggers.size; i < n; i++) {
             Trigger trigger = triggers.get(i);
-            if (player.position.x > trigger.x) {
-                for (Enemy enemy : trigger.enemies) {
-                    enemyGroup.addCharacter(enemy);
+
+            for (Character child : playerGroup.getChildren()) {
+                if (child.position.x > trigger.x) {
+                    for (Enemy enemy : trigger.enemies) {
+                        enemyGroup.addCharacter(enemy);
+                    }
+                    triggers.removeIndex(i);
+                    break;
                 }
-                triggers.removeIndex(i);
-                break;
             }
+
         }
     }
 
@@ -179,7 +182,7 @@ public class GameEngine extends AbstractEngine {
         for (int i = enemyGroup.getChildren().size - 1; i >= 0; i--) {
             Enemy enemy = enemyGroup.getChildren().get(i);
             //怪物胜利
-            if (player.hp == 0 && enemy.hp > 0) {
+            if (playerA.hp == 0 && enemy.hp > 0) {
                 gameResult(false);
                 break;
             }
@@ -187,8 +190,8 @@ public class GameEngine extends AbstractEngine {
                 alive++;
             }
             //设置攻击目标
-            if (enemy.hp > 0 && player.hp > 0) {
-                enemy.setTargetPosition(player.position);
+            if (enemy.hp > 0 && playerA.hp > 0) {
+                enemy.setTargetPosition(playerA.position);
             }
 
             //产生小怪物

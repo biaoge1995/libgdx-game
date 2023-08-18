@@ -82,6 +82,7 @@ public class GameClient extends Game {
         }
 
         view = new View(abstractEngine);
+        view.setObservationMode(false);
 //		view.gameRestart();
         screen = new Screen(view, view.ui);
         setScreen(screen);
