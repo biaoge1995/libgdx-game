@@ -95,7 +95,7 @@ public class ChenbiaoLogicServer extends AbstractBrokerClientStartup {
     public static void main(String[] args) {
         ChenbiaoLogicServer chenbiaoLogicServer = new ChenbiaoLogicServer();
         new NettyRunOne().setExternalServerList(List.of(
-                createExternalServer(ExternalJoinEnum.TCP),
+//                createExternalServer(ExternalJoinEnum.TCP),
                 createExternalServer(ExternalJoinEnum.WEBSOCKET)
 //                createExternalServer(ExternalJoinEnum.UDP)
         )).setLogicServerList(List.of(chenbiaoLogicServer)).startup();

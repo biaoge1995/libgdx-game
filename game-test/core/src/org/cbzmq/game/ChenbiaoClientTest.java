@@ -26,10 +26,11 @@ public class ChenbiaoClientTest extends AbstractInputCommandRegion {
     public void initInputCommand() {
         inputCommandCreate.cmd = 2;
         Player player = new Player();
+        player.setId(2);
         long start = System.currentTimeMillis();
         Move move = new Move(player.id
-                , Move.MoveType.moveLeft
-                , 0.1f
+                , Move.MoveType.moveRight
+                , 1f
                 , new VectorProto(player.position.x,player.position.y)
                 , new VectorProto(player.velocity.x,player.velocity.y));
 
@@ -43,13 +44,13 @@ public class ChenbiaoClientTest extends AbstractInputCommandRegion {
 
         ChenbiaoLogicServer.Msg msg = new ChenbiaoLogicServer.Msg();
         msg.name = "彪哥";
-        ofCommand(2).callback(Msg.class, result -> {
+        ofCommand(9).callback(ChenbiaoLogicServer.Msg.class, result -> {
             ChenbiaoLogicServer.Msg msg2 = result.getValue();
             long end = System.currentTimeMillis();
             System.out.println("耗时"+(end-start));
-            System.out.println(msg2);
+            System.out.println(msg2.name);
 
-        }).setDescription("请求 move").setRequestData(msg);
+        }).setDescription("请求 login").setRequestData(msg);
     }
 
 

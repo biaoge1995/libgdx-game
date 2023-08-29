@@ -7,6 +7,7 @@ import org.cbzmq.game.logic.GameCmd;
 import org.cbzmq.game.logic.OnMessage;
 import org.cbzmq.game.logic.UserCmd;
 import org.cbzmq.game.model.Character;
+import org.cbzmq.game.net.Client;
 import org.cbzmq.game.proto.Move;
 import org.cbzmq.game.proto.UserLogin;
 import org.cbzmq.game.proto.VectorProto;
@@ -52,12 +53,14 @@ public class CharacterOnMsg {
                     , new VectorProto(character.position.x,character.position.y)
                     , new VectorProto(character.velocity.x,character.velocity.y));
             OnMessage.super.request(move);
-            System.out.println("移动msg"+move);
+//            System.out.println("移动msg"+move);
         }
 
         @Override
         public Move response(ExternalMessage externalMessage, byte[] data) {
             Move move = DataCodecKit.decode(data, Move.class);
+            Character childById = Client.me().playerGroup.getChildById(move.id);
+            childById.updatePosition(move);
             return move;
         }
 

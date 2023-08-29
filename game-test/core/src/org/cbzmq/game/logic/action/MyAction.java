@@ -15,27 +15,27 @@ import java.util.Objects;
 @ActionController(GameCmd.cmd)
 public class MyAction {
 
+    @ActionMethod(9)
+    public Msg login2(Msg msg) {
 
+        msg.name = "逻辑服务已经收到你的请求，感谢";
+        return msg;
+    }
 
     @ActionMethod(GameCmd.move)
-    public Move move(Move move) {
-        int id = move.id;
-        Move.MoveType moveType = move.moveType;
-        float time = move.getTime();
-        Character childById = GameLogicEngine.me().root.getChildById(id);
+    public Move move(Move moveData) {
+        int id = moveData.id;
+        Move.MoveType moveType = moveData.moveType;
+        GameLogicEngine me = GameLogicEngine.me();
+        Character childById = me.playerGroup.getChildById(id);
         System.out.println("收到请求");
         if (Objects.nonNull(childById)) {
             switch (moveType) {
                 case moveLeft:
-                    Event.OneCharacterEvent event = Event.OneCharacterEvent.createEvent("", OneBodyEventType.moveLeft, childById);
-                    event.setFloatData(time);
-                    GameLogicEngine.me().updateByEvent(event);
-                    return move;
                 case moveRight:
-                    event = Event.OneCharacterEvent.createEvent("", OneBodyEventType.moveRight, childById);
-                    event.setFloatData(time);
-                    GameLogicEngine.me().updateByEvent(event);
-                    return move;
+                case jump:
+                   return childById.move(moveData);
+
             }
 
         }

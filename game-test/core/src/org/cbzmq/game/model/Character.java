@@ -9,6 +9,7 @@ import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.proto.CharacterProto;
 import org.cbzmq.game.logic.AbstractLogicEngine;
+import org.cbzmq.game.proto.Move;
 
 
 /**
@@ -144,6 +145,45 @@ public class Character implements Observer {
 
     public void setWin(boolean win) {
         isWin = win;
+    }
+
+    public void updatePosition(Move move) {
+        position.set(move.position.x, move.position.y);
+        velocity.set(move.velocity.x, move.velocity.y);
+        switch (move.moveType) {
+            case moveLeft:
+                moveLeft(move.getTime());
+                break;
+            case moveRight:
+                moveRight(move.getTime());
+                break;
+            case jump:
+                jump();
+                break;
+        }
+//        velocity.set(move.velocity.x, move.velocity.y);
+    }
+
+    public Move move(Move move) {
+//        position.set( move.position.x, move.position.y);
+//        velocity.set( move.velocity.x, move.velocity.y);
+        switch (move.moveType) {
+            case moveLeft:
+                moveLeft(move.getTime());
+                break;
+            case moveRight:
+                moveRight(move.getTime());
+                break;
+            case jump:
+                jump();
+                break;
+        }
+        move.position.x = position.x;
+        move.position.y = position.y;
+        move.velocity.x = velocity.x;
+        move.velocity.y = velocity.y;
+        return move;
+
     }
 
     @Override
@@ -283,10 +323,6 @@ public class Character implements Observer {
     }
 
 
-
-
-
-
     public static <T extends Character> void copyToSon(Character father, T son) {
         son.id = father.id;
 //        son.name = father.name;
@@ -315,7 +351,8 @@ public class Character implements Observer {
         character.setId(proto.getId());
         character.position.set(proto.getPosition().getX(), proto.getPosition().getY());
         character.velocity.set(proto.getVelocity().getX(), proto.getVelocity().getY());
-        character.setState(proto.getState()); ;
+        character.setState(proto.getState());
+        ;
         character.dir = proto.getDir();
         character.rect.set(proto.getRect().getX(), proto.getRect().getY(), proto.getRect().getWidth(), proto.getRect().getHeight());
         character.hp = proto.getHp();
@@ -352,7 +389,6 @@ public class Character implements Observer {
 
         return builder;
     }
-
 
 
     public <T extends Character> void updateByCharacter(T character) {
@@ -418,8 +454,6 @@ public class Character implements Observer {
     public String toString() {
         return name + getId();
     }
-
-
 
 
     public CharacterType getCharacterType() {

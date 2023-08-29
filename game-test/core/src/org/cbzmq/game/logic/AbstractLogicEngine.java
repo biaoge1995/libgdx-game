@@ -69,12 +69,12 @@ public abstract class AbstractLogicEngine {
 //        }
 //    }
 
-    public AbstractLogicEngine() {
-        this(null);
+    public AbstractLogicEngine(boolean isClient) {
+        this(null, isClient);
         this.isNetworkingMode = false;
     }
 
-    public AbstractLogicEngine(Channel broadcastChl) {
+    public AbstractLogicEngine(Channel broadcastChl,boolean isClient) {
         this.isNetworkingMode = true;
 //        this.clientAddressList = new ArrayList<>(maxPlayerNum);
         this.assets = new Assets();
@@ -90,6 +90,7 @@ public abstract class AbstractLogicEngine {
                 .setMap(map)
                 .setCollisionLayer(collisionLayer)
                 .setRoot(container)
+                .setClient(isClient)
                 .setGameEngine(this)
                 .build();
         enemyGroup = new Group<>("enemyGroup");

@@ -34,6 +34,7 @@ package org.cbzmq.game.logic;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
@@ -61,6 +62,9 @@ public class Physic2DEngine {
     //是否开启同组内不检测碰撞
     private boolean isGroupNoCollision = true;
     private final AbstractLogicEngine abstractLogicEngine;
+    private Vector2 tmp = new Vector2();
+
+    private boolean isClient=false;
 
     static class Builder {
 
@@ -70,12 +74,19 @@ public class Physic2DEngine {
         private Assets assets;
         private Map map;
         private TiledMapTileLayer collisionLayer;
+        private boolean isClient=false;
         //是否开启同组内不检测碰撞
         private boolean isGroupNoCollision = true;
         private AbstractLogicEngine abstractLogicEngine;
 
         Physic2DEngine build() {
             return new Physic2DEngine(this);
+        }
+
+
+        public Builder setClient(boolean client) {
+            isClient = client;
+            return this;
         }
 
         public Builder setRoot(Array<? extends Character> root) {
@@ -119,6 +130,7 @@ public class Physic2DEngine {
         this.container = builder.container;
         this.assets = builder.assets;
         this.map = builder.map;
+        this.isClient = builder.isClient;
         this.collisionLayer = builder.collisionLayer;
         this.isGroupNoCollision = builder.isGroupNoCollision;
         this.abstractLogicEngine = builder.abstractLogicEngine;
@@ -174,17 +186,18 @@ public class Physic2DEngine {
 
         }
         //s=v * delta 该段时间内位移的距离
-        character.velocity.scl(delta); // Change velocity from units/sec to units since last frame.
-        boolean isCollideMapX = collideMapX(character);
-        boolean isCollideMapY = collideMapY(character);
+//        character.velocity.scl(delta); // Change velocity from units/sec to units since last frame.
+        tmp.set(character.velocity).scl(delta);
+        boolean isCollideMapX = collideMapX(character,tmp);
+        boolean isCollideMapY = collideMapY(character,tmp);
         if (isCollideMapX) {
             character.collideMapX();
         }
         if (isCollideMapY) {
             character.collideMapY();
         }
-        character.position.add(character.velocity);
-        character.velocity.scl(1 / delta); // Change velocity back.
+        if(!isClient)  character.position.add(tmp);
+//        character.velocity.scl(1 / delta); // Change velocity back.
 
     }
 
@@ -194,8 +207,8 @@ public class Physic2DEngine {
      * @param character
      * @return
      */
-    private boolean collideMapX(Character character) {
-        character.rect.x = character.position.x + character.velocity.x;
+    private boolean collideMapX(Character character,Vector2 delta) {
+        character.rect.x = character.position.x + delta.x;
         character.rect.y = character.position.y + character.collisionOffsetY;
 
         int x;
@@ -215,6 +228,8 @@ public class Physic2DEngine {
             else
                 character.position.x = tile.x + tile.width;
             character.velocity.x *= collideDampingX;
+            tmp.x *= collideDampingX;
+
             return true;
         }
         return false;
@@ -226,9 +241,9 @@ public class Physic2DEngine {
      * @param character
      * @return
      */
-    private boolean collideMapY(Character character) {
+    private boolean collideMapY(Character character,Vector2 delta) {
         character.rect.x = character.position.x;
-        character.rect.y = character.position.y + character.velocity.y + character.collisionOffsetY;
+        character.rect.y = character.position.y + delta.y + character.collisionOffsetY;
 
         int y;
         if (character.velocity.y > 0)
@@ -248,6 +263,7 @@ public class Physic2DEngine {
                 character.setGrounded(true);
             }
             character.velocity.y = 0;
+            tmp.y = 0;
             return true;
         }
         return false;

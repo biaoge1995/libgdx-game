@@ -51,7 +51,7 @@ public class GameLogicEngine extends AbstractLogicEngine {
     Array<Trigger> triggers;
 
     private GameLogicEngine() {
-        super();
+        super(false);
         triggers = new Array<>();
         restart();
     }

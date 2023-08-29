@@ -79,16 +79,11 @@ public class GameClient extends Game {
     }
 
     public void create() {
-        try {
-            abstractLogicEngine = new Client();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
 
-        view = new View(abstractLogicEngine);
+        abstractLogicEngine =  Client.me();
+
+
+        view = new View(abstractLogicEngine, true);
         view.setObservationMode(false);
 //		view.gameRestart();
         screen = new Screen(view, view.ui);

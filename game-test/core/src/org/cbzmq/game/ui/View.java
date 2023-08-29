@@ -60,7 +60,7 @@ public class View extends Stage {
     public static int[] mapForegroundLayers4 = {7, 8, 9};
     public static int[] mapForegroundLayers5 = {11};
     public static final String TAG = View.class.getName();
-    
+
     ActorFactory actorFactory;
 
     public AbstractLogicEngine abstractLogicEngine;
@@ -74,14 +74,17 @@ public class View extends Stage {
     public UI ui;
     private boolean isObservationMode;
 
+    private boolean isClient = false;
+
     Vector2 mouse = new Vector2();
 //    Group playerGroup;
 //    Group enemyGroup;
 //    Group bulletGroup;
 
 
-    public View(AbstractLogicEngine abstractLogicEngine) {
+    public View(AbstractLogicEngine abstractLogicEngine, boolean isClient) {
         camera = new GameCamera();
+        this.isClient = isClient;
         batch = (SpriteBatch) getBatch();
         viewport = new ExtendViewport(GameCamera.cameraMinWidth
                 , GameCamera.cameraHeight
@@ -142,13 +145,12 @@ public class View extends Stage {
         clear();
         abstractLogicEngine.join(new Player());
         player = abstractLogicEngine.getPlayerA();
-        if(player!=null){
+        if (player != null) {
             playerView = new PlayerActor(player);
             addActor(playerView);
             camera.lookahead = 0;
             playerView.setShootPressed(false);
         }
-
 
 
     }
@@ -183,8 +185,8 @@ public class View extends Stage {
         super.act(delta);
 
         if (abstractLogicEngine.isGameOver()) eventGameOver(abstractLogicEngine.isPlayerWin());
-        if(player==null) return;
-        if(!isObservationMode) updateAimPoint();
+        if (player == null) return;
+        if (!isObservationMode) updateAimPoint();
         updateInput(delta);
         updateCamera(delta);
 
@@ -229,19 +231,22 @@ public class View extends Stage {
         //将指定的屏幕坐标系转换为世界坐标系
         getViewport().unproject(mouse);
 
-        abstractLogicEngine.updateByEvent(Event.aimPoint(TAG,player, mouse));
+        abstractLogicEngine.updateByEvent(Event.aimPoint(TAG, player, mouse));
     }
 
     public void updateInput(float delta) {
-        if(playerView==null) return;
+        if (playerView == null) return;
         if (playerView.isLeftPressed()) {
             //TODO
-            abstractLogicEngine.updateByEvent(Event.moveLeft(TAG,player, delta));
-            CharacterOnMsg.MoveOnMessage.me().request(player, Move.MoveType.moveLeft,delta);
+
+            if (isClient) CharacterOnMsg.MoveOnMessage.me().request(player, Move.MoveType.moveLeft, delta);
+            else abstractLogicEngine.updateByEvent(Event.moveLeft(TAG, player, delta));
+
         } else if (playerView.isRightPressed()) {
             //TODO
-            abstractLogicEngine.updateByEvent(Event.moveRight(TAG,player, delta));
-            CharacterOnMsg.MoveOnMessage.me().request(player, Move.MoveType.moveRight,delta);
+
+            if (isClient) CharacterOnMsg.MoveOnMessage.me().request(player, Move.MoveType.moveRight, delta);
+            else abstractLogicEngine.updateByEvent(Event.moveRight(TAG, player, delta));
         } else if (player.state == CharacterState.running) {
             //TODO
 //            model.onCharacterEvent(Event.stateUpdate(TAG,player, CharacterState.idle));
@@ -250,7 +255,7 @@ public class View extends Stage {
 
         if (playerView.isShootPressed()) {
             if (abstractLogicEngine.getQueue() != null && playerView.shoot()) {
-                abstractLogicEngine.updateByEvent(Event.attack(TAG,player));
+                abstractLogicEngine.updateByEvent(Event.attack(TAG, player));
 
             }
         }
@@ -258,8 +263,8 @@ public class View extends Stage {
     }
 
     public void updateCamera(float delta) {
-        if(player==null) return;
-        if ( player.hp > 0) {
+        if (player == null) return;
+        if (player.hp > 0) {
             // Reduce camera lookahead based on distance of enemies behind the player.
             float enemyBehindDistance = 0;
             for (int i = 0; i < abstractLogicEngine.getEnemies().size; i++) {
@@ -321,7 +326,7 @@ public class View extends Stage {
 
     public void resize(int width, int height) {
         viewport.update(width, height);
-        if(player!=null){
+        if (player != null) {
             camera.position.x = player.position.x;
             camera.position.y = player.position.y + viewport.getWorldHeight() / 2 - GameCamera.cameraBottom;
         }
@@ -331,58 +336,59 @@ public class View extends Stage {
 
 
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if(playerView!=null)
-        playerView.setShootPressed(true);
+        if (playerView != null)
+            playerView.setShootPressed(true);
         return true;
     }
 
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        if(playerView!=null)
-        playerView.setShootPressed(false);
+        if (playerView != null)
+            playerView.setShootPressed(false);
         return true;
     }
 
     public boolean keyDown(int keycode) {
-        if(playerView!=null)
-        switch (keycode) {
-            case Keys.W:
-            case Keys.UP:
-            case Keys.SPACE:
-                abstractLogicEngine.updateByEvent(Event.jump(TAG,player));
-                return true;
-            case Keys.A:
-            case Keys.LEFT:
-                playerView.setLeftPressed(true);
-                return true;
-            case Keys.D:
-            case Keys.RIGHT:
-                playerView.setRightPressed(true);
-                return true;
-        }
+        if (playerView != null)
+            switch (keycode) {
+                case Keys.W:
+                case Keys.UP:
+                case Keys.SPACE:
+                    abstractLogicEngine.updateByEvent(Event.jump(TAG, player));
+                    if (isClient) CharacterOnMsg.MoveOnMessage.me().request(player, Move.MoveType.jump, 0f);
+                    return true;
+                case Keys.A:
+                case Keys.LEFT:
+                    playerView.setLeftPressed(true);
+                    return true;
+                case Keys.D:
+                case Keys.RIGHT:
+                    playerView.setRightPressed(true);
+                    return true;
+            }
         return false;
     }
 
     public boolean keyUp(int keycode) {
-        if(playerView!=null)
-        switch (keycode) {
-            case Keys.W:
-            case Keys.UP:
-            case Keys.SPACE:
-                if (player.hp == 0) return false;
-                // Releasing jump on the way up reduces jump height.
-                //如果快速松开空格时候可以实现小的跳跃，长时间按空格可以大跳
-                abstractLogicEngine.updateByEvent(Event.jumpDamping(TAG,player));
-                playerView.setJumpPressed(false);
-                return true;
-            case Keys.A:
-            case Keys.LEFT:
-                playerView.setLeftPressed(false);
-                return true;
-            case Keys.D:
-            case Keys.RIGHT:
-                playerView.setRightPressed(false);
-                return true;
-        }
+        if (playerView != null)
+            switch (keycode) {
+                case Keys.W:
+                case Keys.UP:
+                case Keys.SPACE:
+                    if (player.hp == 0) return false;
+                    // Releasing jump on the way up reduces jump height.
+                    //如果快速松开空格时候可以实现小的跳跃，长时间按空格可以大跳
+                    abstractLogicEngine.updateByEvent(Event.jumpDamping(TAG, player));
+                    playerView.setJumpPressed(false);
+                    return true;
+                case Keys.A:
+                case Keys.LEFT:
+                    playerView.setLeftPressed(false);
+                    return true;
+                case Keys.D:
+                case Keys.RIGHT:
+                    playerView.setRightPressed(false);
+                    return true;
+            }
         return false;
     }
 

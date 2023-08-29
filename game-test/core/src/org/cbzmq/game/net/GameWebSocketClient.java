@@ -50,7 +50,7 @@ public class GameWebSocketClient {
     public void start() throws URISyntaxException {
         String url = "ws://{}:{}" + GameConfig.websocketPath;
         String wsUrl = StrKit.format(url, GameConfig.externalIp, GameConfig.externalPort);
-
+        initOnMessage();
         webSocketClient = new WebSocketClient(new URI(wsUrl),new Draft_6455()) {
             @Override
             public void onOpen(ServerHandshake handshakedata) {
@@ -86,9 +86,9 @@ public class GameWebSocketClient {
                     Object response = onMessage.response(message, message.getData());
 
                     String onMessageName = onMessage.getClass().getSimpleName();
-                    log.info("client 收到消息{}-{}-{} {}  \n{}", cmd, subCmd, cmdMerge, onMessageName, response);
+                    System.out.println(response);
                 }else {
-                    log.info("不存在处理类 onMessage: ");
+                    log.debug("不存在处理类 onMessage: ");
                 }
 
 

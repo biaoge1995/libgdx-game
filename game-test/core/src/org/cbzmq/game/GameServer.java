@@ -91,7 +91,7 @@ public class GameServer extends Game {
 			System.exit(-1);
 		}
 
-		view = new View(abstractLogicEngine);
+		view = new View(abstractLogicEngine,false);
 //		view.gameRestart();
 		screen = new Screen(view, view.ui);
 		setScreen(screen);

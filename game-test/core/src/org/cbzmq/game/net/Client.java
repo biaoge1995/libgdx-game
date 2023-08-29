@@ -13,6 +13,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.SocketUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.cbzmq.game.logic.CharacterOnMsg;
+import org.cbzmq.game.logic.GameLogicEngine;
 import org.cbzmq.game.logic.Utils;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.enums.MsgHeader;
@@ -45,25 +46,25 @@ public class Client extends AbstractLogicEngine {
     private int msgMaxId = 0;
     private final Array<MsgProto.Event> protoEvents = new Array<>();
     private int counter = 0;
-    private WebSocketClient webSocketClient;
 
 
-    public Client() throws InterruptedException, URISyntaxException {
-        super();
+
+    private Client() {
+        super(true);
         restart();
-
-        EventLoopGroup group = new NioEventLoopGroup();
-//        try {
-        Bootstrap b = new Bootstrap();
-        b.group(group)
-                .channel(NioDatagramChannel.class)
-                .option(ChannelOption.SO_BROADCAST, true)
-                .handler(new UdpClientHandler(this));
-        ChannelFuture f = b.bind(8088).sync();
-
-        ch = f.channel();
-        f.channel().closeFuture();
-
+//
+//        EventLoopGroup group = new NioEventLoopGroup();
+////        try {
+//        Bootstrap b = new Bootstrap();
+//        b.group(group)
+//                .channel(NioDatagramChannel.class)
+//                .option(ChannelOption.SO_BROADCAST, true)
+//                .handler(new UdpClientHandler(this));
+//        ChannelFuture f = b.bind(8088).sync();
+//
+//        ch = f.channel();
+//        f.channel().closeFuture();
+//
         try {
             GameWebSocketClient.me().start();
         } catch (Exception e) {
@@ -188,6 +189,7 @@ public class Client extends AbstractLogicEngine {
 
     @Override
     public void update(float delta) {
+
         super.update(delta);
         super.frameEnd(delta);
     }
@@ -288,7 +290,12 @@ public class Client extends AbstractLogicEngine {
         }
     }
 
-
+    public static Client me() {
+        return Holder.ME;
+    }
+    public static class Holder {
+        static final Client ME= new Client();
+    }
 }
 
 
@@ -323,6 +330,8 @@ class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         cause.printStackTrace();
         ctx.close();
     }
+
+
 
 
 }

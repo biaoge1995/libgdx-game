@@ -11,21 +11,15 @@ import com.iohao.game.external.core.netty.simple.NettyRunOne;
 import java.util.List;
 
 public class GameOne {
-    public static void main(String[] args) {
+
+
+    public void start(){
         GameStartUp gameStartUp = new GameStartUp();
         new NettyRunOne().setExternalServerList(List.of(
-                createExternalServer(ExternalJoinEnum.TCP),
+//                createExternalServer(ExternalJoinEnum.TCP),
                 createExternalServer(ExternalJoinEnum.WEBSOCKET)
 //                createExternalServer(ExternalJoinEnum.UDP)
         )).setLogicServerList(List.of(gameStartUp)).startup();
-    }
-
-    public void start(){
-        List<AbstractBrokerClientStartup> gameStartUps = List.of(new GameStartUp());
-        new NettyRunOne()
-                .setExternalServer(new GameExternalBoot().createExternalServer())
-                .setLogicServerList(gameStartUps)
-                .startup();
     }
 
     static ExternalServer createExternalServer(ExternalJoinEnum joinEnum){
@@ -38,8 +32,6 @@ public class GameOne {
                 .externalJoinEnum(joinEnum)
                 // 与 Broker （游戏网关）的连接地址
                 .brokerAddress(new BrokerAddress("127.0.0.1", IoGameGlobalConfig.brokerPort));
-
-//        ExternalServer externalServer = ExternalServerCreateKit.createExternalServer(externalCorePort, joinEnum);
         return builder.build();
     }
 }
