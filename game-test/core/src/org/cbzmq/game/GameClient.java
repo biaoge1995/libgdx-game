@@ -35,7 +35,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.math.Vector2;
-import org.cbzmq.game.stage.*;
+import org.cbzmq.game.logic.AbstractLogicEngine;
+import org.cbzmq.game.net.*;
+import org.cbzmq.game.ui.UI;
+import org.cbzmq.game.ui.View;
 
 import java.net.URISyntaxException;
 
@@ -49,7 +52,7 @@ public class GameClient extends Game {
     static Vector2 temp = new Vector2();
 
     View view;
-    AbstractEngine abstractEngine;
+    AbstractLogicEngine abstractLogicEngine;
     Screen screen;
 
     float time;
@@ -77,7 +80,7 @@ public class GameClient extends Game {
 
     public void create() {
         try {
-            abstractEngine = new Client();
+            abstractLogicEngine = new Client();
         } catch (InterruptedException e) {
             e.printStackTrace();
             System.exit(-1);
@@ -85,7 +88,7 @@ public class GameClient extends Game {
             throw new RuntimeException(e);
         }
 
-        view = new View(abstractEngine);
+        view = new View(abstractLogicEngine);
         view.setObservationMode(false);
 //		view.gameRestart();
         screen = new Screen(view, view.ui);
@@ -95,13 +98,13 @@ public class GameClient extends Game {
     }
 
     public void render() {
-        float delta = Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f) * abstractEngine.getTimeScale();
+        float delta = Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f) * abstractLogicEngine.getTimeScale();
         time += delta;
 //		if ((int)time%2==0) {
 //			model.update(delta);0
 //		}
         if (delta > 0) {
-            abstractEngine.update(delta);
+            abstractLogicEngine.update(delta);
         }
         super.render();
     }

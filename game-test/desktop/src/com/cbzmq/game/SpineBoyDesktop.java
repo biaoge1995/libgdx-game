@@ -75,7 +75,7 @@ public class SpineBoyDesktop {
         System.out.println("当前程序所在目录：" + System.getProperty("user.dir")); // 当前程序所在目录
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setTitle("Super Spineboy");
-        float scale = 0.4f;
+        float scale = 0.2f;
         config.setWindowedMode((int)(800*scale),(int)(450*scale));
         new Lwjgl3Application(new GameServer(), config);
     }

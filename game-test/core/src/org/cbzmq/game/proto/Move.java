@@ -41,6 +41,8 @@ public class Move {
         this.velocity = velocity;
     }
 
+
+
     @ProtobufClass
     @FieldDefaults(level = AccessLevel.PUBLIC)
     public enum MoveType {

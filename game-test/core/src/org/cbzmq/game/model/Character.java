@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.Null;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.proto.CharacterProto;
-import org.cbzmq.game.stage.AbstractEngine;
+import org.cbzmq.game.logic.AbstractLogicEngine;
 
 
 /**
@@ -57,7 +57,7 @@ public class Character implements Observer {
     Group<Character> parent;
 
     @Null
-    AbstractEngine abstractEngine;
+    AbstractLogicEngine abstractLogicEngine;
 
     //默认的动画状态
     //TODO view会用到
@@ -200,7 +200,7 @@ public class Character implements Observer {
                 if (beHit()) queue.pushTwoCharacterEvent(event);
                 break;
         }
-        Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), event.getA() + "->" + event.getB());
+//        Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), event.getA() + "->" + event.getB());
         return true;
     }
 
@@ -395,8 +395,8 @@ public class Character implements Observer {
         this.parent = parent;
     }
 
-    public AbstractEngine getModel() {
-        return abstractEngine;
+    public AbstractLogicEngine getModel() {
+        return abstractLogicEngine;
     }
 
     public void setTargetPosition(Vector2 targetPosition) {
@@ -404,8 +404,8 @@ public class Character implements Observer {
     }
 
 
-    public void setModel(AbstractEngine abstractEngine) {
-        this.abstractEngine = abstractEngine;
+    public void setModel(AbstractLogicEngine abstractLogicEngine) {
+        this.abstractLogicEngine = abstractLogicEngine;
     }
 
 

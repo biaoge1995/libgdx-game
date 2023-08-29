@@ -31,7 +31,7 @@ package org.cbzmq.game.model;
 
 
 import com.badlogic.gdx.math.Vector2;
-import org.cbzmq.game.Constants;
+import org.cbzmq.game.logic.Constants;
 import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.enums.CharacterType;
 import org.cbzmq.game.proto.CharacterProto;

@@ -3,7 +3,7 @@ package org.cbzmq.game.model;
 
 import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.enums.CharacterState;
-import org.cbzmq.game.stage.AbstractEngine;
+import org.cbzmq.game.logic.AbstractLogicEngine;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,7 +61,7 @@ public class Group<T extends Character> extends Character {
             c.update(delta);
             if (!(c instanceof Group) && c.isCanBeRemove()) {
                 c.remove();
-                abstractEngine.removeListener(c);
+                abstractLogicEngine.removeListener(c);
             }
         }
     }
@@ -98,8 +98,8 @@ public class Group<T extends Character> extends Character {
 
     public Character removeActorAt(int index, boolean unfocus) {
         Character character = children.removeIndex(index);
-        AbstractEngine abstractEngine = getModel();
-        if (abstractEngine != null) {
+        AbstractLogicEngine abstractLogicEngine = getModel();
+        if (abstractLogicEngine != null) {
             //TODO model的逻辑
         }
         character.setParent(null);

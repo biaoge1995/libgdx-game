@@ -92,7 +92,7 @@ project(":core") {
         api "com.google.protobuf:protobuf-java:${protobufVersion}"
         api "com.iohao.game:bolt-run-one:${ioGameVersion}"
         api "com.iohao.game:light-client:${ioGameVersion}"
-//        api "com.iohao.game:run-one-netty:${ioGameVersion}"
+        api "com.iohao.game:run-one-netty:${ioGameVersion}"
         api "org.java-websocket:Java-WebSocket:${javaWebsocketVersion}"
 //        api "org.projectlombok:lombok:{lombokVersion}"
 

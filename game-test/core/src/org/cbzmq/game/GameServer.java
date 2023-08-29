@@ -33,11 +33,12 @@ package org.cbzmq.game;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.Vector2;
-import org.cbzmq.game.netty.UdpServer;
-import org.cbzmq.game.stage.GameEngine;
-import org.cbzmq.game.stage.AbstractEngine;
-import org.cbzmq.game.stage.View;
-import org.cbzmq.game.stage.UI;
+import org.cbzmq.game.net.GameOne;
+import org.cbzmq.game.net.UdpServer;
+import org.cbzmq.game.logic.GameLogicEngine;
+import org.cbzmq.game.logic.AbstractLogicEngine;
+import org.cbzmq.game.ui.View;
+import org.cbzmq.game.ui.UI;
 
 /** The controller class for the game. It knows about both the model and view and provides a way for the view to know about events
  * that occur in the model. */
@@ -48,7 +49,7 @@ public class GameServer extends Game {
 	static Vector2 temp = new Vector2();
 
 	View view;
-	AbstractEngine abstractEngine;
+	AbstractLogicEngine abstractLogicEngine;
 	Screen screen;
 	UdpServer udpServer;
 
@@ -79,16 +80,18 @@ public class GameServer extends Game {
 	}
 
 	public void create () {
-		abstractEngine =  GameEngine.me();
+		abstractLogicEngine =  GameLogicEngine.me();
+		GameOne gameOne = new GameOne();
+		gameOne.start();
 		try {
 			udpServer = new UdpServer();
-			abstractEngine.addListener(udpServer);
+			abstractLogicEngine.addListener(udpServer);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			System.exit(-1);
 		}
 
-		view = new View(abstractEngine);
+		view = new View(abstractLogicEngine);
 //		view.gameRestart();
 		screen = new Screen(view, view.ui);
 		setScreen(screen);
@@ -97,13 +100,13 @@ public class GameServer extends Game {
 	}
 
 	public void render () {
-		float delta = Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f) * abstractEngine.getTimeScale();
+		float delta = Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f) * abstractLogicEngine.getTimeScale();
 		time+=delta;
 //		if ((int)time%2==0) {
 //			model.update(delta);0
 //		}
 		if(delta>0){
-			abstractEngine.update(delta);
+			abstractLogicEngine.update(delta);
 //			try {
 //
 //			} catch (InterruptedException e) {
