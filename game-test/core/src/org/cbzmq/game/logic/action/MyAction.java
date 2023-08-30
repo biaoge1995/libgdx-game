@@ -2,12 +2,14 @@ package org.cbzmq.game.logic.action;
 
 import com.iohao.game.action.skeleton.annotation.ActionController;
 import com.iohao.game.action.skeleton.annotation.ActionMethod;
+import com.iohao.game.action.skeleton.core.flow.FlowContext;
 import org.cbzmq.game.enums.OneBodyEventType;
 import org.cbzmq.game.logic.GameCmd;
 import org.cbzmq.game.logic.GameLogicEngine;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.model.Event;
 import org.cbzmq.game.proto.Move;
+import org.cbzmq.game.proto.MoveType;
 import org.cbzmq.game.proto.Msg;
 
 import java.util.Objects;
@@ -23,9 +25,9 @@ public class MyAction {
     }
 
     @ActionMethod(GameCmd.move)
-    public Move move(Move moveData) {
+    public Move move(Move moveData, FlowContext flowContext) {
         int id = moveData.id;
-        Move.MoveType moveType = moveData.moveType;
+        MoveType moveType = moveData.moveType;
         GameLogicEngine me = GameLogicEngine.me();
         Character childById = me.playerGroup.getChildById(id);
         System.out.println("收到请求");

@@ -47,6 +47,7 @@ import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.logic.AbstractLogicEngine;
 import org.cbzmq.game.proto.Move;
+import org.cbzmq.game.proto.MoveType;
 
 
 /**
@@ -239,13 +240,13 @@ public class View extends Stage {
         if (playerView.isLeftPressed()) {
             //TODO
 
-            if (isClient) CharacterOnMsg.MoveOnMessage.me().request(player, Move.MoveType.moveLeft, delta);
+            if (isClient) CharacterOnMsg.MoveOnMessage.me().request(player, MoveType.moveLeft, delta);
             else abstractLogicEngine.updateByEvent(Event.moveLeft(TAG, player, delta));
 
         } else if (playerView.isRightPressed()) {
             //TODO
 
-            if (isClient) CharacterOnMsg.MoveOnMessage.me().request(player, Move.MoveType.moveRight, delta);
+            if (isClient) CharacterOnMsg.MoveOnMessage.me().request(player, MoveType.moveRight, delta);
             else abstractLogicEngine.updateByEvent(Event.moveRight(TAG, player, delta));
         } else if (player.state == CharacterState.running) {
             //TODO
@@ -354,7 +355,7 @@ public class View extends Stage {
                 case Keys.UP:
                 case Keys.SPACE:
                     abstractLogicEngine.updateByEvent(Event.jump(TAG, player));
-                    if (isClient) CharacterOnMsg.MoveOnMessage.me().request(player, Move.MoveType.jump, 0f);
+                    if (isClient) CharacterOnMsg.MoveOnMessage.me().request(player, MoveType.jump, 0f);
                     return true;
                 case Keys.A:
                 case Keys.LEFT:

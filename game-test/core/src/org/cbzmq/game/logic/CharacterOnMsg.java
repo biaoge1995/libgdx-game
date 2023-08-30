@@ -9,6 +9,7 @@ import org.cbzmq.game.logic.UserCmd;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.net.Client;
 import org.cbzmq.game.proto.Move;
+import org.cbzmq.game.proto.MoveType;
 import org.cbzmq.game.proto.UserLogin;
 import org.cbzmq.game.proto.VectorProto;
 
@@ -46,12 +47,13 @@ public class CharacterOnMsg {
         }
 
 
-        public void request(Character character, Move.MoveType moveType,float time) {
+        public void request(Character character, MoveType moveType, float time) {
             Move move = new Move(character.id
                     , moveType
                     , time
                     , new VectorProto(character.position.x,character.position.y)
                     , new VectorProto(character.velocity.x,character.velocity.y));
+            move.setRequestTime(System.currentTimeMillis());
             OnMessage.super.request(move);
 //            System.out.println("移动msg"+move);
         }
@@ -59,8 +61,7 @@ public class CharacterOnMsg {
         @Override
         public Move response(ExternalMessage externalMessage, byte[] data) {
             Move move = DataCodecKit.decode(data, Move.class);
-            Character childById = Client.me().playerGroup.getChildById(move.id);
-            childById.updatePosition(move);
+            Client.me().updatePosition(move);
             return move;
         }
 

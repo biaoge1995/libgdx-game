@@ -1,5 +1,6 @@
 package org.cbzmq.game.net;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import io.netty.bootstrap.Bootstrap;
@@ -20,10 +21,7 @@ import org.cbzmq.game.enums.MsgHeader;
 import org.cbzmq.game.logic.AbstractLogicEngine;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.model.*;
-import org.cbzmq.game.proto.CharacterProto;
-import org.cbzmq.game.proto.Move;
-import org.cbzmq.game.proto.MsgProto;
-import org.cbzmq.game.proto.VectorProto;
+import org.cbzmq.game.proto.*;
 import org.java_websocket.client.WebSocketClient;
 
 import java.net.URISyntaxException;
@@ -79,6 +77,13 @@ public class Client extends AbstractLogicEngine {
 
     }
 
+
+    public void updatePosition(Move move){
+        Character childById = playerGroup.getChildById(move.id);
+        long delay = System.currentTimeMillis() - move.requestTime;
+        Gdx.app.log("delay",delay+"ms");
+        if(Objects.nonNull(childById)) childById.updatePosition(move);
+    }
 
     @Override
     public void onOneObserverEvent(Event.OneCharacterEvent event) {
@@ -214,14 +219,14 @@ public class Client extends AbstractLogicEngine {
 //                case jump:
                 case moveLeft:
                     Move move = new Move(character.getId()
-                            , Move.MoveType.moveLeft
+                            , MoveType.moveLeft
                             , event.getFloatData()
                             , new VectorProto(character.position.x, character.position.y)
                             , new VectorProto(character.velocity.x, character.velocity.y));
                     CharacterOnMsg.MoveOnMessage.me().request(move);
                 case moveRight:
                      move = new Move(character.getId()
-                            , Move.MoveType.moveRight
+                            , MoveType.moveRight
                             , event.getFloatData()
                             , new VectorProto(character.position.x, character.position.y)
                             , new VectorProto(character.velocity.x, character.velocity.y));

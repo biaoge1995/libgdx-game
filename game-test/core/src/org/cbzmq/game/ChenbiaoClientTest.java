@@ -8,6 +8,7 @@ import org.cbzmq.game.model.Player;
 import org.cbzmq.game.net.ChenbiaoLogicServer;
 import org.cbzmq.game.net.GameConfig;
 import org.cbzmq.game.proto.Move;
+import org.cbzmq.game.proto.MoveType;
 import org.cbzmq.game.proto.Msg;
 import org.cbzmq.game.proto.VectorProto;
 
@@ -29,7 +30,7 @@ public class ChenbiaoClientTest extends AbstractInputCommandRegion {
         player.setId(2);
         long start = System.currentTimeMillis();
         Move move = new Move(player.id
-                , Move.MoveType.moveRight
+                , MoveType.moveRight
                 , 1f
                 , new VectorProto(player.position.x,player.position.y)
                 , new VectorProto(player.velocity.x,player.velocity.y));

@@ -30,6 +30,8 @@ public class Move {
     /** 速度 **/
     VectorProto velocity;
 
+    long requestTime;
+
     public Move() {
     }
 
@@ -43,27 +45,7 @@ public class Move {
 
 
 
-    @ProtobufClass
-    @FieldDefaults(level = AccessLevel.PUBLIC)
-    public enum MoveType {
-        /**
-         * <code>jump = 10;</code>
-         *
-         * <pre>
-         *跳跃
-         * </pre>
-         */
-        jump,
-        /**
-         * <code>jumpDamping = 16;</code>
-         *
-         * <pre>
-         *跳跃阻尼
-         * </pre>
-         */
-        moveRight,
-        moveLeft;
-    }
+
 }
 
 

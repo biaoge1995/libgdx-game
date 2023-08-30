@@ -147,26 +147,30 @@ public class Character implements Observer {
         isWin = win;
     }
 
-    public void updatePosition(Move move) {
+    /**
+     * 用于从服务器更新运动状态和位置
+     * @param move
+     */
+    public void updateMoveState(Move move) {
         position.set(move.position.x, move.position.y);
         velocity.set(move.velocity.x, move.velocity.y);
         switch (move.moveType) {
             case moveLeft:
-                moveLeft(move.getTime());
+                running();
+                turnLeft();
                 break;
             case moveRight:
-                moveRight(move.getTime());
+                running();
+                turnRight();
                 break;
             case jump:
                 jump();
                 break;
         }
-//        velocity.set(move.velocity.x, move.velocity.y);
     }
 
+
     public Move move(Move move) {
-//        position.set( move.position.x, move.position.y);
-//        velocity.set( move.velocity.x, move.velocity.y);
         switch (move.moveType) {
             case moveLeft:
                 moveLeft(move.getTime());
@@ -183,7 +187,6 @@ public class Character implements Observer {
         move.velocity.x = velocity.x;
         move.velocity.y = velocity.y;
         return move;
-
     }
 
     @Override
@@ -280,16 +283,29 @@ public class Character implements Observer {
         stateChanged = true;
     }
 
+    public void running() {
+        if (isGrounded()) {
+            setState(CharacterState.running);
+        }
+    }
+
+    public void turnLeft() {
+        dir = -1;
+    }
+
+    public void turnRight() {
+        dir = 1;
+    }
 
     public boolean moveLeft(float delta) {
         float adjust;
         if (isGrounded()) {
             adjust = runGroundX;
-            setState(CharacterState.running);
+            running();
         } else
             adjust = velocity.x <= 0 ? runAirSame : runAirOpposite;
         if (velocity.x > -maxVelocityX) velocity.x = Math.max(velocity.x - adjust * delta, -maxVelocityX);
-        dir = -1;
+        turnLeft();
         return true;
     }
 
@@ -297,11 +313,11 @@ public class Character implements Observer {
         float adjust;
         if (isGrounded()) {
             adjust = runGroundX;
-            setState(CharacterState.running);
+            running();
         } else
             adjust = velocity.x >= 0 ? runAirSame : runAirOpposite;
         if (velocity.x < maxVelocityX) velocity.x = Math.min(velocity.x + adjust * delta, maxVelocityX);
-        dir = 1;
+        turnRight();
         return true;
     }
 
