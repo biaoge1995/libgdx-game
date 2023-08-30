@@ -32,12 +32,12 @@ package org.cbzmq.game.ui;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.spine.*;
 import com.esotericsoftware.spine.AnimationState.AnimationStateAdapter;
 import org.cbzmq.game.logic.Assets;
 import org.cbzmq.game.logic.Assets.SoundEffect;
-import org.cbzmq.game.enums.CharacterState;
+import org.cbzmq.game.model.MyVector2;
+import org.cbzmq.game.proto.CharacterState;
 import org.cbzmq.game.model.Player;
 
 
@@ -49,7 +49,7 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
     public Animation shootAnimation, hitAnimation;
     public boolean canShoot;
     public float burstShots, burstTimer;
-    public Vector2 temp1 = new Vector2(), temp2 = new Vector2();
+    public MyVector2 temp1 = new MyVector2(), temp2 = new MyVector2();
 
     //按钮被按下
     private boolean shootPressed, jumpPressed, leftPressed, rightPressed;
@@ -122,7 +122,7 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
 
         getAnimationState().apply(getSkeleton());
 
-        Vector2 aimPoint = getModel().aimPoint;
+        MyVector2 aimPoint = getModel().aimPoint;
         // Determine if the player can shoot at the mouse position.
         //确定player是否可以开始射击
         canShoot = false;
@@ -148,7 +148,7 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
             getSkeleton().updateWorldTransform();
 
             // Compute the arm's angle to the mouse, flipping it based on the direction the player faces.
-            Vector2 bonePosition = temp2.set(rearUpperArmBone.getWorldX(), rearUpperArmBone.getWorldY());
+            MyVector2 bonePosition = temp2.set(rearUpperArmBone.getWorldX(), rearUpperArmBone.getWorldY());
             float angle = bonePosition.sub(aimPoint).angle();
             float behind = (angle < 90 || angle > 270) ? -1 : 1;
             if (behind == -1) angle = -angle;

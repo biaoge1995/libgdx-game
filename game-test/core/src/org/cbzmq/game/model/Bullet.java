@@ -1,7 +1,6 @@
 package org.cbzmq.game.model;
 
-import org.cbzmq.game.enums.CharacterType;
-import org.cbzmq.game.proto.CharacterProto;
+import org.cbzmq.game.proto.CharacterType;
 
 public class Bullet extends Character {
 
@@ -49,28 +48,28 @@ public class Bullet extends Character {
 
     }
 
-
-    public static Bullet parserProto(CharacterProto.Character proto) {
-        Bullet bullet = new Bullet(
-                null
-                , proto.getPosition().getX()
-                , proto.getPosition().getY()
-                , proto.getVelocity().getX()
-                , proto.getVelocity().getY());
-        Character father = Character.parserProto(proto);
-        Character.copyToSon(father, bullet);
-        return bullet;
-    }
-
-
+//
+//    public static Bullet parserProto(CharacterProto.Character proto) {
+//        Bullet bullet = new Bullet(
+//                null
+//                , proto.getPosition().getX()
+//                , proto.getPosition().getY()
+//                , proto.getVelocity().getX()
+//                , proto.getVelocity().getY());
+//        Character father = Character.parserProto(proto);
+//        Character.copyToSon(father, bullet);
+//        return bullet;
+//    }
 
 
 
-    public CharacterProto.Character.Builder toCharacterProto() {
-        CharacterProto.Character.Builder builder = super.toCharacterProto();
-        return builder.setType(CharacterType.bullet);
 
-    }
+
+//    public CharacterProto.Character.Builder toCharacterProto() {
+//        CharacterProto.Character.Builder builder = super.toCharacterProto();
+//        return builder.setType(CharacterType.bullet);
+//
+//    }
 
 
 

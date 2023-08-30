@@ -44,6 +44,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -57,6 +58,7 @@ import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.esotericsoftware.spine.SkeletonRendererDebug;
 import org.cbzmq.game.logic.Assets;
+import org.cbzmq.game.model.MyVector2;
 import org.cbzmq.game.model.Player;
 import org.cbzmq.game.logic.Constants;
 import org.cbzmq.game.logic.AbstractLogicEngine;
@@ -304,8 +306,8 @@ public class UI extends Stage {
             int y = Gdx.input.getY();
             int x = Gdx.input.getX();
             Vector2 cursor = this.screenToStageCoordinates(temp.set(x,y));
-            Vector2 aimPoint = view.player.getAimPoint();
-            Vector2 screen = new Vector2(aimPoint);
+            MyVector2 aimPoint = view.player.getAimPoint();
+            Vector2 screen = new Vector2(aimPoint.x,aimPoint.y);
             screen = view.getViewport().project(screen);
             TextureRegion crosshair = view.assets.crosshair;
             batch.draw(crosshair, screen.x - crosshair.getRegionWidth() / 2, screen.y - crosshair.getRegionHeight() / 2 + 2);

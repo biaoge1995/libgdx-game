@@ -1,6 +1,5 @@
 package org.cbzmq.game.logic;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
@@ -10,17 +9,13 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.internal.SocketUtils;
-import org.cbzmq.game.enums.CharacterState;
-import org.cbzmq.game.enums.CharacterType;
+import org.cbzmq.game.proto.CharacterType;
 import org.cbzmq.game.enums.MsgHeader;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
-import org.cbzmq.game.proto.CharacterProto;
-import org.cbzmq.game.proto.MsgProto;
+import org.cbzmq.game.proto.CharacterState;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @ClassName Model
@@ -49,10 +44,10 @@ public abstract class AbstractLogicEngine {
     public final Physic2DEngine physic2DEngine;
     public boolean isGameOver;
     public boolean isPlayerWin;
-    private final Array<MsgProto.Event> protoEvents = new Array<>();
-
+//    private final Array<MsgProto.Event> protoEvents = new Array<>();
+//    private static final Array<CharacterProto.Character> characterProtos = new Array<>();
     private static long counter = 0;
-    private static final Array<CharacterProto.Character> characterProtos = new Array<>();
+
     //用来广播的通信渠道
     private boolean isNetworkingMode;
     private Channel broadcastChl;
@@ -297,7 +292,7 @@ public abstract class AbstractLogicEngine {
             case jumpDamping:
             case lose:
                 if (event.getCharacter().getCharacterType() == CharacterType.unknown) return;
-                protoEvents.add(event.toMsgProtoEvent());
+//                protoEvents.add(event.toMsgProtoEvent());
                 break;
             case frameEnd:
                 Group root = (Group) (event.getCharacter());
@@ -306,25 +301,25 @@ public abstract class AbstractLogicEngine {
 //                counter % 60 == 0
                 if (false) {
                     syncAllCharacter(root);
-                    MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
-                    MsgProto.Msg msg = builder
-                            .setId(counter)
-                            .setHeader(MsgHeader.SYNC_CHARACTERS_INFO)
-                            .addAllCharacterData(characterProtos)
-                            .setTimeStamp(new Date().getTime())
-                            .build();
-
-                    bytes = msg.toByteArray();
-                } else if (protoEvents.size > 0) {
-                    MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
-                    MsgProto.Msg msg = builder
-                            .setId(counter)
-                            .setHeader(MsgHeader.SYNC_CHARACTERS_EVENT)
-                            .addAllEvents(protoEvents)
-                            .setTimeStamp(new Date().getTime())
-                            .build();
-
-                    bytes = msg.toByteArray();
+//                    MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
+//                    MsgProto.Msg msg = builder
+//                            .setId(counter)
+//                            .setHeader(MsgHeader.SYNC_CHARACTERS_INFO)
+//                            .addAllCharacterData(characterProtos)
+//                            .setTimeStamp(new Date().getTime())
+//                            .build();
+//
+//                    bytes = msg.toByteArray();
+//                } else if (protoEvents.size > 0) {
+//                    MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
+//                    MsgProto.Msg msg = builder
+//                            .setId(counter)
+//                            .setHeader(MsgHeader.SYNC_CHARACTERS_EVENT)
+//                            .addAllEvents(protoEvents)
+//                            .setTimeStamp(new Date().getTime())
+//                            .build();
+//
+//                    bytes = msg.toByteArray();
 //                    Gdx.app.log("events", msg.toString());
                 }
 
@@ -349,7 +344,7 @@ public abstract class AbstractLogicEngine {
                         counter = 0;
                     } else {
                         counter++;
-                        protoEvents.clear();
+//                        protoEvents.clear();
                     }
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -368,13 +363,13 @@ public abstract class AbstractLogicEngine {
 
     public void syncAllCharacter(Group root) {
         container.clear();
-        characterProtos.clear();
+//        characterProtos.clear();
         root.flat(container);
 
         for (Character character : container) {
             if (character.state == CharacterState.death) continue;
-            CharacterProto.Character proto = character.toCharacterProto().build();
-            characterProtos.add(proto);
+//            CharacterProto.Character proto = character.toCharacterProto().build();
+//            characterProtos.add(proto);
         }
     }
 

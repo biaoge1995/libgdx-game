@@ -9,7 +9,7 @@ import com.esotericsoftware.spine.*;
 import com.esotericsoftware.spine.AnimationState.AnimationStateAdapter;
 import com.esotericsoftware.spine.attachments.Attachment;
 import org.cbzmq.game.logic.Assets;
-import org.cbzmq.game.enums.EnemyType;
+import org.cbzmq.game.proto.EnemyType;
 import org.cbzmq.game.model.Enemy;
 
 

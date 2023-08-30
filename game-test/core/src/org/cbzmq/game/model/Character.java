@@ -1,25 +1,63 @@
 package org.cbzmq.game.model;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Null;
-import org.cbzmq.game.enums.CharacterState;
-import org.cbzmq.game.enums.CharacterType;
-import org.cbzmq.game.proto.CharacterProto;
+import com.baidu.bjf.remoting.protobuf.FieldType;
+import com.baidu.bjf.remoting.protobuf.annotation.Protobuf;
+import com.baidu.bjf.remoting.protobuf.annotation.ProtobufClass;
+import org.cbzmq.game.proto.CharacterType;
 import org.cbzmq.game.logic.AbstractLogicEngine;
+import org.cbzmq.game.proto.CharacterState;
 import org.cbzmq.game.proto.Move;
 
 
 /**
  * The model class for an enemy or player that moves around the map.
  */
+@ProtobufClass
 public class Character implements Observer {
 
-    public CharacterType characterType = CharacterType.unknown;
-    public int id;
 
+    @Protobuf(fieldType= FieldType.INT32, order=1)
+    public int id;
+    //角色的矩阵
+    //TODO view会用到
+    public Rectangle rect = new Rectangle();
+
+    //TODO view会用到
+    @Protobuf(fieldType= FieldType.OBJECT, order=2)
+    public MyVector2 position = new MyVector2();
+
+    //目标位置向量
+    @Protobuf(fieldType= FieldType.OBJECT, order=3)
+    public MyVector2 targetPosition = new MyVector2();
+
+    //速度向量
+    //TODO view会用到
+    @Protobuf(fieldType= FieldType.OBJECT, order=4)
+    public MyVector2 velocity = new MyVector2();
+
+    //瞄准点的位置位置
+    @Protobuf(fieldType= FieldType.OBJECT, order=5)
+    public MyVector2 aimPoint = new MyVector2();
+    //默认的动画状态
+    //TODO view会用到
+    @Protobuf(fieldType= FieldType.OBJECT, order=6)
+    public CharacterState state = CharacterState.idle;
+
+
+
+    //角色模型面朝的方向 1右边 -1左边
+    //TODO view会用到
+    @Protobuf(fieldType= FieldType.FLOAT, order=7)
+    public float dir;
+    //TODO view会用到
+    @Protobuf(fieldType= FieldType.FLOAT, order=8)
+    public float hp;
+
+    @Protobuf(fieldType= FieldType.OBJECT, order=9)
+    public CharacterType characterType = CharacterType.unknown;
     public String name;
 
     //地面时间
@@ -30,24 +68,6 @@ public class Character implements Observer {
 
     //空中的时间
     public float airTime;
-
-
-    //角色的矩阵
-    //TODO view会用到
-    public Rectangle rect = new Rectangle();
-
-    //TODO view会用到
-    public Vector2 position = new Vector2();
-
-    //目标位置向量
-    public Vector2 targetPosition = new Vector2();
-
-    //速度向量
-    //TODO view会用到
-    public Vector2 velocity = new Vector2();
-
-    //瞄准点的位置位置
-    public Vector2 aimPoint = new Vector2();
 
     public float collisionOffsetY;
 
@@ -60,21 +80,11 @@ public class Character implements Observer {
     @Null
     AbstractLogicEngine abstractLogicEngine;
 
-    //默认的动画状态
-    //TODO view会用到
-    public CharacterState state = CharacterState.idle;
-    //开始时间
-
-    //角色模型面朝的方向 1右边 -1左边
-    //TODO view会用到
-    public float dir;
-
     //是否状态改变
     //TODO view会用到
     public boolean stateChanged;
     //雪条
-    //TODO view会用到
-    public float hp;
+
     //最大x方向上的位移
     public float maxVelocityX;
     //碰撞Y的偏移量
@@ -85,7 +95,6 @@ public class Character implements Observer {
 //    public boolean isWin = false;
 
     public float damage;
-
 
     private final EventQueue queue;
 
@@ -362,49 +371,49 @@ public class Character implements Observer {
 //        son.parent = father.parent;
     }
 
-    public static Character parserProto(CharacterProto.Character proto) {
-        Character character = new Character("unknown");
-        character.setId(proto.getId());
-        character.position.set(proto.getPosition().getX(), proto.getPosition().getY());
-        character.velocity.set(proto.getVelocity().getX(), proto.getVelocity().getY());
-        character.setState(proto.getState());
-        ;
-        character.dir = proto.getDir();
-        character.rect.set(proto.getRect().getX(), proto.getRect().getY(), proto.getRect().getWidth(), proto.getRect().getHeight());
-        character.hp = proto.getHp();
-        character.collisionTimer = proto.getCollisionTimer();
-        return character;
+//    public static Character parserProto(CharacterProto.Character proto) {
+//        Character character = new Character("unknown");
+//        character.setId(proto.getId());
+//        character.position.set(proto.getPosition().getX(), proto.getPosition().getY());
+//        character.velocity.set(proto.getVelocity().getX(), proto.getVelocity().getY());
+////        character.setState(proto.getState());
+//        ;
+//        character.dir = proto.getDir();
+//        character.rect.set(proto.getRect().getX(), proto.getRect().getY(), proto.getRect().getWidth(), proto.getRect().getHeight());
+//        character.hp = proto.getHp();
+//        character.collisionTimer = proto.getCollisionTimer();
+//        return character;
+//
+//    }
 
-    }
 
-
-    public CharacterProto.Character.Builder toCharacterProto() {
-        CharacterProto.Character.Builder builder = CharacterProto.Character.newBuilder();
-        CharacterProto.Vector2.Builder positionProto = CharacterProto.Vector2.newBuilder();
-        CharacterProto.Vector2.Builder velocityProto = CharacterProto.Vector2.newBuilder();
-        CharacterProto.Rectangle.Builder rectProto = CharacterProto.Rectangle.newBuilder();
-        builder.setType(CharacterType.unknown)
-                .setId(this.getId())
-                .setPosition(positionProto
-                        .setX(this.position.x)
-                        .setY(this.position.y)
-                        .build())
-                .setVelocity(velocityProto
-                        .setX(this.velocity.x)
-                        .setY(this.velocity.y)
-                        .build())
-                .setState(this.state)
-                .setDir(this.dir)
-                .setRect(rectProto
-                        .setX(this.rect.x)
-                        .setY(this.rect.y)
-                        .setWidth(this.rect.width)
-                        .setHeight(this.rect.height))
-                .setHp(this.hp)
-                .setCollisionTimer(this.collisionTimer);
-
-        return builder;
-    }
+//    public CharacterProto.Character.Builder toCharacterProto() {
+//        CharacterProto.Character.Builder builder = CharacterProto.Character.newBuilder();
+//        CharacterProto.Vector2.Builder positionProto = CharacterProto.Vector2.newBuilder();
+//        CharacterProto.Vector2.Builder velocityProto = CharacterProto.Vector2.newBuilder();
+//        CharacterProto.Rectangle.Builder rectProto = CharacterProto.Rectangle.newBuilder();
+//        builder.setType(CharacterType.unknown)
+//                .setId(this.getId())
+//                .setPosition(positionProto
+//                        .setX(this.position.x)
+//                        .setY(this.position.y)
+//                        .build())
+//                .setVelocity(velocityProto
+//                        .setX(this.velocity.x)
+//                        .setY(this.velocity.y)
+//                        .build())
+////                .setState(this.state)
+//                .setDir(this.dir)
+//                .setRect(rectProto
+//                        .setX(this.rect.x)
+//                        .setY(this.rect.y)
+//                        .setWidth(this.rect.width)
+//                        .setHeight(this.rect.height))
+//                .setHp(this.hp)
+//                .setCollisionTimer(this.collisionTimer);
+//
+//        return builder;
+//    }
 
 
     public <T extends Character> void updateByCharacter(T character) {
@@ -451,7 +460,7 @@ public class Character implements Observer {
         return abstractLogicEngine;
     }
 
-    public void setTargetPosition(Vector2 targetPosition) {
+    public void setTargetPosition(MyVector2 targetPosition) {
         this.targetPosition = targetPosition;
     }
 
@@ -511,11 +520,11 @@ public class Character implements Observer {
 
     }
 
-    public Vector2 getAimPoint() {
+    public MyVector2 getAimPoint() {
         return aimPoint;
     }
 
-    public void setAimPoint(Vector2 aimPoint) {
+    public void setAimPoint(MyVector2 aimPoint) {
         this.aimPoint = aimPoint;
     }
 }

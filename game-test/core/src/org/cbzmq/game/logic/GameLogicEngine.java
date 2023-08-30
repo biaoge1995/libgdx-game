@@ -33,12 +33,17 @@ package org.cbzmq.game.logic;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
-import org.cbzmq.game.enums.CharacterState;
-import org.cbzmq.game.enums.EnemyType;
+import com.iohao.game.action.skeleton.core.CmdInfo;
+import com.iohao.game.action.skeleton.core.commumication.BroadcastContext;
+import com.iohao.game.bolt.broker.core.client.BrokerClientHelper;
+import org.cbzmq.game.proto.CharacterState;
+import org.cbzmq.game.proto.EnemyType;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.model.Enemy;
 import org.cbzmq.game.model.Event;
 import org.cbzmq.game.model.Player;
+
+import java.util.Objects;
 
 /**
  * The core of the game logic. The model manages all game information but knows nothing about the view, ie it knows nothing about
@@ -132,6 +137,17 @@ public class GameLogicEngine extends AbstractLogicEngine {
 
         //当前帧结束
         frameEnd(delta);
+
+        broadcast();
+
+    }
+    public void broadcast(){
+        CmdInfo cmdInfo = CmdInfo.getCmdInfo(GameCmd.cmd, GameCmd.broadcasts);
+        BroadcastContext broadcastContext = BrokerClientHelper.getBroadcastContext();
+        Character childById = playerGroup.getChildById(2);
+        if(Objects.nonNull(childById)){
+            broadcastContext.broadcast(cmdInfo,childById);
+        }
 
     }
 

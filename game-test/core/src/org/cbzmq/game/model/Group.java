@@ -2,8 +2,8 @@ package org.cbzmq.game.model;
 
 
 import com.badlogic.gdx.utils.Array;
-import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.logic.AbstractLogicEngine;
+import org.cbzmq.game.proto.CharacterState;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

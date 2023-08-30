@@ -1,12 +1,10 @@
 package org.cbzmq.game.model;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
-import org.cbzmq.game.enums.CharacterState;
+
 import org.cbzmq.game.enums.OneBodyEventType;
 import org.cbzmq.game.enums.TwoBodyEventType;
-import org.cbzmq.game.proto.CharacterProto;
-import org.cbzmq.game.proto.MsgProto;
+import org.cbzmq.game.proto.CharacterState;
 
 import java.util.Date;
 
@@ -76,9 +74,9 @@ public class Event {
         return OneCharacterEvent.createEvent(sourceName, OneBodyEventType.attack, character);
     }
 
-    public static OneCharacterEvent aimPoint(String sourceName, Character character, Vector2 aimPoint) {
+    public static OneCharacterEvent aimPoint(String sourceName, Character character, float x,float y) {
         OneCharacterEvent event = OneCharacterEvent.createEvent(sourceName, OneBodyEventType.aimPoint, character);
-        event.setVector(aimPoint);
+        event.setVector(x, y);
         return event;
     }
 
@@ -116,7 +114,7 @@ public class Event {
         private final OneBodyEventType eventType;
         private final Character character;
         private float floatData = -1;
-        private Vector2 vector;
+        private MyVector2 vector = new MyVector2();
         private CharacterState state;
 
 
@@ -131,36 +129,36 @@ public class Event {
             this.sourceName = sourceName;
         }
 
-        public MsgProto.Event toMsgProtoEvent() {
-            MsgProto.Event.Builder builder = MsgProto.Event.newBuilder();
-            builder.setOne(character.toCharacterProto().build());
-            builder.setOneBodyEvent(eventType);
-            if (floatData != -1) {
-                builder.setFloatData(floatData);
-            }
-            if(vector!=null){
-                CharacterProto.Vector2.Builder builder1 = CharacterProto.Vector2.newBuilder();
-                builder1.setX(vector.x);
-                builder1.setY(vector.y);
-                builder.setVector(builder1);
-            }
-            if(state!=null){
-                builder.setState(state);
-            }
-            return builder.build();
-
-        }
+//        public MsgProto.Event toMsgProtoEvent() {
+//            MsgProto.Event.Builder builder = MsgProto.Event.newBuilder();
+//            builder.setOne(character.toCharacterProto().build());
+//            builder.setOneBodyEvent(eventType);
+//            if (floatData != -1) {
+//                builder.setFloatData(floatData);
+//            }
+//            if(vector!=null){
+//                CharacterProto.Vector2.Builder builder1 = CharacterProto.Vector2.newBuilder();
+//                builder1.setX(vector.x);
+//                builder1.setY(vector.y);
+//                builder.setVector(builder1);
+//            }
+//            if(state!=null){
+////                builder.setState(state);
+//            }
+//            return builder.build();
+//
+//        }
 
 
         public void setFloatData(float floatData) {
             this.floatData = floatData;
         }
 
-        public void setVector(Vector2 vector) {
-            this.vector = vector;
+        public void setVector(float x,float y) {
+            this.vector.set(x,y);
         }
 
-        public Vector2 getVector() {
+        public MyVector2 getVector() {
             return vector;
         }
 

@@ -35,6 +35,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.renderers.OrthoCachedTiledMapRenderer;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
@@ -42,11 +43,10 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import org.cbzmq.game.logic.Assets;
 import org.cbzmq.game.logic.CharacterOnMsg;
 import org.cbzmq.game.logic.Constants;
-import org.cbzmq.game.enums.CharacterState;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.logic.AbstractLogicEngine;
-import org.cbzmq.game.proto.Move;
+import org.cbzmq.game.proto.CharacterState;
 import org.cbzmq.game.proto.MoveType;
 
 
@@ -232,7 +232,7 @@ public class View extends Stage {
         //将指定的屏幕坐标系转换为世界坐标系
         getViewport().unproject(mouse);
 
-        abstractLogicEngine.updateByEvent(Event.aimPoint(TAG, player, mouse));
+        abstractLogicEngine.updateByEvent(Event.aimPoint(TAG, player, mouse.x,mouse.y));
     }
 
     public void updateInput(float delta) {

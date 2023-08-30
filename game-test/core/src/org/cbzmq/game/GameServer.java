@@ -32,7 +32,7 @@ package org.cbzmq.game;
 
 
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.math.Vector2;
+import org.cbzmq.game.model.MyVector2;
 import org.cbzmq.game.net.GameOne;
 import org.cbzmq.game.net.UdpServer;
 import org.cbzmq.game.logic.GameLogicEngine;
@@ -46,7 +46,7 @@ import org.cbzmq.game.ui.UI;
 
 
 public class GameServer extends Game {
-	static Vector2 temp = new Vector2();
+	static MyVector2 temp = new MyVector2();
 
 	View view;
 	AbstractLogicEngine abstractLogicEngine;

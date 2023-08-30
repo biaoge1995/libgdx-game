@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.cbzmq.game.logic.CharacterOnMsg;
 import org.cbzmq.game.logic.GameLogicEngine;
 import org.cbzmq.game.logic.Utils;
-import org.cbzmq.game.enums.CharacterType;
+import org.cbzmq.game.proto.CharacterType;
 import org.cbzmq.game.enums.MsgHeader;
 import org.cbzmq.game.logic.AbstractLogicEngine;
 import org.cbzmq.game.model.Character;
@@ -42,7 +42,7 @@ public class Client extends AbstractLogicEngine {
     final Map<Integer, Character> characterMap = new HashMap<>();
     Channel ch;
     private int msgMaxId = 0;
-    private final Array<MsgProto.Event> protoEvents = new Array<>();
+//    private final Array<MsgProto.Event> protoEvents = new Array<>();
     private int counter = 0;
 
 
@@ -82,7 +82,7 @@ public class Client extends AbstractLogicEngine {
         Character childById = playerGroup.getChildById(move.id);
         long delay = System.currentTimeMillis() - move.requestTime;
         Gdx.app.log("delay",delay+"ms");
-        if(Objects.nonNull(childById)) childById.updatePosition(move);
+//        if(Objects.nonNull(childById)) childById.updatePosition(move);
     }
 
     @Override
@@ -123,73 +123,73 @@ public class Client extends AbstractLogicEngine {
         return characterMap.get(index);
     }
 
-    public void syncEvent(MsgProto.Msg msgProto) throws Exception {
-        switch (msgProto.getHeader()) {
-            case SYNC_CHARACTERS_EVENT:
-                for (MsgProto.Event event : msgProto.getEventsList()) {
-                    Character character = parse(event.getOne());
+//    public void syncEvent(MsgProto.Msg msgProto) throws Exception {
+//        switch (msgProto.getHeader()) {
+//            case SYNC_CHARACTERS_EVENT:
+//                for (MsgProto.Event event : msgProto.getEventsList()) {
+//                    Character character = parse(event.getOne());
+//
+//
+//                    upsertCharacter(character, false);
+//
+//                    character = getCharacterByIndex(event.getOne().getId());
+//
+//                    Event.OneCharacterEvent oneCharacterEvent
+//                            = new Event.OneCharacterEvent(Client.class.getName()
+//                            , msgProto.getTimeStamp()
+//                            , event.getOneBodyEvent()
+//                            , character);
+//                    oneCharacterEvent.setVector(new Vector2(event.getVector().getX(), event.getVector().getY()));
+//                    oneCharacterEvent.setFloatData(event.getFloatData());
+//                    oneCharacterEvent.setState(event.getState());
+//
+//                    updateByEvent(oneCharacterEvent);
+//                }
+//        }
+//    }
 
 
-                    upsertCharacter(character, false);
+//    public Character parse(CharacterProto.Character proto) {
+//        Character character = null;
+//        switch (proto.getType()) {
+//            case player:
+//                character = Player.parserProto(proto);
+//                break;
+//            case bullet:
+//                character = Bullet.parserProto(proto);
+//                break;
+//            case enemy:
+//                character = Enemy.parserProto(proto);
+//                break;
+//        }
+//        return character;
+//    }
 
-                    character = getCharacterByIndex(event.getOne().getId());
-
-                    Event.OneCharacterEvent oneCharacterEvent
-                            = new Event.OneCharacterEvent(Client.class.getName()
-                            , msgProto.getTimeStamp()
-                            , event.getOneBodyEvent()
-                            , character);
-                    oneCharacterEvent.setVector(new Vector2(event.getVector().getX(), event.getVector().getY()));
-                    oneCharacterEvent.setFloatData(event.getFloatData());
-                    oneCharacterEvent.setState(event.getState());
-
-                    updateByEvent(oneCharacterEvent);
-                }
-        }
-    }
-
-
-    public Character parse(CharacterProto.Character proto) {
-        Character character = null;
-        switch (proto.getType()) {
-            case player:
-                character = Player.parserProto(proto);
-                break;
-            case bullet:
-                character = Bullet.parserProto(proto);
-                break;
-            case enemy:
-                character = Enemy.parserProto(proto);
-                break;
-        }
-        return character;
-    }
-
-
-    public void sync(MsgProto.Msg msgProto) {
-        //如果消息是乱序到达则丢弃掉id小于当前id的消息
-        if (msgProto.getId() < msgMaxId) return;
-        existsId.clear();
-        for (CharacterProto.Character proto : msgProto.getCharacterDataList()) {
-            existsId.add(proto.getId());
-            Character parse = parse(proto);
-            upsertCharacter(parse, true);
-        }
-
-        //默认没有从服务器更新的元素全部置为死亡
-        for (Character value : container) {
-            switch (value.characterType) {
-                case enemy:
-                case bullet:
-                    if (!existsId.contains(value.getId())) {
-                        value.beDeath();
-                    }
-                    break;
-            }
-
-
-        }
-    }
+//
+//    public void sync(MsgProto.Msg msgProto) {
+//        //如果消息是乱序到达则丢弃掉id小于当前id的消息
+//        if (msgProto.getId() < msgMaxId) return;
+//        existsId.clear();
+//        for (CharacterProto.Character proto : msgProto.getCharacterDataList()) {
+//            existsId.add(proto.getId());
+//            Character parse = parse(proto);
+//            upsertCharacter(parse, true);
+//        }
+//
+//        //默认没有从服务器更新的元素全部置为死亡
+//        for (Character value : container) {
+//            switch (value.characterType) {
+//                case enemy:
+//                case bullet:
+//                    if (!existsId.contains(value.getId())) {
+//                        value.beDeath();
+//                    }
+//                    break;
+//            }
+//
+//
+//        }
+//    }
 
 
     @Override
@@ -251,49 +251,49 @@ public class Client extends AbstractLogicEngine {
 
     }
 
-    public void sync(Event.OneCharacterEvent event) {
-        if (!(event.getCharacter().getCharacterType() == CharacterType.player
-                || event.getCharacter().getCharacterType() == CharacterType.bullet)) return;
-        switch (event.getEventType()) {
-            case born:
-                protoEvents.add(event.toMsgProtoEvent());
-                break;
-            case frameEnd:
-                Group root = (Group) (event.getCharacter());
-                byte[] bytes = null;
-                if (protoEvents.size > 0) {
-                    MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
-                    MsgProto.Msg msg = builder
-                            .setId(counter)
-                            .setHeader(MsgHeader.SYNC_CHARACTERS_EVENT)
-                            .addAllEvents(protoEvents)
-                            .setTimeStamp(new Date().getTime())
-                            .build();
-
-                    bytes = msg.toByteArray();
-//                    Gdx.app.log("events", msg.toString());
-                }
-
-                if (bytes == null) return;
-                //二次压缩
-                Utils.CompressData compress = Utils.compress(bytes);
-                ByteBuf byteBuf = Unpooled.copiedBuffer(compress.getOutput());
-
-
-                try {
-                    ch.writeAndFlush(new DatagramPacket(
-                            byteBuf,
-//                            SocketUtils.socketAddress("127.0.0.1", 8088)
-                            SocketUtils.socketAddress("192.168.2.145", 8088)
-                    )).sync();
-                    counter++;
-                    protoEvents.clear();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
-        }
-    }
+//    public void sync(Event.OneCharacterEvent event) {
+//        if (!(event.getCharacter().getCharacterType() == CharacterType.player
+//                || event.getCharacter().getCharacterType() == CharacterType.bullet)) return;
+//        switch (event.getEventType()) {
+//            case born:
+//                protoEvents.add(event.toMsgProtoEvent());
+//                break;
+//            case frameEnd:
+//                Group root = (Group) (event.getCharacter());
+//                byte[] bytes = null;
+//                if (protoEvents.size > 0) {
+//                    MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
+//                    MsgProto.Msg msg = builder
+//                            .setId(counter)
+//                            .setHeader(MsgHeader.SYNC_CHARACTERS_EVENT)
+//                            .addAllEvents(protoEvents)
+//                            .setTimeStamp(new Date().getTime())
+//                            .build();
+//
+//                    bytes = msg.toByteArray();
+////                    Gdx.app.log("events", msg.toString());
+//                }
+//
+//                if (bytes == null) return;
+//                //二次压缩
+//                Utils.CompressData compress = Utils.compress(bytes);
+//                ByteBuf byteBuf = Unpooled.copiedBuffer(compress.getOutput());
+//
+//
+//                try {
+//                    ch.writeAndFlush(new DatagramPacket(
+//                            byteBuf,
+////                            SocketUtils.socketAddress("127.0.0.1", 8088)
+//                            SocketUtils.socketAddress("192.168.2.145", 8088)
+//                    )).sync();
+//                    counter++;
+//                    protoEvents.clear();
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
+//
+//        }
+//    }
 
     public static Client me() {
         return Holder.ME;
@@ -322,10 +322,10 @@ class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
 //        System.out.println("msg byte length :" + bytes.length + "byte");
 //        MsgProto.Msg msgProto = MsgProto.Msg.parseFrom(decompress);
-        MsgProto.Msg msg1 = MsgProto.Msg.parseFrom(decompress);
-
-
-        model.syncEvent(msg1);
+//        MsgProto.Msg msg1 = MsgProto.Msg.parseFrom(decompress);
+//
+//
+//        model.syncEvent(msg1);
 
 
     }

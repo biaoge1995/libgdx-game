@@ -11,13 +11,11 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.SocketUtils;
 import org.cbzmq.game.logic.Utils;
-import org.cbzmq.game.enums.CharacterState;
-import org.cbzmq.game.enums.CharacterType;
+import org.cbzmq.game.proto.CharacterState;
+import org.cbzmq.game.proto.CharacterType;
 import org.cbzmq.game.enums.MsgHeader;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
-import org.cbzmq.game.proto.CharacterProto;
-import org.cbzmq.game.proto.MsgProto;
 
 import java.net.InetSocketAddress;
 import java.util.Date;
@@ -39,10 +37,10 @@ public final class UdpServer extends ObserverAdapter {
     private static final int PORT = Integer.parseInt(System.getProperty("port", "7686"));
     private Channel ch;
     private static long counter = 0;
-    private static final Array<CharacterProto.Character> characterProtos = new Array<>();
+//    private static final Array<CharacterProto.Character> characterProtos = new Array<>();
 
     private final Array<Character> container = new Array<>();
-    private final Array<MsgProto.Event> protoEvents = new Array<>();
+//    private final Array<MsgProto.Event> protoEvents = new Array<>();
 
 
     public UdpServer() throws InterruptedException {
@@ -89,36 +87,36 @@ public final class UdpServer extends ObserverAdapter {
             case jumpDamping:
             case lose:
                 if(event.getCharacter().getCharacterType()== CharacterType.unknown)return false;
-                protoEvents.add(event.toMsgProtoEvent());
+//                protoEvents.add(event.toMsgProtoEvent());
                 break;
             case frameEnd:
                 Group root = (Group) (event.getCharacter());
                 byte[] bytes=null;
                 //没60个轮训给客户端同步一次数据
 //                counter % 60 == 0
-                if (false) {
-                    syncAllCharacter(root);
-                    MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
-                    MsgProto.Msg msg = builder
-                            .setId(counter)
-                            .setHeader(MsgHeader.SYNC_CHARACTERS_INFO)
-                            .addAllCharacterData(characterProtos)
-                            .setTimeStamp(new Date().getTime())
-                            .build();
-
-                    bytes = msg.toByteArray();
-                } else if(protoEvents.size>0) {
-                    MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
-                    MsgProto.Msg msg = builder
-                            .setId(counter)
-                            .setHeader(MsgHeader.SYNC_CHARACTERS_EVENT)
-                            .addAllEvents(protoEvents)
-                            .setTimeStamp(new Date().getTime())
-                            .build();
-
-                    bytes = msg.toByteArray();
+//                if (false) {
+//                    syncAllCharacter(root);
+//                    MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
+//                    MsgProto.Msg msg = builder
+//                            .setId(counter)
+//                            .setHeader(MsgHeader.SYNC_CHARACTERS_INFO)
+//                            .addAllCharacterData(characterProtos)
+//                            .setTimeStamp(new Date().getTime())
+//                            .build();
+//
+//                    bytes = msg.toByteArray();
+//                } else if(protoEvents.size>0) {
+//                    MsgProto.Msg.Builder builder = MsgProto.Msg.newBuilder();
+//                    MsgProto.Msg msg = builder
+//                            .setId(counter)
+//                            .setHeader(MsgHeader.SYNC_CHARACTERS_EVENT)
+//                            .addAllEvents(protoEvents)
+//                            .setTimeStamp(new Date().getTime())
+//                            .build();
+//
+//                    bytes = msg.toByteArray();
 //                    Gdx.app.log("events", msg.toString());
-                }
+//                }
 
                 if(bytes==null) return false;
                 //二次压缩
@@ -140,7 +138,7 @@ public final class UdpServer extends ObserverAdapter {
                         counter = 0;
                     } else {
                         counter++;
-                        protoEvents.clear();
+//                        protoEvents.clear();
                     }
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -152,13 +150,13 @@ public final class UdpServer extends ObserverAdapter {
 
     public void syncAllCharacter(Group root) {
         container.clear();
-        characterProtos.clear();
+//        characterProtos.clear();
         root.flat(container);
 
         for (Character character : container) {
             if (character.state == CharacterState.death) continue;
-            CharacterProto.Character proto = character.toCharacterProto().build();
-            characterProtos.add(proto);
+//            CharacterProto.Character proto = character.toCharacterProto().build();
+//            characterProtos.add(proto);
         }
     }
 }
@@ -174,13 +172,13 @@ class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
     @Override
     public void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) throws Exception {
         byte[] bytes = ByteBufUtil.getBytes(packet.content());
-        MsgProto.Msg msgProto = MsgProto.Msg.parseFrom(bytes);
+//        MsgProto.Msg msgProto = MsgProto.Msg.parseFrom(bytes);
         InetSocketAddress recipient = packet.recipient();
 //        System.out.println(packet.recipient().getAddress());
 //        System.out.println(packet.recipient().getHostName());
 //        System.out.println(packet.recipient().getPort());
 //        System.out.println(packet.recipient().getHostString());
-        System.out.println("服务端收到的消息\n" + msgProto);
+//        System.out.println("服务端收到的消息\n" + msgProto);
 //        game.handlerProtoCommands(ctx.channel(), msgProto, packet.sender());
     }
 

@@ -3,10 +3,9 @@ package org.cbzmq.game.model;
 import com.badlogic.gdx.math.MathUtils;
 import org.cbzmq.game.logic.Constants;
 import org.cbzmq.game.logic.Utils;
-import org.cbzmq.game.enums.CharacterState;
-import org.cbzmq.game.enums.CharacterType;
-import org.cbzmq.game.enums.EnemyType;
-import org.cbzmq.game.proto.CharacterProto;
+import org.cbzmq.game.proto.CharacterType;
+import org.cbzmq.game.proto.EnemyType;
+import org.cbzmq.game.proto.CharacterState;
 
 
 /**
@@ -188,32 +187,32 @@ public class Enemy extends Character {
         collisions++;
     }
 
-    public static Enemy parserProto(CharacterProto.Character proto) {
-        Enemy enemy = new Enemy(proto.getEnemyType());
-        Character father = Character.parserProto(proto);
-        Character.copyToSon(father, enemy);
-        enemy.deathTimer = proto.getDeathTimer();
-        enemy.size = proto.getSize();
-        enemy.bigTimer = proto.getBigTimer();
-        return enemy;
-    }
+//    public static Enemy parserProto(CharacterProto.Character proto) {
+//        Enemy enemy = new Enemy(proto.getEnemyType());
+//        Character father = Character.parserProto(proto);
+//        Character.copyToSon(father, enemy);
+//        enemy.deathTimer = proto.getDeathTimer();
+//        enemy.size = proto.getSize();
+//        enemy.bigTimer = proto.getBigTimer();
+//        return enemy;
+//    }
 
 
 
 
 
 
-    public CharacterProto.Character.Builder toCharacterProto() {
-        CharacterProto.Character.Builder builder = super.toCharacterProto();
-
-        return builder.setType(CharacterType.enemy)
-                .setDeathTimer(this.deathTimer)
-                .setEnemyType(this.enemyType)
-                .setSize(this.size)
-                .setBigTimer(this.bigTimer)
-
-                ;
-    }
+//    public CharacterProto.Character.Builder toCharacterProto() {
+//        CharacterProto.Character.Builder builder = super.toCharacterProto();
+//
+//        return builder.setType(CharacterType.enemy)
+//                .setDeathTimer(this.deathTimer)
+//                .setEnemyType(this.enemyType)
+//                .setSize(this.size)
+//                .setBigTimer(this.bigTimer)
+//
+//                ;
+//    }
 
 
 }

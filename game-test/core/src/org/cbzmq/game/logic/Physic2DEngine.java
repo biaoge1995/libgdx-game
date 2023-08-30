@@ -34,7 +34,6 @@ package org.cbzmq.game.logic;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
@@ -62,7 +61,7 @@ public class Physic2DEngine {
     //是否开启同组内不检测碰撞
     private boolean isGroupNoCollision = true;
     private final AbstractLogicEngine abstractLogicEngine;
-    private Vector2 tmp = new Vector2();
+    private MyVector2 tmp = new MyVector2();
 
     private boolean isClient=false;
 
@@ -207,7 +206,7 @@ public class Physic2DEngine {
      * @param character
      * @return
      */
-    private boolean collideMapX(Character character,Vector2 delta) {
+    private boolean collideMapX(Character character,MyVector2 delta) {
         character.rect.x = character.position.x + delta.x;
         character.rect.y = character.position.y + character.collisionOffsetY;
 
@@ -241,7 +240,7 @@ public class Physic2DEngine {
      * @param character
      * @return
      */
-    private boolean collideMapY(Character character,Vector2 delta) {
+    private boolean collideMapY(Character character,MyVector2 delta) {
         character.rect.x = character.position.x;
         character.rect.y = character.position.y + delta.y + character.collisionOffsetY;
 

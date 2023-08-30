@@ -34,8 +34,8 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.math.Vector2;
 import org.cbzmq.game.logic.AbstractLogicEngine;
+import org.cbzmq.game.model.MyVector2;
 import org.cbzmq.game.net.*;
 import org.cbzmq.game.ui.UI;
 import org.cbzmq.game.ui.View;
@@ -49,7 +49,7 @@ import java.net.URISyntaxException;
 
 
 public class GameClient extends Game {
-    static Vector2 temp = new Vector2();
+    static MyVector2 temp = new MyVector2();
 
     View view;
     AbstractLogicEngine abstractLogicEngine;

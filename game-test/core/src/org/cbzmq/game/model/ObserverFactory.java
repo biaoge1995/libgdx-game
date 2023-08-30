@@ -1,7 +1,7 @@
 package org.cbzmq.game.model;
 
-import org.cbzmq.game.enums.CharacterType;
-import org.cbzmq.game.enums.EnemyType;
+import org.cbzmq.game.proto.CharacterType;
+import org.cbzmq.game.proto.EnemyType;
 
 /**
  * @ClassName ObserverFactory

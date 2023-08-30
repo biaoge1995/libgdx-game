@@ -30,11 +30,10 @@ package org.cbzmq.game.model;
  *****************************************************************************/
 
 
-import com.badlogic.gdx.math.Vector2;
+
 import org.cbzmq.game.logic.Constants;
-import org.cbzmq.game.enums.CharacterState;
-import org.cbzmq.game.enums.CharacterType;
-import org.cbzmq.game.proto.CharacterProto;
+import org.cbzmq.game.proto.CharacterState;
+import org.cbzmq.game.proto.CharacterType;
 
 
 /** The model class for the player. */
@@ -56,7 +55,7 @@ public class Player extends Character{
 	//控制回血时间
 	public float hpTimer;
 
-	private final Vector2 temp = new Vector2();
+	private final MyVector2 temp = new MyVector2();
 
 
 
@@ -129,25 +128,25 @@ public class Player extends Character{
 	}
 
 
-	public static Player parserProto(CharacterProto.Character proto) {
-		Player player = new Player();
-		Character father = Character.parserProto(proto);
-		Character.copyToSon(father,player);
-		player.shootTimer = proto.getShootTimer();
-		return player;
-	}
+//	public static Player parserProto(CharacterProto.Character proto) {
+//		Player player = new Player();
+//		Character father = Character.parserProto(proto);
+//		Character.copyToSon(father,player);
+//		player.shootTimer = proto.getShootTimer();
+//		return player;
+//	}
 
 
 
 
-	public  CharacterProto.Character.Builder toCharacterProto() {
-		CharacterProto.Character.Builder builder = super.toCharacterProto();
-
-		return builder.setType(CharacterType.player)
-				.setShootTimer(this.shootTimer)
-//				.setHpTimer(player.hpTimer)
-				;
-	}
+//	public  CharacterProto.Character.Builder toCharacterProto() {
+//		CharacterProto.Character.Builder builder = super.toCharacterProto();
+//
+//		return builder.setType(CharacterType.player)
+//				.setShootTimer(this.shootTimer)
+////				.setHpTimer(player.hpTimer)
+//				;
+//	}
 
 
 
