@@ -1,8 +1,14 @@
 package com.cbzmq.game;
 
+import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3NativesLoader;
+import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.SharedLibraryLoader;
 import org.cbzmq.game.GameServer;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWErrorCallback;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -17,7 +23,7 @@ import java.util.Stack;
  * @Version 1.0
  **/
 public class SpineBoyDesktop {
-    public static void main (String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         System.out.println("java版本号：" + System.getProperty("java.version")); // java版本号
 
         System.out.println("Java提供商名称：" + System.getProperty("java.vendor")); // Java提供商名称
@@ -76,7 +82,14 @@ public class SpineBoyDesktop {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setTitle("Super Spineboy");
         float scale = 0.2f;
-        config.setWindowedMode((int)(800*scale),(int)(450*scale));
-        new Lwjgl3Application(new GameServer(), config);
+        config.setWindowedMode((int) (800 * scale), (int) (450 * scale));
+        try {
+            new Lwjgl3Application(new GameServer(), config);
+
+        } catch (GdxRuntimeException e) {
+            e.printStackTrace();
+        }
     }
+
+
 }

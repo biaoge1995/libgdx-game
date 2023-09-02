@@ -74,7 +74,7 @@ public abstract class AbstractLogicEngine {
 //        this.clientAddressList = new ArrayList<>(maxPlayerNum);
         this.assets = new Assets();
         this.broadcastChl = broadcastChl;
-        this.map = new Map(assets.tiledMap);
+        this.map = new Map();
         this.collisionLayer = map.collisionLayer;
         this.root = new Group<>();
         this.root.setModel(this);

@@ -1,7 +1,12 @@
 package org.cbzmq.game.logic;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Files;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3GL31;
+import com.badlogic.gdx.maps.tiled.AtlasTmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pools;
@@ -19,8 +24,24 @@ public class Map {
     public TiledMapTileLayer collisionLayer;
     Array<Rectangle> tiles = new Array();
 
-    public Map(TiledMap tiledMap) {
-        this.tiledMap = tiledMap;
+    public static void main(String[] args) {
+
+        System.load("/Users/chenbiao/libgdx-game/game-test/core/src/main/resources/libgdxarm64.dylib");
+        System.load("/Users/chenbiao/libgdx-game/game-test/core/src/main/resources/liblwjgl_opengl.dylib");
+        System.load("/Users/chenbiao/libgdx-game/game-test/core/src/main/resources/libglfw.dylib");
+        System.load("/Users/chenbiao/libgdx-game/game-test/core/src/main/resources/libglfw_async.dylib");
+        System.load("/Users/chenbiao/libgdx-game/game-test/core/src/main/resources/libjemalloc.dylib");
+
+        System.load("/Users/chenbiao/libgdx-game/game-test/core/src/main/resources/liblwjgl_stb.dylib");
+        System.load("/Users/chenbiao/libgdx-game/game-test/core/src/main/resources/libopenal.dylib");
+
+        Gdx.files = new Lwjgl3Files();
+        Gdx.gl = new Lwjgl3GL31();
+        new Map();
+    }
+
+    public Map() {
+        tiledMap = new AtlasTmxMapLoader().load("/Users/chenbiao/libgdx-game/game-test/assets/map/map.tmx");
         collisionLayer = (TiledMapTileLayer)tiledMap.getLayers().get(Constants.mapCollisionLayer);
     }
 

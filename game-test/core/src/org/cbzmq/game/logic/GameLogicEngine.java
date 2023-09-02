@@ -138,16 +138,26 @@ public class GameLogicEngine extends AbstractLogicEngine {
         //当前帧结束
         frameEnd(delta);
 
-        broadcast();
+//        broadcast();
 
     }
     public void broadcast(){
+        long start = System.currentTimeMillis();
         CmdInfo cmdInfo = CmdInfo.getCmdInfo(GameCmd.cmd, GameCmd.broadcasts);
+
         BroadcastContext broadcastContext = BrokerClientHelper.getBroadcastContext();
+
+
         Character childById = playerGroup.getChildById(2);
+
         if(Objects.nonNull(childById)){
-            broadcastContext.broadcast(cmdInfo,childById);
+            long start2 = System.currentTimeMillis();
+            broadcastContext.broadcast(cmdInfo,childById,1);
+            long end2 = System.currentTimeMillis();
+            System.out.println("broadcast context time:"+(end2-start2)+"ms");
         }
+        long end = System.currentTimeMillis();
+//        System.out.println("broadcast time:"+(end-start)+"ms");
 
     }
 

@@ -81,8 +81,8 @@ public class Client extends AbstractLogicEngine {
     public void updatePosition(Move move){
         Character childById = playerGroup.getChildById(move.id);
         long delay = System.currentTimeMillis() - move.requestTime;
-        Gdx.app.log("delay",delay+"ms");
-//        if(Objects.nonNull(childById)) childById.updatePosition(move);
+        System.out.println(delay+"ms");
+        if(Objects.nonNull(childById)) childById.updateMoveState(move);
     }
 
     @Override

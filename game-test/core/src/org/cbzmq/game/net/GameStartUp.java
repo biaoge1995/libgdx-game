@@ -30,7 +30,7 @@ public class GameStartUp extends AbstractBrokerClientStartup {
     public BarSkeleton createBarSkeleton() {
         BarSkeletonBuilder builder = new BarSkeletonBuilderParamConfig()
                 .scanActionPackage(MyAction.class)
-                .setBroadcastLog(true)
+//                .setBroadcastLog(true)
                 .createBuilder();
         builder.addInOut(new DebugInOut());
         BarSkeleton build = builder.build();

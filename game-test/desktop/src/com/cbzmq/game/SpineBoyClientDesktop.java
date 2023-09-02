@@ -16,6 +16,7 @@ public class SpineBoyClientDesktop {
     public static void main (String[] args) throws Exception {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setTitle("Super Spineboy client");
+//        config.setWindowedMode(0,0);
         float scale = 0.6f;
         config.setWindowedMode((int)(800*scale),(int)(450*scale));
         new Lwjgl3Application(new GameClient(), config);

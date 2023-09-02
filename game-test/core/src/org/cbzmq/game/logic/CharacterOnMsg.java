@@ -61,6 +61,7 @@ public class CharacterOnMsg {
         @Override
         public Move response(ExternalMessage externalMessage, byte[] data) {
             Move move = DataCodecKit.decode(data, Move.class);
+
             Client.me().updatePosition(move);
             return move;
         }
