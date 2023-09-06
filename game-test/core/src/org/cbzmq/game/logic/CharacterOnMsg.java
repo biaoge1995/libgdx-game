@@ -3,15 +3,12 @@ package org.cbzmq.game.logic;
 import com.iohao.game.action.skeleton.core.CmdKit;
 import com.iohao.game.action.skeleton.core.DataCodecKit;
 import com.iohao.game.external.core.message.ExternalMessage;
-import org.cbzmq.game.logic.GameCmd;
-import org.cbzmq.game.logic.OnMessage;
-import org.cbzmq.game.logic.UserCmd;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.net.Client;
 import org.cbzmq.game.proto.Move;
+import org.cbzmq.game.proto.Move2;
 import org.cbzmq.game.proto.MoveType;
 import org.cbzmq.game.proto.UserLogin;
-import org.cbzmq.game.proto.VectorProto;
 
 public class CharacterOnMsg {
     public static class LoginVerifyOnMessage implements OnMessage {
@@ -37,7 +34,33 @@ public class CharacterOnMsg {
         }
 
     }
+    public static class broadCastOnMessage implements OnMessage{
 
+        @Override
+        public int getCmdMerge()  {
+            return CmdKit.merge(GameCmd.cmd, GameCmd.broadcasts);
+        }
+
+
+
+
+        @Override
+        public Character response(ExternalMessage externalMessage, byte[] data) {
+            Character character = DataCodecKit.decode(data, Character.class);
+            Client.me().updateByBroadCast(character);
+            return character;
+        }
+
+        public static broadCastOnMessage me() {
+            return broadCastOnMessage.Holder.ME;
+        }
+
+        /** 通过 JVM 的类加载机制, 保证只加载一次 (singleton) */
+        private static class Holder {
+            static final broadCastOnMessage ME = new broadCastOnMessage();
+        }
+
+    }
 
     public static class MoveOnMessage implements OnMessage{
 
@@ -51,16 +74,17 @@ public class CharacterOnMsg {
             Move move = new Move(character.id
                     , moveType
                     , time
-                    , new VectorProto(character.position.x,character.position.y)
-                    , new VectorProto(character.velocity.x,character.velocity.y));
+                    , character.getPosition()
+                    , character.velocity
+            );
             move.setRequestTime(System.currentTimeMillis());
             OnMessage.super.request(move);
 //            System.out.println("移动msg"+move);
         }
 
         @Override
-        public Move response(ExternalMessage externalMessage, byte[] data) {
-            Move move = DataCodecKit.decode(data, Move.class);
+        public Move2 response(ExternalMessage externalMessage, byte[] data) {
+            Move2 move = DataCodecKit.decode(data, Move2.class);
 
             Client.me().updatePosition(move);
             return move;

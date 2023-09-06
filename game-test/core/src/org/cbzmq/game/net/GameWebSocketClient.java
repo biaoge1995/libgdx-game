@@ -33,6 +33,7 @@ public class GameWebSocketClient {
     private void initOnMessage() {
         put(CharacterOnMsg.LoginVerifyOnMessage.me());
         put(CharacterOnMsg.MoveOnMessage.me());
+        put(CharacterOnMsg.broadCastOnMessage.me());
 
     }
 
@@ -86,7 +87,7 @@ public class GameWebSocketClient {
                     Object response = onMessage.response(message, message.getData());
 
                     String onMessageName = onMessage.getClass().getSimpleName();
-                    System.out.println(response);
+//                    System.out.println(response);
                 }else {
                     log.debug("不存在处理类 onMessage: ");
                 }

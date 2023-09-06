@@ -32,11 +32,11 @@ package org.cbzmq.game.logic;
 
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
+import org.cbzmq.game.proto.Move2;
 
 /**
  * The core of the game logic. The model manages all game information but knows nothing about the view, ie it knows nothing about
@@ -54,26 +54,28 @@ public class Physic2DEngine {
     private static final float gravity = 32;
 
 //    private final Group<Character> root;
-    private final Assets assets;
+
     private final Map map;
-    private final TiledMapTileLayer collisionLayer;
+
     private Array<? extends Character> container;
     //是否开启同组内不检测碰撞
     private boolean isGroupNoCollision = true;
     private final AbstractLogicEngine abstractLogicEngine;
     private MyVector2 tmp = new MyVector2();
 
-    private boolean isClient=false;
+    private boolean isClient = false;
+
+    long start;
 
     static class Builder {
 
 //        private Group<Character> root;
 
         private Array<? extends Character> container = new Array<>();
-        private Assets assets;
+
         private Map map;
-        private TiledMapTileLayer collisionLayer;
-        private boolean isClient=false;
+
+        private boolean isClient = false;
         //是否开启同组内不检测碰撞
         private boolean isGroupNoCollision = true;
         private AbstractLogicEngine abstractLogicEngine;
@@ -93,20 +95,12 @@ public class Physic2DEngine {
             return this;
         }
 
-        public Builder setAssets(Assets assets) {
-            this.assets = assets;
-            return this;
-        }
 
         public Builder setMap(Map map) {
             this.map = map;
             return this;
         }
 
-        public Builder setCollisionLayer(TiledMapTileLayer collisionLayer) {
-            this.collisionLayer = collisionLayer;
-            return this;
-        }
 
         public Builder setGameEngine(AbstractLogicEngine abstractLogicEngine) {
             this.abstractLogicEngine = abstractLogicEngine;
@@ -127,10 +121,10 @@ public class Physic2DEngine {
 
     private Physic2DEngine(Builder builder) {
         this.container = builder.container;
-        this.assets = builder.assets;
+
         this.map = builder.map;
         this.isClient = builder.isClient;
-        this.collisionLayer = builder.collisionLayer;
+
         this.isGroupNoCollision = builder.isGroupNoCollision;
         this.abstractLogicEngine = builder.abstractLogicEngine;
 //        this.queue.setObservers(this.container);
@@ -146,7 +140,6 @@ public class Physic2DEngine {
 
 //        queue.drain();
     }
-
 
 
     /**
@@ -187,16 +180,47 @@ public class Physic2DEngine {
         //s=v * delta 该段时间内位移的距离
 //        character.velocity.scl(delta); // Change velocity from units/sec to units since last frame.
         tmp.set(character.velocity).scl(delta);
-        boolean isCollideMapX = collideMapX(character,tmp);
-        boolean isCollideMapY = collideMapY(character,tmp);
+        boolean isCollideMapX = collideMapX(character, tmp);
+        boolean isCollideMapY = collideMapY(character, tmp);
         if (isCollideMapX) {
             character.collideMapX();
         }
         if (isCollideMapY) {
             character.collideMapY();
         }
-        if(!isClient)  character.position.add(tmp);
-//        character.velocity.scl(1 / delta); // Change velocity back.
+
+
+//发生移动
+        if (tmp.x != 0 || tmp.y != 0) {
+
+            Move2 move2 = new Move2();
+            move2.setId(character.getId());
+            move2.setTime(delta);
+            move2.setSourcePosition(character.getPosition());
+            move2.setVelocity(character.velocity);
+
+            if (!isClient) character.addPosition("单机运行", tmp);
+//            else {
+//                MoveTask moveTask = character.getMoveTask();
+//                if (moveTask.isStart()) {
+//
+//                    MyVector2 compensateV = moveTask.getCompensateV();
+//                    MyVector2 tmp2 = new MyVector2();
+//                    tmp2.set(compensateV).scl(delta);
+//                    tmp.add(tmp2);
+//                    character.addPosition("客户端补偿", tmp);
+//                    if (false) {
+//                        System.out.println(moveTask.getTimestamp() + "开始补偿作业 " + "速度补偿" + compensateV + " 目标位置" + moveTask.getTargetPosition() + ",当前位置:" + character.position + " 剩余" + moveTask.getResidueTime() + "-" + delta);
+//                    } else {
+//                        moveTask.setStart(false);
+//                    }
+//                    start = System.currentTimeMillis();
+//                }
+//            }
+            move2.setTargetPosition(character.getPosition());
+            move2.setRequestTime(System.currentTimeMillis());
+//            abstractLogicEngine.broadCastMove(move2);
+        }
 
     }
 
@@ -206,9 +230,9 @@ public class Physic2DEngine {
      * @param character
      * @return
      */
-    private boolean collideMapX(Character character,MyVector2 delta) {
-        character.rect.x = character.position.x + delta.x;
-        character.rect.y = character.position.y + character.collisionOffsetY;
+    private boolean collideMapX(Character character, MyVector2 delta) {
+        character.rect.x = character.getPosition().x + delta.x;
+        character.rect.y = character.getPosition().y + character.collisionOffsetY;
 
         int x;
         if (character.velocity.x >= 0)
@@ -220,12 +244,12 @@ public class Physic2DEngine {
         for (Rectangle tile : map.getCollisionTiles(x, startY, x, endY)) {
             if (!character.rect.overlaps(tile)) continue;
             if (abstractLogicEngine != null) {
-                abstractLogicEngine.updateByEvent(Event.collisionMap(TAG,character, tile));
+                abstractLogicEngine.updateByEvent(Event.collisionMap(TAG, character, tile));
             }
             if (character.velocity.x >= 0)
-                character.position.x = tile.x - character.rect.width;
+                character.getPosition().x = tile.x - character.rect.width;
             else
-                character.position.x = tile.x + tile.width;
+                character.getPosition().x = tile.x + tile.width;
             character.velocity.x *= collideDampingX;
             tmp.x *= collideDampingX;
 
@@ -240,9 +264,14 @@ public class Physic2DEngine {
      * @param character
      * @return
      */
-    private boolean collideMapY(Character character,MyVector2 delta) {
-        character.rect.x = character.position.x;
-        character.rect.y = character.position.y + delta.y + character.collisionOffsetY;
+    private boolean collideMapY(Character character, MyVector2 delta) {
+        character.rect.x = character.getPosition().x;
+        character.rect.y = character.getPosition().y + delta.y + character.collisionOffsetY;
+
+//        if(character.rect.y<0){
+//            character.rect.y=0;
+//            character.position.y=0;
+//        }
 
         int y;
         if (character.velocity.y > 0)
@@ -256,9 +285,9 @@ public class Physic2DEngine {
             if (!character.rect.overlaps(tile)) continue;
 
             if (character.velocity.y > 0)
-                character.position.y = tile.y - character.rect.height;
+                character.getPosition().y = tile.y - character.rect.height;
             else {
-                character.position.y = tile.y + tile.height;
+                character.getPosition().y = tile.y + tile.height;
                 character.setGrounded(true);
             }
             character.velocity.y = 0;
@@ -283,27 +312,27 @@ public class Physic2DEngine {
                 if ((b instanceof Group) ||
                         (a == b) ||
                         //1、开启了同组不碰撞设置 2、任意一个角色为不可碰撞状态则不检测
-                        (isGroupNoCollision && (a.getParent()!=null && b.getParent()!=null && a.getParent() == b.getParent())) ||
+                        (isGroupNoCollision && (a.getParent() != null && b.getParent() != null && a.getParent() == b.getParent())) ||
                         !(a.isNeedCheckCollision() && b.isNeedCheckCollision())) continue;
                 else {
                     // 撞击
                     if (a.rect.overlaps(b.rect)) {
-                        collisionCharacter(a,b);
-                        collisionCharacter(b,a);
+                        collisionCharacter(a, b);
+                        collisionCharacter(b, a);
                     }
                 }
             }
         }
     }
 
-    public void collisionCharacter(Character a,Character b){
-        if (a instanceof Bullet){
-            Gdx.app.log("tag","bullte");
+    public void collisionCharacter(Character a, Character b) {
+        if (a instanceof Bullet) {
+            Gdx.app.log("tag", "bullte");
         }
-        abstractLogicEngine.updateBy2CharacterEvent(Event.collisionCharacter(TAG,a,b));
+        abstractLogicEngine.updateBy2CharacterEvent(Event.collisionCharacter(TAG, a, b));
 
         //TODO 扣血 这块可以放到游戏主逻辑中做 不参与物理引擎运行
-        float dirX = a.position.x + a.rect.width / 2 < b.position.x + b.rect.width / 2 ? -1 : 1;
+        float dirX = a.getPosition().x + a.rect.width / 2 < b.getPosition().x + b.rect.width / 2 ? -1 : 1;
 
 
         //判断x轴击退的量
@@ -321,20 +350,10 @@ public class Physic2DEngine {
         return map;
     }
 
-    public TiledMapTileLayer getCollisionLayer() {
-        return collisionLayer;
-    }
-
-
 
     public boolean isGroupNoCollision() {
         return isGroupNoCollision;
     }
-
-    public Assets getAssets() {
-        return assets;
-    }
-
 
 
     public float getGravity() {

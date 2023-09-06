@@ -34,6 +34,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthoCachedTiledMapRenderer;
 
 import com.badlogic.gdx.math.Vector2;
@@ -41,12 +42,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import org.cbzmq.game.enums.OneBodyEventType;
-import org.cbzmq.game.logic.Assets;
-import org.cbzmq.game.logic.CharacterOnMsg;
-import org.cbzmq.game.logic.Constants;
+import org.cbzmq.game.logic.*;
 import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
-import org.cbzmq.game.logic.AbstractLogicEngine;
 import org.cbzmq.game.proto.CharacterState;
 import org.cbzmq.game.proto.CharacterType;
 import org.cbzmq.game.proto.MoveType;
@@ -100,10 +98,12 @@ public class View extends Stage {
         setViewport(viewport);
 
         this.abstractLogicEngine = abstractLogicEngine;
-        mapRenderer = new OrthoCachedTiledMapRenderer(abstractLogicEngine.getMap().tiledMap, Constants.scale, 3000);
+
+        assets = new Assets();
+        abstractLogicEngine.map.load(assets.tiledMap);
+        mapRenderer = new OrthoCachedTiledMapRenderer(assets.tiledMap, Constants.scale, 3000);
         mapRenderer.setOverCache(0.6f);
         mapRenderer.setMaxTileSize(512, 512);
-        assets = abstractLogicEngine.getAssets();
         ui = new UI(this);
         abstractLogicEngine.addListener(new ObserverAdapter() {
 
@@ -274,14 +274,14 @@ public class View extends Stage {
 
                 Array<Enemy> enemies = abstractLogicEngine.getEnemies();
                 Enemy enemy = enemies.get(i);
-                float dist = enemy.position.x - player.position.x;
+                float dist = enemy.getPosition().x - player.getPosition().x;
                 if (enemy.hp > 0 && Math.signum(dist) == -player.dir) {
                     dist = Math.abs(dist);
                     enemyBehindDistance = enemyBehindDistance == 0 ? dist : Math.min(enemyBehindDistance, dist);
                 }
             }
             float lookaheadDist = GameCamera.cameraLookahead * viewport.getWorldWidth() / 2 * (1 - Math.min(1, enemyBehindDistance / 22));
-            float lookaheadDiff = player.position.x + lookaheadDist * player.dir - camera.position.x;
+            float lookaheadDiff = player.getPosition().x + lookaheadDist * player.dir - camera.position.x;
             float lookaheadAdjust = (enemyBehindDistance > 0 ? GameCamera.cameraLookaheadSpeedSlow : GameCamera.cameraLookaheadSpeed) * delta;
             if (Math.abs(camera.lookahead - lookaheadDiff) > 1) {
                 if (camera.lookahead < lookaheadDiff)
@@ -289,11 +289,11 @@ public class View extends Stage {
                 else if (camera.lookahead > lookaheadDiff) //
                     camera.lookahead = Math.max(-lookaheadDist, camera.lookahead - lookaheadAdjust);
             }
-            if (player.position.x + camera.lookahead < GameCamera.cameraMinX) camera.lookahead = camera.cameraLookahead;
+            if (player.getPosition().x + camera.lookahead < GameCamera.cameraMinX) camera.lookahead = camera.cameraLookahead;
         }
 
         // Move camera to the player position over time, adjusting for lookahead.
-        float minX = player.position.x + camera.lookahead, maxX = player.position.x + camera.lookahead;
+        float minX = player.getPosition().x + camera.lookahead, maxX = player.getPosition().x + camera.lookahead;
         if (camera.position.x < minX) {
             camera.position.x += (minX - camera.position.x) * GameCamera.cameraSpeed * delta;
             if (camera.position.x > minX) camera.position.x = minX;
@@ -307,8 +307,8 @@ public class View extends Stage {
 
         float top = camera.zoom != 1 ? 5 : GameCamera.cameraTop;
         float bottom = camera.zoom != 1 ? 0 : GameCamera.cameraBottom;
-        float maxY = player.position.y + viewport.getWorldHeight() / 2 - bottom;
-        float minY = player.position.y - viewport.getWorldHeight() / 2 + top;
+        float maxY = player.getPosition().y + viewport.getWorldHeight() / 2 - bottom;
+        float minY = player.getPosition().y - viewport.getWorldHeight() / 2 + top;
         if (camera.position.y < minY) {
             camera.position.y += (minY - camera.position.y) * GameCamera.cameraSpeed / camera.zoom * delta;
             if (Math.abs(camera.position.y - minY) < 0.1f) camera.position.y = minY;
@@ -330,8 +330,8 @@ public class View extends Stage {
     public void resize(int width, int height) {
         viewport.update(width, height);
         if (player != null) {
-            camera.position.x = player.position.x;
-            camera.position.y = player.position.y + viewport.getWorldHeight() / 2 - GameCamera.cameraBottom;
+            camera.position.x = player.getPosition().x;
+            camera.position.y = player.getPosition().y + viewport.getWorldHeight() / 2 - GameCamera.cameraBottom;
         }
         mapRenderer.setView(camera);
         ui.resize(width, height);

@@ -14,7 +14,7 @@ public class Bullet extends Character {
 
     public Bullet(Player player, float startX, float startY, float vx, float vy) {
         super("bullet");
-        position.set(startX, startY);
+        setPosition(startX, startY);
         velocity.set(vx, vy);
         damage = 1;
         hp = 0.2f;
@@ -74,10 +74,7 @@ public class Bullet extends Character {
 
 
 
-    public void updateByCharacter(Bullet father) {
-        super.updateByCharacter(father);
-        this.player = father.player;
-    }
+
 
 
 }

@@ -31,6 +31,7 @@
 package org.cbzmq.game.ui;
 
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -56,6 +57,8 @@ public class BaseSkeletonActor<T extends Character> extends SkeletonActor {
 
     private Viewport viewport;
     private GameCamera camera;
+
+    private float x;
 
 
     public BaseSkeletonActor(T model) {
@@ -147,6 +150,13 @@ public class BaseSkeletonActor<T extends Character> extends SkeletonActor {
         shapeRenderer.setColor(Color.GREEN);
 
         shapeRenderer.rect(model.rect.x, model.rect.y, model.rect.width, model.rect.height);
+
+        boolean shake = (model.rect.x-this.x)*model.dir<0;
+        if(shake){
+            System.err.println("发生抖动 rect "+model.rect+" last x"+this.x+" dir"+model.dir);
+        }
+        this.x = model.rect.x;
+
         shapeRenderer.end();
         if (getSkeleton() != null) {
             skeletonRendererDebug.draw(getSkeleton());

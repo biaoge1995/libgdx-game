@@ -1,6 +1,5 @@
 package org.cbzmq.game.logic;
 
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
@@ -9,13 +8,12 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.internal.SocketUtils;
-import org.cbzmq.game.proto.CharacterType;
-import org.cbzmq.game.enums.MsgHeader;
-import org.cbzmq.game.model.*;
 import org.cbzmq.game.model.Character;
+import org.cbzmq.game.model.*;
 import org.cbzmq.game.proto.CharacterState;
-
-import java.util.Date;
+import org.cbzmq.game.proto.CharacterType;
+import org.cbzmq.game.proto.Move2;
+import org.cbzmq.game.utils.Utils;
 
 /**
  * @ClassName Model
@@ -30,17 +28,21 @@ public abstract class AbstractLogicEngine {
     public Player playerA;
     public Player playerB;
     public final Map map;
-    public final TiledMapTileLayer collisionLayer;
+//    public final TiledMapTileLayer collisionLayer;
     public final Array<Character> container = new Array<>();
     public final Array<Observer> listeners = new Array<>();
     public final EventQueue queue = new EventQueue();
 
     public float timeScale = 1;
 
+    public float delay=0;
+
+    public float packagePer=0;
+
     public Group<Enemy> enemyGroup;
     public Group<Character> playerGroup;
     public float gameOverTimer;
-    public final Assets assets;
+//    public final Assets assets;
     public final Physic2DEngine physic2DEngine;
     public boolean isGameOver;
     public boolean isPlayerWin;
@@ -64,26 +66,21 @@ public abstract class AbstractLogicEngine {
 //        }
 //    }
 
-    public AbstractLogicEngine(boolean isClient) {
+    public AbstractLogicEngine(boolean isClient)  {
         this(null, isClient);
         this.isNetworkingMode = false;
     }
 
     public AbstractLogicEngine(Channel broadcastChl,boolean isClient) {
         this.isNetworkingMode = true;
-//        this.clientAddressList = new ArrayList<>(maxPlayerNum);
-        this.assets = new Assets();
         this.broadcastChl = broadcastChl;
         this.map = new Map();
-        this.collisionLayer = map.collisionLayer;
         this.root = new Group<>();
         this.root.setModel(this);
         this.queue.setObservers(listeners);
         this.physic2DEngine = Physic2DEngine
                 .newBuilder()
-                .setAssets(assets)
                 .setMap(map)
-                .setCollisionLayer(collisionLayer)
                 .setRoot(container)
                 .setClient(isClient)
                 .setGameEngine(this)
@@ -100,7 +97,7 @@ public abstract class AbstractLogicEngine {
                     case aimPoint:
                         break;
                     default:
-//                        Gdx.app.log("监听者" + this + "| 事件" + event.getEventType().toString(), event.getCharacter().toString());
+//                        System.out.println("监听者" + this + "| 事件" + event.getEventType().toString()+"  "+ event.getCharacter().toString());
                         break;
                 }
                 return true;
@@ -162,9 +159,9 @@ public abstract class AbstractLogicEngine {
 
     ;
 
-    public Assets getAssets() {
-        return assets;
-    }
+//    public Assets getAssets() {
+//        return assets;
+//    }
 
     ;
 
@@ -227,6 +224,10 @@ public abstract class AbstractLogicEngine {
     }
 
     ;
+
+    public void broadCastMove(Move2 move){
+
+    }
 
     /**
      * 用户发起的请求
@@ -378,14 +379,14 @@ public abstract class AbstractLogicEngine {
             playerA = player;
             //给用户添加一个监听
             //TODO 诞生了一个玩家
-            playerA.position.set(4, 8);
+            playerA.setPosition(4, 8);
             playerA.setId(2);
             playerGroup.addCharacter(playerA);
 //            clientAddressList.add(address);
         } else if (playerB == null) {
             playerB = player;
             //TODO 诞生了一个玩家
-            playerB.position.set(6, 8);
+            playerB.setPosition(6, 8);
             playerB.setId(3);
             playerGroup.addCharacter(playerB);
 //            clientAddressList.add(address);
@@ -399,4 +400,6 @@ public abstract class AbstractLogicEngine {
     public abstract void save();
 
     public abstract void quit();
+
+
 }

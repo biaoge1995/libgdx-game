@@ -47,6 +47,7 @@ allprojects {
         ioGameVersion = '17.1.52'
         javaWebsocketVersion = '1.5.2'
 //        lombokVersion = '1.18.18'
+        ooxmlVersion = "3.15"
     }
 
     repositories {
@@ -125,6 +126,7 @@ project(":core") {
         api "com.iohao.game:light-client:${ioGameVersion}"
         api "com.iohao.game:run-one-netty:${ioGameVersion}"
         api "org.java-websocket:Java-WebSocket:${javaWebsocketVersion}"
+        api "org.apache.poi:poi-ooxml:${ooxmlVersion}"
 
 
     }

@@ -36,14 +36,14 @@ import com.badlogic.gdx.utils.Array;
 import com.iohao.game.action.skeleton.core.CmdInfo;
 import com.iohao.game.action.skeleton.core.commumication.BroadcastContext;
 import com.iohao.game.bolt.broker.core.client.BrokerClientHelper;
-import org.cbzmq.game.proto.CharacterState;
-import org.cbzmq.game.proto.EnemyType;
 import org.cbzmq.game.model.Character;
 import org.cbzmq.game.model.Enemy;
 import org.cbzmq.game.model.Event;
 import org.cbzmq.game.model.Player;
-
-import java.util.Objects;
+import org.cbzmq.game.proto.CharacterState;
+import org.cbzmq.game.proto.EnemyType;
+import org.cbzmq.game.proto.Move2;
+import org.cbzmq.game.utils.GameTimer;
 
 /**
  * The core of the game logic. The model manages all game information but knows nothing about the view, ie it knows nothing about
@@ -54,6 +54,8 @@ public class GameLogicEngine extends AbstractLogicEngine {
 
     //触发器
     Array<Trigger> triggers;
+
+    private final GameTimer gameTimer = new GameTimer(1);
 
     private GameLogicEngine() {
         super(false);
@@ -116,7 +118,6 @@ public class GameLogicEngine extends AbstractLogicEngine {
     }
 
 
-
     public void update(float delta) {
         super.update(delta);
 
@@ -132,32 +133,41 @@ public class GameLogicEngine extends AbstractLogicEngine {
 
 
         }
-        updateEnemies(delta);
+//        updateEnemies(delta);
         updateTriggers();
 
         //当前帧结束
         frameEnd(delta);
 
-//        broadcast();
+
+
+
 
     }
-    public void broadcast(){
-        long start = System.currentTimeMillis();
-        CmdInfo cmdInfo = CmdInfo.getCmdInfo(GameCmd.cmd, GameCmd.broadcasts);
+
+    @Override
+    public void broadCastMove(Move2 move) {
+
+        CmdInfo cmdInfo = CmdInfo.getCmdInfo(GameCmd.cmd, GameCmd.move);
 
         BroadcastContext broadcastContext = BrokerClientHelper.getBroadcastContext();
+        broadcastContext.broadcast(cmdInfo, move);
+    }
 
+    public void broadcast() {
+        gameTimer.start();
+        if(!gameTimer.update()){
 
-        Character childById = playerGroup.getChildById(2);
-
-        if(Objects.nonNull(childById)){
-            long start2 = System.currentTimeMillis();
-            broadcastContext.broadcast(cmdInfo,childById,1);
-            long end2 = System.currentTimeMillis();
-            System.out.println("broadcast context time:"+(end2-start2)+"ms");
+            packagePer = gameTimer.getCounter();
+            gameTimer.reset();
+            System.out.println(packagePer);
         }
-        long end = System.currentTimeMillis();
-//        System.out.println("broadcast time:"+(end-start)+"ms");
+
+        CmdInfo cmdInfo = CmdInfo.getCmdInfo(GameCmd.cmd, GameCmd.broadcasts);
+        BroadcastContext broadcastContext = BrokerClientHelper.getBroadcastContext();
+        Character childById = playerGroup.getChildById(2);
+        broadcastContext.broadcast(cmdInfo, childById);
+//        System.out.println(childById.position);
 
     }
 
@@ -188,7 +198,7 @@ public class GameLogicEngine extends AbstractLogicEngine {
             Trigger trigger = triggers.get(i);
 
             for (Character child : playerGroup.getChildren()) {
-                if (child.position.x > trigger.x) {
+                if (child.getPosition().x > trigger.x) {
                     for (Enemy enemy : trigger.enemies) {
                         enemyGroup.addCharacter(enemy);
                     }
@@ -199,8 +209,6 @@ public class GameLogicEngine extends AbstractLogicEngine {
 
         }
     }
-
-
 
 
     public void updateEnemies(float delta) {
@@ -217,7 +225,7 @@ public class GameLogicEngine extends AbstractLogicEngine {
             }
             //设置攻击目标
             if (enemy.hp > 0 && playerA.hp > 0) {
-                enemy.setTargetPosition(playerA.position);
+                enemy.setTargetPosition(playerA.getPosition());
             }
 
             //产生小怪物
@@ -227,7 +235,7 @@ public class GameLogicEngine extends AbstractLogicEngine {
                 if (enemy.spawnSmallsTimer < 0) {
                     for (int j = 0; j < Enemy.smallCount; j++) {
                         Enemy small = new Enemy(EnemyType.small);
-                        small.position.set(enemy.position.x, enemy.position.y + 2);
+                        small.setPosition(enemy.getPosition().x, enemy.getPosition().y + 2);
                         small.velocity.x = MathUtils.random(5, 15) * (MathUtils.randomBoolean() ? 1 : -1);
                         small.velocity.y = MathUtils.random(10, 25);
                         small.setGrounded(false);
@@ -235,7 +243,7 @@ public class GameLogicEngine extends AbstractLogicEngine {
                     }
                 }
             }
-            if (enemy.state != CharacterState.death && (enemy.hp <= 0 || enemy.position.y < -100 || enemy.collisions > 100)) {
+            if (enemy.state != CharacterState.death && (enemy.hp <= 0 || enemy.getPosition().y < -100 || enemy.collisions > 100)) {
                 enemy.state = CharacterState.death;
                 enemy.hp = 0;
             }
@@ -248,10 +256,10 @@ public class GameLogicEngine extends AbstractLogicEngine {
             if (enemy.state != CharacterState.death && enemy.collisionTimer < 0) {
 
                 //跳向目标方向
-                if (grounded && (enemy.forceJump || Math.abs(enemy.targetPosition.x - enemy.position.x) < enemy.jumpDistance)) {
+                if (grounded && (enemy.forceJump || Math.abs(enemy.targetPosition.x - enemy.getPosition().x) < enemy.jumpDistance)) {
                     enemy.jumpDelayTimer -= delta;
                     //跳跃的定时器
-                    if (enemy.state != CharacterState.jumping && enemy.jumpDelayTimer < 0 && enemy.position.y <= enemy.targetPosition.y) {
+                    if (enemy.state != CharacterState.jumping && enemy.jumpDelayTimer < 0 && enemy.getPosition().y <= enemy.targetPosition.y) {
 //                        enemy.jump();
                         //TODO 关键帧 跳跃
                         updateByEvent(Event.jump(TAG, enemy));
@@ -261,7 +269,7 @@ public class GameLogicEngine extends AbstractLogicEngine {
                 }
                 //朝着目标的方向移动
                 if (enemy.move) {
-                    if (enemy.targetPosition.x > enemy.position.x) {
+                    if (enemy.targetPosition.x > enemy.getPosition().x) {
                         if (enemy.velocity.x >= 0)
                             //TODO 关键帧
                             updateByEvent(Event.moveRight(TAG, enemy, delta));
@@ -293,7 +301,7 @@ public class GameLogicEngine extends AbstractLogicEngine {
         for (int i = 0; i < count; i++) {
             Enemy enemy = new Enemy(enemyType);
 
-            enemy.position.set(spawnX, spawnY);
+            enemy.setPosition(spawnX, spawnY);
             trigger.enemies.add(enemy);
 
             spawnX += offset;
@@ -313,8 +321,9 @@ public class GameLogicEngine extends AbstractLogicEngine {
     public static GameLogicEngine me() {
         return GameLogicEngine.Holder.ME;
     }
+
     public static class Holder {
-        static final GameLogicEngine ME= new GameLogicEngine();
+        static final GameLogicEngine ME = new GameLogicEngine();
     }
 
 

@@ -31,7 +31,7 @@ import com.baidu.bjf.remoting.protobuf.annotation.ProtobufClass;
 
 /** Encapsulates a 2D vector. Allows chaining methods by returning a reference to itself
  * @author badlogicgames@gmail.com */
-@ProtobufClass
+
 public class MyVector2 implements Serializable, Vector<MyVector2> {
     private static final long serialVersionUID = 913902788239530931L;
 

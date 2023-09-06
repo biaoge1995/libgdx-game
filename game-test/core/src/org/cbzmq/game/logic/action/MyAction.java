@@ -25,7 +25,7 @@ public class MyAction {
     }
 
     @ActionMethod(GameCmd.move)
-    public Move move(Move moveData, FlowContext flowContext) {
+    public void move(Move moveData, FlowContext flowContext) {
         int id = moveData.id;
         MoveType moveType = moveData.moveType;
         GameLogicEngine me = GameLogicEngine.me();
@@ -36,12 +36,12 @@ public class MyAction {
                 case moveLeft:
                 case moveRight:
                 case jump:
-                   return childById.move(moveData);
+                  childById.move(moveData);
 
             }
 
         }
-        return null;
+
 
 
     }

@@ -1,4 +1,4 @@
-package org.cbzmq.game.logic;
+package org.cbzmq.game.utils;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -141,25 +141,6 @@ public class Utils {
             this.counter = initNum;
         }
     }
-    public static class Timer{
-        float time=0;
-        private final float initTimer;
 
-        public Timer(float initTimer) {
-            this.initTimer = initTimer;
-            this.time = initTimer;
-        }
-        synchronized public boolean reduce(float delta){
-            if(time<=0){
-                return true;
-            }else {
-                time-=delta;
-                return false;
-            }
-        }
-        synchronized public void reset(){
-            this.time = initTimer;
-        }
-    }
 
 }

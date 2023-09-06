@@ -32,8 +32,9 @@ public class ChenbiaoClientTest extends AbstractInputCommandRegion {
         Move move = new Move(player.id
                 , MoveType.moveRight
                 , 1f
-                , new VectorProto(player.position.x,player.position.y)
-                , new VectorProto(player.velocity.x,player.velocity.y));
+                , player.getPosition()
+                , player.velocity
+        );
 
         ofCommand(1).callback(Move.class, result -> {
             Move back = result.getValue();

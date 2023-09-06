@@ -1,30 +1,23 @@
 package org.cbzmq.game.net;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
-import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.util.internal.SocketUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.cbzmq.game.logic.CharacterOnMsg;
-import org.cbzmq.game.logic.GameLogicEngine;
-import org.cbzmq.game.logic.Utils;
-import org.cbzmq.game.proto.CharacterType;
-import org.cbzmq.game.enums.MsgHeader;
 import org.cbzmq.game.logic.AbstractLogicEngine;
+import org.cbzmq.game.logic.CharacterOnMsg;
 import org.cbzmq.game.model.Character;
-import org.cbzmq.game.model.*;
-import org.cbzmq.game.proto.*;
-import org.java_websocket.client.WebSocketClient;
+import org.cbzmq.game.model.Enemy;
+import org.cbzmq.game.model.Event;
+import org.cbzmq.game.proto.CharacterType;
+import org.cbzmq.game.proto.Move;
+import org.cbzmq.game.proto.Move2;
+import org.cbzmq.game.proto.MoveType;
+import org.cbzmq.game.utils.GameTimer;
+import org.cbzmq.game.utils.Utils;
 
-import java.net.URISyntaxException;
 import java.util.*;
 
 /**
@@ -42,9 +35,25 @@ public class Client extends AbstractLogicEngine {
     final Map<Integer, Character> characterMap = new HashMap<>();
     Channel ch;
     private int msgMaxId = 0;
-//    private final Array<MsgProto.Event> protoEvents = new Array<>();
+    //    private final Array<MsgProto.Event> protoEvents = new Array<>();
     private int counter = 0;
 
+
+    private float currentDelta;
+
+    private long current;
+
+    private final GameTimer gameTimer = new GameTimer(1);
+
+
+
+
+
+    //上一次服务器同步的时间
+    private long lastSyncTime;
+
+    //服务器更新位置的时间间隔;
+    private float ticks;
 
 
     private Client() {
@@ -78,11 +87,66 @@ public class Client extends AbstractLogicEngine {
     }
 
 
-    public void updatePosition(Move move){
+    public void updateByBroadCast(Character character) {
+        gameTimer.start();
+        if(!gameTimer.update()){
+
+            packagePer = gameTimer.getCounter();
+            gameTimer.reset();
+//            System.out.println(packagePer);
+        }
+        Character childById = playerGroup.getChildById(character.id);
+        if (childById != null) {
+            childById.setState(character.getState());
+            childById.setHp(childById.hp);
+            childById.setDir(character.getDir());
+            childById.setVelocity(character.velocity);
+            childById.setPosition(character.getPosition());
+//            childById.setAimPoint(character.aimPoint);
+        }
+
+    }
+
+
+    public void updatePosition(Move2 move) {
         Character childById = playerGroup.getChildById(move.id);
-        long delay = System.currentTimeMillis() - move.requestTime;
-        System.out.println(delay+"ms");
-        if(Objects.nonNull(childById)) childById.updateMoveState(move);
+         delay = System.currentTimeMillis() - move.requestTime;
+
+//        System.out.println(delay + "ms");
+//        if(counter==0){
+//            current=System.currentTimeMillis();
+//            counter++;
+//
+//        }else  {
+//            long l = (System.currentTimeMillis() - current) / 1000;
+//            int round = Math.round(l);
+//            if(round>=1){
+//                packagePer=counter;
+//                counter=0;
+//                current=0;
+//                System.out.println(packagePer);
+//            }else {
+//                counter++;
+//            }
+//
+//        }
+
+
+        if (lastSyncTime == 0) {
+            lastSyncTime = System.currentTimeMillis();
+        }
+        //从上次接收到服务器消息到下次的间隔
+        long now = System.currentTimeMillis();
+        ticks =(now - lastSyncTime)/1000f;
+
+        if (Objects.nonNull(childById)) {
+            childById.setVelocity(move.velocity);
+            childById.setPosition(move.targetPosition);
+//            childById.moveToTargetPosition("更新",move.targetPosition);
+//            float min = Math.min(ticks, move.time);
+//            childById.addMoveToTask(move);
+        }
+        lastSyncTime = now;
     }
 
     @Override
@@ -107,7 +171,7 @@ public class Client extends AbstractLogicEngine {
             }
 
         } else if (isUpdateDetail) {
-            characterMap.get(character.getId()).updateByCharacter(character);
+//            characterMap.get(character.getId()).updateByCharacter(character);
         } else {
             characterMap.get(character.getId()).setAimPoint(character.getAimPoint());
 
@@ -194,7 +258,7 @@ public class Client extends AbstractLogicEngine {
 
     @Override
     public void update(float delta) {
-
+        this.currentDelta = delta;
         super.update(delta);
         super.frameEnd(delta);
     }
@@ -221,15 +285,17 @@ public class Client extends AbstractLogicEngine {
                     Move move = new Move(character.getId()
                             , MoveType.moveLeft
                             , event.getFloatData()
-                            , new VectorProto(character.position.x, character.position.y)
-                            , new VectorProto(character.velocity.x, character.velocity.y));
+                            , character.getPosition()
+                            , character.velocity
+                    );
                     CharacterOnMsg.MoveOnMessage.me().request(move);
                 case moveRight:
-                     move = new Move(character.getId()
+                    move = new Move(character.getId()
                             , MoveType.moveRight
                             , event.getFloatData()
-                            , new VectorProto(character.position.x, character.position.y)
-                            , new VectorProto(character.velocity.x, character.velocity.y));
+                            , character.getPosition()
+                            , character.velocity
+                    );
                     CharacterOnMsg.MoveOnMessage.me().request(move);
 
             }
@@ -298,8 +364,9 @@ public class Client extends AbstractLogicEngine {
     public static Client me() {
         return Holder.ME;
     }
+
     public static class Holder {
-        static final Client ME= new Client();
+        static final Client ME = new Client();
     }
 }
 
@@ -335,8 +402,6 @@ class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         cause.printStackTrace();
         ctx.close();
     }
-
-
 
 
 }

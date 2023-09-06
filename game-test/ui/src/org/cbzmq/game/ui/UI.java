@@ -75,7 +75,7 @@ public class UI extends Stage {
     ShapeRenderer shapes;
     SkeletonRendererDebug skeletonRendererDebug;
     Skin skin;
-    Label fpsLabel, bindsLabel;
+    Label fpsLabel, bindsLabel,delayLabel,packagePer;
     TextButton debugButton, zoomButton, bgButton;
     TextButton speed200Button, speed150Button, speed100Button, speed33Button, speed15Button, speed3Button, pauseButton;
     public Table splashTable;
@@ -127,7 +127,9 @@ public class UI extends Stage {
         healthBar.setAnimateDuration(0.3f);
         healthBar.setAnimateInterpolation(Interpolation.fade);
         fpsLabel = new Label("", skin);
+        delayLabel = new Label("", skin);
         bindsLabel = new Label("", skin);
+        packagePer =  new Label("", skin);
         debugButton = button("Debug", true);
         zoomButton = button("Zoom", true);
         bgButton = button("Background", true);
@@ -168,6 +170,10 @@ public class UI extends Stage {
         menu.add(fpsLabel).expandX().left().row();
         menu.add("Binds:");
         menu.add(bindsLabel).left().row();
+        menu.add("Delay:");
+        menu.add(delayLabel).left().row();
+        menu.add("Package/s:");
+        menu.add(packagePer).left().row();
         menu.add(buttons).colspan(2).left();
         menu.setVisible(false);
 
@@ -360,6 +366,8 @@ public class UI extends Stage {
         spriteCache.totalRenderCalls = 0;
         fpsLabel.setText(Integer.toString(Gdx.graphics.getFramesPerSecond()));
         bindsLabel.setText(Integer.toString(renderCalls));
+        delayLabel.setText(abstractLogicEngine.delay+"ms");
+        packagePer.setText(abstractLogicEngine.packagePer+"/s");
     }
 
     public void resize(int width, int height) {

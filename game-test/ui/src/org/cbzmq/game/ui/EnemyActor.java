@@ -67,8 +67,8 @@ public class EnemyActor extends BaseSkeletonActor<Enemy> {
         if (getModel().enemyType == EnemyType.big)
             headSlot.getColor().set(headColor).lerp(0, 1, 1, 1, 1 - getModel().bigTimer / Enemy.bigDuration);
 
-        getSkeleton().setX(getModel().position.x + Enemy.width / 2);
-        getSkeleton().setY(getModel().position.y);
+        getSkeleton().setX(getModel().getPosition().x + Enemy.width / 2);
+        getSkeleton().setY(getModel().getPosition().y);
 
         if (!setAnimation(getAssets().enemyStates.get(getModel().state), getModel().stateChanged)) {
             AnimationState animationState = getAnimationState();

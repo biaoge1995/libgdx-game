@@ -152,12 +152,7 @@ public class Player extends Character{
 
 
 
-	public void updateByCharacter(Player father) {
-		super.updateByCharacter(father);
-		this.damage = father.damage;
-		this.shootTimer = father.shootTimer;
-		this.hpTimer = father.hpTimer;
-	}
+
 
 
 }

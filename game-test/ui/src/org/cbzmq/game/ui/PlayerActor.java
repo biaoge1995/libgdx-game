@@ -113,8 +113,8 @@ public class PlayerActor extends BaseSkeletonActor<Player> {
         // If jump was pressed in the air, jump as soon as grounded.
 //        if (jumpPressed) jump();
 
-        getSkeleton().setX(getModel().position.x + Player.width / 2);
-        getSkeleton().setY(getModel().position.y);
+        getSkeleton().setX(getModel().getPosition().x + Player.width / 2);
+        getSkeleton().setY(getModel().getPosition().y);
 
         if (!setAnimation(getAssets().playerStates.get(getModel().state), getModel().stateChanged)){
             getAnimationState().update(delta);

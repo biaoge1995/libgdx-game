@@ -58,7 +58,7 @@ public class BulletActor extends BaseSkeletonActor<Bullet> {
     public void draw(Batch batch, float parentAlpha) {
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
 
-        float x = getModel().position.x, y = getModel().position.y;
+        float x = getModel().getPosition().x, y = getModel().getPosition().y;
         float angle = getModel().velocity.angleDeg();
         float vx = MathUtils.cosDeg(angle);
         float vy = MathUtils.sinDeg(angle);
@@ -100,7 +100,7 @@ public class BulletActor extends BaseSkeletonActor<Bullet> {
         ShapeRenderer shapeRenderer = skeletonRendererDebug.getShapeRenderer();
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.GREEN);
-        shapeRenderer.x(getModel().position.x, getModel().position.y, 10 * Constants.scale);
+        shapeRenderer.x(getModel().getPosition().x, getModel().getPosition().y, 10 * Constants.scale);
         shapeRenderer.end();
 
     }

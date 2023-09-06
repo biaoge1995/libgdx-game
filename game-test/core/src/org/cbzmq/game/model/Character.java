@@ -3,61 +3,81 @@ package org.cbzmq.game.model;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Null;
+import com.badlogic.gdx.utils.Queue;
 import com.baidu.bjf.remoting.protobuf.FieldType;
 import com.baidu.bjf.remoting.protobuf.annotation.Protobuf;
-import com.baidu.bjf.remoting.protobuf.annotation.ProtobufClass;
-import org.cbzmq.game.proto.CharacterType;
+import lombok.Getter;
+import lombok.Setter;
 import org.cbzmq.game.logic.AbstractLogicEngine;
 import org.cbzmq.game.proto.CharacterState;
+import org.cbzmq.game.proto.CharacterType;
 import org.cbzmq.game.proto.Move;
+import org.cbzmq.game.proto.Move2;
+
+import java.lang.annotation.Target;
 
 
 /**
  * The model class for an enemy or player that moves around the map.
  */
-@ProtobufClass
+
+@Getter
+@Setter
 public class Character implements Observer {
 
-
-    @Protobuf(fieldType= FieldType.INT32, order=1)
+    @Protobuf(fieldType = FieldType.INT32, order = 1)
     public int id;
     //角色的矩阵
     //TODO view会用到
     public Rectangle rect = new Rectangle();
 
     //TODO view会用到
-    @Protobuf(fieldType= FieldType.OBJECT, order=2)
-    public MyVector2 position = new MyVector2();
+    @Protobuf(fieldType = FieldType.OBJECT, order = 2)
+    private volatile MyVector2 position = new MyVector2();
 
     //目标位置向量
-    @Protobuf(fieldType= FieldType.OBJECT, order=3)
+    @Protobuf(fieldType = FieldType.OBJECT, order = 3)
     public MyVector2 targetPosition = new MyVector2();
 
     //速度向量
     //TODO view会用到
-    @Protobuf(fieldType= FieldType.OBJECT, order=4)
+    @Protobuf(fieldType = FieldType.OBJECT, order = 4)
     public MyVector2 velocity = new MyVector2();
 
     //瞄准点的位置位置
-    @Protobuf(fieldType= FieldType.OBJECT, order=5)
+    @Protobuf(fieldType = FieldType.OBJECT, order = 5)
     public MyVector2 aimPoint = new MyVector2();
     //默认的动画状态
     //TODO view会用到
-    @Protobuf(fieldType= FieldType.OBJECT, order=6)
-    public CharacterState state = CharacterState.idle;
-
 
 
     //角色模型面朝的方向 1右边 -1左边
     //TODO view会用到
-    @Protobuf(fieldType= FieldType.FLOAT, order=7)
+    @Protobuf(fieldType = FieldType.FLOAT, order = 6)
     public float dir;
     //TODO view会用到
-    @Protobuf(fieldType= FieldType.FLOAT, order=8)
+    @Protobuf(fieldType = FieldType.FLOAT, order = 7)
     public float hp;
 
-    @Protobuf(fieldType= FieldType.OBJECT, order=9)
+    @Protobuf(fieldType = FieldType.ENUM, order = 8)
+    public CharacterState state = CharacterState.idle;
+
+    @Protobuf(fieldType = FieldType.ENUM, order = 9)
     public CharacterType characterType = CharacterType.unknown;
+
+
+    private long current;
+
+    private long delay;
+
+    //上一次服务器同步的时间
+    private long lastSyncTime;
+
+    //服务器更新位置的时间间隔;
+    private long ticks;
+
+    private Queue<MoveTask> moveTaskQueue = new Queue<>();
+
     public String name;
 
     //地面时间
@@ -102,6 +122,9 @@ public class Character implements Observer {
 
     private boolean isWin = false;
 
+    private MyVector2 tmp = new MyVector2();
+
+
 
     public Character() {
         this("Character");
@@ -114,6 +137,18 @@ public class Character implements Observer {
         queue.setObservers(observers);
 
     }
+
+
+    /**
+     * 下达移动指令
+     */
+    public void addMoveToTask(Move2 move2){
+        MoveTask moveTask = new MoveTask(this,move2);
+        moveTask.setTimestamp(System.currentTimeMillis());
+        moveTaskQueue.addLast(moveTask);
+    }
+
+
 
     public void update(float delta) {
         if (hp <= 0) {
@@ -140,6 +175,16 @@ public class Character implements Observer {
         if (isWin) {
             win();
         }
+
+        if(!moveTaskQueue.isEmpty()){
+            MoveTask first = moveTaskQueue.first();
+            if(!first.isFinish()){
+                first.update(delta);
+            }else {
+                moveTaskQueue.removeFirst();
+            }
+        }
+
         queue.drain();
     }
 
@@ -156,8 +201,10 @@ public class Character implements Observer {
         isWin = win;
     }
 
+
     /**
      * 用于从服务器更新运动状态和位置
+     *
      * @param move
      */
     public void updateMoveState(Move move) {
@@ -349,96 +396,11 @@ public class Character implements Observer {
 
 
     public static <T extends Character> void copyToSon(Character father, T son) {
-        son.id = father.id;
-//        son.name = father.name;
-        son.position = father.position;
-//        son.targetPosition = father.targetPosition;
-        son.velocity = father.velocity;
-        son.state = father.state;
-//        son.stateTime = father.stateTime;
-        son.dir = father.dir;
-//        son.airTime = father.airTime;
-        son.rect = father.rect;
-        son.stateChanged = father.stateChanged;
-        son.hp = father.hp;
-//        son.maxVelocityX = father.maxVelocityX;
-//        son.collisionOffsetY = father.collisionOffsetY;
-//        son.jumpVelocity = father.jumpVelocity;
-//        son.isWin = father.isWin;
-        son.damage = father.damage;
-//        son.collisionTimer = father.collisionTimer;
-//        son.setQueue(father.getQueue());
-//        son.parent = father.parent;
+
     }
 
-//    public static Character parserProto(CharacterProto.Character proto) {
-//        Character character = new Character("unknown");
-//        character.setId(proto.getId());
-//        character.position.set(proto.getPosition().getX(), proto.getPosition().getY());
-//        character.velocity.set(proto.getVelocity().getX(), proto.getVelocity().getY());
-////        character.setState(proto.getState());
-//        ;
-//        character.dir = proto.getDir();
-//        character.rect.set(proto.getRect().getX(), proto.getRect().getY(), proto.getRect().getWidth(), proto.getRect().getHeight());
-//        character.hp = proto.getHp();
-//        character.collisionTimer = proto.getCollisionTimer();
-//        return character;
-//
-//    }
 
 
-//    public CharacterProto.Character.Builder toCharacterProto() {
-//        CharacterProto.Character.Builder builder = CharacterProto.Character.newBuilder();
-//        CharacterProto.Vector2.Builder positionProto = CharacterProto.Vector2.newBuilder();
-//        CharacterProto.Vector2.Builder velocityProto = CharacterProto.Vector2.newBuilder();
-//        CharacterProto.Rectangle.Builder rectProto = CharacterProto.Rectangle.newBuilder();
-//        builder.setType(CharacterType.unknown)
-//                .setId(this.getId())
-//                .setPosition(positionProto
-//                        .setX(this.position.x)
-//                        .setY(this.position.y)
-//                        .build())
-//                .setVelocity(velocityProto
-//                        .setX(this.velocity.x)
-//                        .setY(this.velocity.y)
-//                        .build())
-////                .setState(this.state)
-//                .setDir(this.dir)
-//                .setRect(rectProto
-//                        .setX(this.rect.x)
-//                        .setY(this.rect.y)
-//                        .setWidth(this.rect.width)
-//                        .setHeight(this.rect.height))
-//                .setHp(this.hp)
-//                .setCollisionTimer(this.collisionTimer);
-//
-//        return builder;
-//    }
-
-
-    public <T extends Character> void updateByCharacter(T character) {
-
-//        this.id = character.id;
-//        this.name = character.name;
-        this.position = character.position;
-//        this.targetPosition = character.targetPosition;
-        this.velocity = character.velocity;
-        this.setState(character.state);
-//        this.stateTime = character.stateTime;
-        this.dir = character.dir;
-//        this.airTime = character.airTime;
-        this.rect = character.rect;
-//        this.stateChanged = character.stateChanged;
-        this.hp = character.hp;
-//        this.maxVelocityX = character.maxVelocityX;
-//        this.collisionOffsetY = character.collisionOffsetY;
-//        this.jumpVelocity = character.jumpVelocity;
-//        this.isWin = character.isWin;
-        this.damage = character.damage;
-//        this.collisionTimer = character.collisionTimer;
-//        this.setQueue(character.getQueue());
-//        this.parent = character.parent;
-    }
 
     public int getId() {
         return id;
@@ -472,6 +434,44 @@ public class Character implements Observer {
 
     public void win() {
 
+    }
+    public float getPositionX(){
+        return position.x;
+    }
+    public float getPositionY(){
+        return position.y;
+    }
+    public synchronized void moveToTargetPosition(String tag, MyVector2 targetPosition) {
+        MyVector2 sub = tmp.set(targetPosition).sub(position);
+        addPosition(tag, sub);
+    }
+
+    public synchronized void addPosition(String tag, MyVector2 distance) {
+
+        if (current == 0) {
+            current = System.currentTimeMillis();
+        }
+
+
+        long now = System.currentTimeMillis();
+
+        delay = now - current;
+//        float v = distance.x * 1000 / deltaTime;
+        double v1 = Math.sqrt(Math.pow(distance.x, 2) + Math.pow(distance.y, 2)) * 1000 / delay;
+
+        double actV = Math.sqrt(Math.pow(velocity.x, 2) + Math.pow(velocity.y, 2));
+
+        System.err.println(tag + " thread id:" + Thread.currentThread().getId() + " 位置变化" + distance + " " + delay + "ms" + " v:" + v1 + " 真实速度v" + actV);
+        current = now;
+        //开启移动平滑模式，会对距离进行校准
+
+        position.add(distance);
+
+        if (tag.equals("消息到达") && lastSyncTime == 0) {
+            lastSyncTime = System.currentTimeMillis();
+        }
+
+        ticks = System.currentTimeMillis() - lastSyncTime;
     }
 
 
@@ -526,6 +526,17 @@ public class Character implements Observer {
 
     public void setAimPoint(MyVector2 aimPoint) {
         this.aimPoint = aimPoint;
+    }
+
+    public synchronized void setPosition(float x,float y) {
+        this.position.set(x,y);
+    }
+    public synchronized void setPosition(MyVector2 position) {
+        this.position.set(position);
+    }
+
+    public MyVector2 getPosition() {
+        return position;
     }
 }
 
