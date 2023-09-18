@@ -25,7 +25,7 @@ public class GameStartUp extends AbstractBrokerClientStartup {
                 .scanActionPackage(MyAction.class)
                 .setBroadcastLog(true)
                 .createBuilder();
-        builder.addInOut(new DebugInOut());
+//        builder.addInOut(new DebugInOut());
         BarSkeleton build = builder.build();
         return build;
     }

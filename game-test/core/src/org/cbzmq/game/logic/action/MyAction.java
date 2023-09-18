@@ -30,7 +30,7 @@ public class MyAction {
         MoveType moveType = moveData.moveType;
         GameLogicEngine me = GameLogicEngine.me();
         Character childById = me.playerGroup.getChildById(id);
-        System.out.println("收到请求");
+//        System.out.println("收到请求");
         if (Objects.nonNull(childById)) {
             switch (moveType) {
                 case moveLeft:

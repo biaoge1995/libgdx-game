@@ -8,6 +8,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class GameTimeTask {
+   static class TimerRecord{
+       long period;
+       long lastUpdateTime;
+   }
     public static void main(String[] args) {
         GameLogicEngine me = GameLogicEngine.me();
         Timer timer = new Timer("");
@@ -15,17 +19,21 @@ public class GameTimeTask {
         gameOne.start();
         me.restart();
         me.join(new Player());
-        final long[] delays = {0};
+        TimerRecord timerRecord = new TimerRecord();
         long period = 8;
 
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-//                long start = System.currentTimeMillis();
-//                long delay = delays[0];
+                long start = System.currentTimeMillis();
+                timerRecord.period = System.currentTimeMillis() - timerRecord.lastUpdateTime;
                 me.update(period/1000f);
-//                long end = System.currentTimeMillis();
-//                delays[0] = end - start;
+                long end = System.currentTimeMillis();
+                timerRecord.lastUpdateTime = end;
+                System.out.println("update"+(end - start));
+                System.out.println("period"+timerRecord.period);
+
+
             }
         },0,period);
 

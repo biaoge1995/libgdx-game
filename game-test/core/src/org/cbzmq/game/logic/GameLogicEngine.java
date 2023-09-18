@@ -119,6 +119,7 @@ public class GameLogicEngine extends AbstractLogicEngine {
 
 
     public void update(float delta) {
+
         super.update(delta);
 
         for (Character p : playerGroup.getChildren()) {
@@ -138,7 +139,11 @@ public class GameLogicEngine extends AbstractLogicEngine {
 
         //当前帧结束
         frameEnd(delta);
+        long start= System.currentTimeMillis();
 
+        broadcast();
+        long end2= System.currentTimeMillis();
+        System.out.println("broadcast "+(end2-start));
 
 
 

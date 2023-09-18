@@ -461,7 +461,7 @@ public class Character implements Observer {
 
         double actV = Math.sqrt(Math.pow(velocity.x, 2) + Math.pow(velocity.y, 2));
 
-        System.err.println(tag + " thread id:" + Thread.currentThread().getId() + " 位置变化" + distance + " " + delay + "ms" + " v:" + v1 + " 真实速度v" + actV);
+//        System.err.println(tag + " thread id:" + Thread.currentThread().getId() + " 位置变化" + distance + " " + delay + "ms" + " v:" + v1 + " 真实速度v" + actV);
         current = now;
         //开启移动平滑模式，会对距离进行校准
 
