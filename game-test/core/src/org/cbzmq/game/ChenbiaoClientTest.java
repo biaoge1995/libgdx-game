@@ -37,7 +37,7 @@ public class ChenbiaoClientTest extends AbstractInputCommandRegion {
         );
 
         ofCommand(1).callback(Move.class, result -> {
-            Move back = result.getValue();
+            Move back  = result.getValue();
             long end = System.currentTimeMillis();
             System.out.println("耗时"+(end-start));
             System.out.println(back);
